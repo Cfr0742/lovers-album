@@ -195,9 +195,9 @@ body::after {
 }
 .password-box .hint { font-size:0.75rem; margin-top:10px; color:var(--theme-sub); }
 
-/* ===== 登录页 / 配对页（微信式：先登录） ===== */
-#login-screen, #pair-screen { justify-content:center; align-items:center; background:var(--theme-bg); }
-#login-screen .password-box button, #pair-screen .password-box button { display:block; width:100%; }
+/* ===== 登录页 / 注册页 / 配对页（微信式：先登录） ===== */
+#login-screen, #register-screen, #pair-screen { justify-content:center; align-items:center; background:var(--theme-bg); }
+#login-screen .password-box button, #register-screen .password-box button, #pair-screen .password-box button { display:block; width:100%; }
 .password-box .ghost-btn {
     background: transparent;
     color: var(--theme-sub);
@@ -213,9 +213,32 @@ body::after {
 .tab-page { display:none; flex-direction:column; gap:14px; }
 .tab-page.active { display:flex; }
 
-.main-header { text-align:center; padding:10px 8px 4px; }
+.main-header { text-align:center; padding:10px 8px 4px; position:relative; }
 .main-header h1 { font-size:1.4rem; margin-bottom:2px; color:var(--theme-text); }
 .main-header p { font-size:0.8rem; color:var(--theme-sub); margin-bottom:0; }
+.header-plus-btn {
+    position:absolute; top:10px; right:12px; width:34px; height:34px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.5); background:rgba(255,255,255,0.25);
+    color:var(--theme-text); font-size:1.3rem; line-height:1; cursor:pointer;
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    box-shadow:0 4px 10px -4px rgba(0,0,0,0.2);
+}
+.header-plus-btn:active { transform:scale(0.92); }
+/* 微信式右上角 + 菜单 */
+.plus-menu-mask { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.25); z-index:1500; display:none; }
+.plus-menu-mask.show { display:block; }
+.plus-menu {
+    position:fixed; top:54px; right:10px; z-index:1501; background:#fff; border-radius:12px;
+    box-shadow:0 8px 28px rgba(0,0,0,0.22); overflow:hidden; display:none; min-width:150px;
+}
+.plus-menu.show { display:block; }
+.plus-menu-item {
+    display:flex; align-items:center; gap:10px; padding:12px 16px; font-size:0.9rem; color:#333;
+    cursor:pointer; border-bottom:1px solid #f0f0f0;
+}
+.plus-menu-item:last-child { border-bottom:none; }
+.plus-menu-item:active { background:#f5f5f5; }
+.plus-menu-item .pm-icon { font-size:1.1rem; }
 
 /* ===== 在一起天数 - 水滴立体透明卡片 ===== */
 .together-card-3d {
@@ -1372,28 +1395,43 @@ body::after {
     </div>
 </div>
 
-<!-- ===== 登录页（微信式：先登录再进入） ===== -->
+<!-- ===== 登录页（微信式：登录/注册分开） ===== -->
 <div id="login-screen" class="screen active">
     <div class="password-box">
         <h2>💕 我们的纪念册</h2>
-        <p class="hint" style="margin-bottom:14px;">请先登录，才能进入你们的专属空间</p>
+        <p class="hint" style="margin-bottom:14px;">请先登录，才能进入你的空间</p>
         <input type="email" id="login-email" placeholder="邮箱" autocomplete="email" onkeydown="if(event.key==='Enter')doLoginSubmit()">
-        <input type="password" id="login-pass" placeholder="密码（至少 6 位）" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLoginSubmit()">
+        <input type="password" id="login-pass" placeholder="密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLoginSubmit()">
         <button onclick="doLoginSubmit()">登录</button>
-        <button class="ghost-btn" onclick="doRegisterSubmit()">注册新账号</button>
-        <div id="login-status" class="hint" style="margin-top:12px;min-height:1.2em;"></div>
+        <p class="hint" style="margin-top:12px;"><a class="auth-link" href="javascript:void(0)" onclick="showScreen('register-screen')">没有账号？注册</a></p>
+        <div id="login-status" class="hint" style="margin-top:8px;min-height:1.2em;"></div>
     </div>
 </div>
 
-<!-- ===== 配对页（两人填同一个配对码） ===== -->
+<!-- ===== 注册页（微信式：独立注册） ===== -->
+<div id="register-screen" class="screen">
+    <div class="password-box">
+        <h2>💕 注册账号</h2>
+        <p class="hint" style="margin-bottom:14px;">注册后直接进入你的专属空间</p>
+        <input type="email" id="reg-email" placeholder="邮箱" autocomplete="email" onkeydown="if(event.key==='Enter')doRegisterSubmit()">
+        <input type="password" id="reg-pass" placeholder="密码（至少 6 位）" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegisterSubmit()">
+        <button onclick="doRegisterSubmit()">注册</button>
+        <p class="hint" style="margin-top:12px;"><a class="auth-link" href="javascript:void(0)" onclick="showScreen('login-screen')">已有账号？登录</a></p>
+        <div id="reg-status" class="hint" style="margin-top:8px;min-height:1.2em;"></div>
+    </div>
+</div>
+
+<!-- ===== 配对页（微信式：生成配对 ID / 输入对方 ID 加入） ===== -->
 <div id="pair-screen" class="screen">
     <div class="password-box">
-        <h2>💞 绑定你的另一半</h2>
-        <p class="hint" style="margin-bottom:14px;">两人填写同一个配对码即可共享纪念册<br>一方先填则创建，另一方再填则加入</p>
-        <input type="text" id="pair-code" placeholder="请输入配对码，例如 love2024" onkeydown="if(event.key==='Enter')doPairSubmit()">
-        <button onclick="doPairSubmit()">配对</button>
+        <h2>💞 配对 / 关联</h2>
+        <p class="hint" style="margin-bottom:14px;">把配对 ID 分享给对方，或输入对方的配对 ID</p>
+        <div id="my-pair-id-box" style="font-size:1.05rem;font-weight:600;margin-bottom:10px;min-height:1.5em;color:var(--theme-text);"></div>
+        <button onclick="cloudGeneratePairId()">生成 / 复制我的配对 ID</button>
+        <input type="text" id="pair-code" placeholder="输入对方的配对 ID 加入" onkeydown="if(event.key==='Enter')doPairSubmit()">
+        <button onclick="doPairSubmit()">加入配对</button>
         <div id="pair-status" class="hint" style="margin-top:12px;min-height:1.2em;"></div>
-        <p class="hint" style="margin-top:6px;"><a class="auth-link" href="javascript:void(0)" onclick="doLogout()">退出登录</a></p>
+        <p class="hint" style="margin-top:6px;"><a class="auth-link" href="javascript:void(0)" onclick="showScreen('main-screen')">返回主页</a></p>
     </div>
 </div>
 
@@ -1408,7 +1446,9 @@ body::after {
                 <header class="main-header">
                     <h1 contenteditable="true">💕 我们的纪念册</h1>
                     <p contenteditable="true">这是我们的故事，从此刻开始记录...</p>
+                    <button class="header-plus-btn" onclick="togglePlusMenu(event)">＋</button>
                 </header>
+                <div id="pair-status-bar" style="display:none;text-align:center;font-size:0.8rem;color:var(--theme-sub);margin:2px 6px 0;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,0.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);"></div>
 
                 <!-- 在一起天数 - 新拟态3D卡片 -->
                 <div class="together-card-3d" id="together-card-3d">
@@ -1841,15 +1881,14 @@ var DATA = LS('couple_data', {
     photos: [],
     chats: [],
     users: [],
-    boyChatBg: '',
-    girlChatBg: '',
-    currentUser: 'boy',
-    boyAvatar: '',
-    girlAvatar: '',
-    boyNick: '我',
-    girlNick: 'TA',
-    boyGender: 'male',
-    girlGender: 'female',
+    myGender: '',        // 我的性别：'male' | 'female' | ''（未设置，在个人信息里选）
+    myNick: '我',
+    myAvatar: '',
+    myChatBg: '',
+    myAppBg: '',
+    partnerNick: 'TA',   // 对方资料（配对后从云端同步）
+    partnerAvatar: '',
+    partnerGender: '',
     periodRecords: [],
     periodSettings: { cycleDays: 28, periodDays: 5 }
 });
@@ -1876,9 +1915,6 @@ var cloudPollTimer = null;
 var cloudRealtime = null;    // Realtime 频道引用
 var cloudPullTimer = null;   // Realtime 触发的拉取去抖
 var cloudSyncLock = false;   // 防止同步重入
-
-// 需要保留在本地、不参与云端同步互换的字段（设备状态 / 当前角色）
-var CLOUD_LOCAL_FIELDS = ['currentUser'];
 
 // 取当前登录用户（返回本机维护的用户快照）
 function sbUser(){
@@ -1914,69 +1950,115 @@ window.cloudLogin = function(email, password, cb){
         .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
 };
 
-/* ---------- 情侣配对（两人填同一个配对码） ---------- */
+/* ---------- 情侣配对（微信面对面建群式：生成配对 ID / 输入对方 ID 加入） ---------- */
 
-// 加入已存在的配对码
-function cloudJoinByCode(pairCode, cb){
+function genPairCode(){
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 去掉易混淆的 0/O/1/I
+    var s = '';
+    for(var i=0;i<6;i++){ s += chars.charAt(Math.floor(Math.random()*chars.length)); }
+    return s;
+}
+
+function copyText(t){
+    try {
+        if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(t).catch(function(){});
+        }
+    } catch(e){}
+}
+
+function showPairId(code){
+    var box = $('my-pair-id-box');
+    if(box) box.innerHTML = '我的配对 ID：<b>' + code + '</b>';
+    copyText(code);
+}
+
+// 生成我的配对 ID（系统随机生成，分享给对方）
+window.cloudGeneratePairId = function(){
     var user = sbUser();
+    if(!user){ alert('请先登录'); return; }
+    if(cloudSpace){
+        showPairId(cloudSpace.pair_code || '');
+        return;
+    }
+    var code = genPairCode();
+    sb.from('couples').insert({ pair_code: code, user1_id: user.id }).select('id, pair_code')
+        .then(function(ins){
+            if(ins.error){
+                if(ins.error.code === '23505' || /duplicate|unique/i.test(String(ins.error.message || ''))){
+                    cloudGeneratePairId(); return;  // 撞码重试
+                }
+                alert('生成失败：' + (ins.error.message || '请重试')); return;
+            }
+            var c = ins.data && ins.data[0];
+            if(!c){ alert('生成失败，请重试'); return; }
+            cloudSpace = { couple_id: c.id, pair_code: c.pair_code || code, my_side: 1 };
+            saveCloudSession();
+            showPairId(c.pair_code || code);
+            startCloudPoll();
+            renderProfilePairStatus();
+        })
+        .catch(function(){ alert('网络错误，请稍后重试'); });
+};
+
+// 输入对方配对 ID 加入
+function cloudJoinById(pairCode, cb){
+    var user = sbUser();
+    if(!user){ cb(false, '请先登录'); return; }
     sb.from('couples').select('*').eq('pair_code', pairCode)
         .then(function(res){
             if(res.error){ cb(false, res.error.message || '查询失败'); return; }
             var c = res.data && res.data[0];
-            if(!c){ cb(false, '没有找到这个配对码，请确认后再试'); return; }
+            if(!c){ cb(false, '没有找到这个配对 ID，请确认后再试'); return; }
             if(c.user1_id === user.id || c.user2_id === user.id){
                 cloudSpace = { couple_id: c.id, pair_code: c.pair_code, my_side: c.user1_id === user.id ? 1 : 2 };
                 saveCloudSession();
                 startCloudPoll();
+                pullPartnerProfile();
+                renderProfilePairStatus();
                 cb(true, '已进入配对');
                 return;
             }
-            if(c.user2_id){ cb(false, '这个配对码已经被两个人使用了，请换一个'); return; }
+            if(c.user2_id){ cb(false, '这个配对 ID 已经被两个人使用了'); return; }
             return sb.from('couples').update({ user2_id: user.id }).eq('id', c.id)
                 .then(function(u){
                     if(u.error){ cb(false, u.error.message || '加入失败'); return; }
                     cloudSpace = { couple_id: c.id, pair_code: c.pair_code, my_side: 2 };
                     saveCloudSession();
                     startCloudPoll();
+                    pullPartnerProfile();
+                    renderProfilePairStatus();
                     cb(true, '已加入配对');
                 });
         })
-        .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
-}
+        .catch(function(){ cb(false, '网络错误，请稍后重试'); });
+};
 
-// 配对：两人填同一个配对码（自动判断创建 / 加入）
-window.cloudPair = function(pairCode, cb){
-    var user = sbUser();
-    if(!user){ cb(false, '请先登录'); return; }
-    pairCode = (pairCode || '').trim();
-    if(!pairCode){ cb(false, '请输入配对码'); return; }
-    if(pairCode.length < 4 || pairCode.length > 20){ cb(false, '配对码建议 4-20 位字母或数字'); return; }
+// 主页配对状态提示（未配对占位 / 已配对）
+window.renderProfilePairStatus = function(){
+    var bar = $('pair-status-bar');
+    if(!bar) return;
+    if(cloudSpace){
+        bar.innerHTML = '💞 已关联另一半 · 配对 ID <b>' + (cloudSpace.pair_code || '') + '</b>';
+    } else {
+        bar.innerHTML = '🤝 还未关联另一半，点右上角 <b>＋</b> 配对';
+    }
+    applyPairGating();
+};
 
-    // 先查这个码是否已存在
-    sb.from('couples').select('*').eq('pair_code', pairCode)
-        .then(function(res){
-            if(res.error){ cb(false, res.error.message || '查询失败'); return; }
-            if(res.data && res.data.length){ cloudJoinByCode(pairCode, cb); return; }
+// 是否已配对（登录且有关联空间）
+function isPaired(){ return !!(cloudUser && cloudSpace); }
 
-            // 不存在 → 创建
-            return sb.from('couples').insert({ pair_code: pairCode, user1_id: user.id }).select('id, pair_code')
-                .then(function(ins){
-                    if(ins.error){
-                        // 并发抢占：对方先创建了同一个码，转为加入
-                        if(ins.error.code === '23505' || /duplicate|unique/i.test(String(ins.error.message || ''))){
-                            cloudJoinByCode(pairCode, cb); return;
-                        }
-                        cb(false, ins.error.message || '创建失败'); return;
-                    }
-                    var c = ins.data && ins.data[0];
-                    if(!c){ cb(false, '创建失败，请重试'); return; }
-                    cloudSpace = { couple_id: c.id, pair_code: c.pair_code || pairCode, my_side: 1 };
-                    saveCloudSession();
-                    startCloudPoll();
-                    cb(true, '配对创建成功');
-                });
-        })
-        .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
+// 未配对时：情侣功能（起始日期/纪念日/聊天）显示"配对后开启"占位
+window.applyPairGating = function(){
+    var paired = isPaired();
+    // 纪念日输入行：未配对隐藏
+    var anniInput = document.querySelector('#home-sub-anni .input-row');
+    if(anniInput) anniInput.style.display = paired ? '' : 'none';
+    // 列表 / 卡片占位交给各自渲染函数判断
+    updateTogetherDays();
+    renderAnniversaries();
+    renderConversationList();
 };
 
 /* ---------- 数据同步（memorials / messages / couples） ---------- */
@@ -1985,6 +2067,82 @@ window.cloudPair = function(pairCode, cb){
 function saveCloudSession(){
     LSS('cloud_session', { user: cloudUser, space: cloudSpace });
 }
+
+/* ---------- 个人资料（profiles）上云：昵称/头像/性别 ---------- */
+function pushProfile(){
+    if(!sb || !sbUser()) return;
+    var user = sbUser();
+    sb.from('profiles').upsert({
+        user_id: user.id,
+        nick: DATA.myNick || '我',
+        gender: DATA.myGender || '',
+        avatar: DATA.myAvatar || '',
+        updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' })
+    .then(function(r){ if(r.error) console.warn('资料上云失败', r.error); });
+}
+
+function pullMyProfile(){
+    if(!sb || !sbUser()) return;
+    var user = sbUser();
+    sb.from('profiles').select('*').eq('user_id', user.id).maybeSingle()
+        .then(function(res){
+            var p = res.data;
+            if(p){
+                if(p.nick) DATA.myNick = p.nick;
+                if(p.gender) DATA.myGender = p.gender;
+                if(p.avatar) DATA.myAvatar = p.avatar;
+                LSS('couple_data', DATA);
+                renderAccountSwitcher();
+                updateProfileHeader();
+            }
+        }).catch(function(){});
+}
+
+function pullPartnerProfile(){
+    if(!sb || !cloudSpace) return;
+    var me = sbUser() && sbUser().id;
+    var cid = cloudSpace.couple_id;
+    sb.from('couples').select('user1_id, user2_id').eq('id', cid).maybeSingle()
+        .then(function(res){
+            var c = res.data;
+            if(!c) return null;
+            var partnerId = (c.user1_id === me) ? c.user2_id : c.user1_id;
+            if(!partnerId) return null;
+            return sb.from('profiles').select('*').eq('user_id', partnerId).maybeSingle();
+        })
+        .then(function(res){
+            if(!res || !res.data) return;
+            var p = res.data;
+            DATA.partnerNick = p.nick || 'TA';
+            DATA.partnerGender = p.gender || '';
+            DATA.partnerAvatar = p.avatar || '';
+            LSS('couple_data', DATA);
+            renderConversationList();
+            renderChats();
+        }).catch(function(){});
+}
+
+/* ---------- 右上角 + 菜单 ---------- */
+window.togglePlusMenu = function(e){
+    if(e) e.stopPropagation();
+    var menu = $('plus-menu');
+    var mask = $('plus-menu-mask');
+    if(!menu || !mask) return;
+    var show = menu.classList.contains('show');
+    if(show){ menu.classList.remove('show'); mask.classList.remove('show'); }
+    else { menu.classList.add('show'); mask.classList.add('show'); }
+};
+
+window.openPairPanel = function(){
+    togglePlusMenu();
+    showScreen('pair-screen');
+    var box = $('my-pair-id-box');
+    if(box){
+        if(cloudSpace){ box.innerHTML = '我的配对 ID：<b>' + (cloudSpace.pair_code || '') + '</b>'; }
+        else { box.innerHTML = '还未配对，点击下方按钮生成配对 ID'; }
+    }
+};
 
 // 本地对象序列化 -> Supabase 行
 function anniversaryToRow(a, coupleId){
@@ -1998,15 +2156,16 @@ function anniversaryToRow(a, coupleId){
 function rowToAnniversary(row){
     try { return JSON.parse(row.remark); } catch(e){ return null; }
 }
-function chatToRow(c, coupleId, senderId){
+function chatToRow(c, coupleId, userId){
+    var sid = (c.senderId && c.senderId !== 'me') ? c.senderId : userId;
     return {
         couple_id: coupleId,
-        sender_id: senderId,
+        sender_id: sid,
         content: JSON.stringify(c)  // 完整对象放 content，方便原样还原
     };
 }
 function rowToChat(row){
-    try { return JSON.parse(row.content); } catch(e){ return null; }
+    try { var c = JSON.parse(row.content); if(row.sender_id) c.senderId = row.sender_id; return c; } catch(e){ return null; }
 }
 
 // 数据指纹：把已解析的纪念日/留言规范化成字符串，用于判断云端与本地是否真的不同
@@ -2028,6 +2187,21 @@ function cloudFingerprint(anns, chats){
     return JSON.stringify({ a: byId(anns), c: byId(chats) });
 }
 
+// 经期记录 序列化 <-> Supabase 行
+function periodToRow(p, coupleId){
+    return { couple_id: coupleId, start: p.start, remark: JSON.stringify(p) };
+}
+function rowToPeriod(row){
+    try { return JSON.parse(row.remark); } catch(e){ return null; }
+}
+// 经期记录指纹（按 start 排序）
+function cloudFingerprintPeriods(periodMap){
+    var list = Object.keys(periodMap || {}).map(function(k){ return periodMap[k]; }).sort(function(a, b){
+        return String(a.start).localeCompare(String(b.start));
+    });
+    return JSON.stringify(list);
+}
+
 // 完整同步：把本地纪念日/留言/起始日与云端做一次“双向合并”
 // 保证双方各自新增的内容都保留，实现两人实时可见。
 function cloudSyncNow(){
@@ -2037,20 +2211,24 @@ function cloudSyncNow(){
     var coupleId = cloudSpace.couple_id;
     var user = sbUser();
 
-    // 读云端
+    // 读云端（纪念日 / 留言 / 空间 / 经期记录）
     Promise.all([
         sb.from('memorials').select('*').eq('couple_id', coupleId),
         sb.from('messages').select('*').eq('couple_id', coupleId),
-        sb.from('couples').select('*').eq('id', coupleId).single()
+        sb.from('couples').select('*').eq('id', coupleId).single(),
+        sb.from('period_records').select('*').eq('couple_id', coupleId)
     ]).then(function(resArr){
         var memRows = resArr[0].data || [];
         var msgRows = resArr[1].data || [];
         var coupleRow = resArr[2].data;
+        var periodRows = resArr[3].data || [];
 
         // 云端快照指纹（回写前用来判断是否真有变化）
         var cloudAnns = memRows.map(rowToAnniversary).filter(function(a){ return a; });
         var cloudChats = msgRows.map(rowToChat).filter(function(c){ return c; });
         var cloudFp = cloudFingerprint(cloudAnns, cloudChats);
+        var cloudPeriods = periodRows.map(rowToPeriod).filter(function(p){ return p; });
+        var cloudPeriodFp = cloudFingerprintPeriods(listToMap(cloudPeriods, 'start'));
 
         // = 合并纪念日（云端 ∪ 本地，按唯一键 id 去重） =
         var memMap = {};
@@ -2068,6 +2246,25 @@ function cloudSyncNow(){
         });
         DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
 
+        // = 合并经期记录（云端 ∪ 本地，按 start 去重） =
+        var periodMap = {};
+        cloudPeriods.forEach(function(p){ if(p && p.start){ periodMap[p.start] = p; } });
+        (DATA.periodRecords || []).forEach(function(p){
+            if(p && p.start){ periodMap[p.start] = p; }
+        });
+        DATA.periodRecords = Object.keys(periodMap).map(function(k){ return periodMap[k]; });
+
+        // = 经期设置：本地默认值首次推上云端；云端有而本地未改动则取云端 =
+        var cloudSettings = null;
+        try { if(coupleRow && coupleRow.period_settings){ cloudSettings = JSON.parse(coupleRow.period_settings); } } catch(e){}
+        var settingsChanged = false;
+        var localSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+        if(!cloudSettings && localSettings){
+            settingsChanged = true;
+        } else if(cloudSettings){
+            DATA.periodSettings = cloudSettings;
+        }
+
         // = 恋爱起始日期：本地有则回写云端，云端有而本地无则取云端 =
         var startChanged = !!(DATA.startDate && (!coupleRow || !coupleRow.start_date));
         if(!DATA.startDate && coupleRow && coupleRow.start_date){
@@ -2080,28 +2277,45 @@ function cloudSyncNow(){
         LSS('couple_data', DATA);
         refreshAll();
 
-        // 合并后与云端一致且起始日期无变化 → 无需回写
+        // 合并后与云端一致且起始日期/经期均无变化 → 无需回写
         var writeFp = cloudFingerprint(DATA.anniversaries, DATA.chats);
-        if(writeFp === cloudFp && !startChanged){ return null; }
+        var writePeriodFp = cloudFingerprintPeriods(listToMap(DATA.periodRecords, 'start'));
+        var memSame = (writeFp === cloudFp);
+        var periodSame = (writePeriodFp === cloudPeriodFp);
+        if(memSame && periodSame && !startChanged && !settingsChanged){ return null; }
 
-        // 回写：起始日期变了则先更新 couples
+        // 回写：起始日期/经期设置变了则先更新 couples
+        var coupleUpdate = {};
+        if(startChanged){ coupleUpdate.start_date = DATA.startDate; }
+        if(settingsChanged){ coupleUpdate.period_settings = JSON.stringify(DATA.periodSettings || {}); }
         var startTask = Promise.resolve();
-        if(startChanged){
-            startTask = sb.from('couples').update({ start_date: DATA.startDate }).eq('id', coupleId);
+        if(Object.keys(coupleUpdate).length){
+            startTask = sb.from('couples').update(coupleUpdate).eq('id', coupleId);
         }
 
         return startTask.then(function(){
-            if(writeFp === cloudFp){ return null; }  // 仅起始日期变化，无需重写纪念日/留言
-            var del1 = sb.from('memorials').delete().eq('couple_id', coupleId);
-            var del2 = sb.from('messages').delete().eq('couple_id', coupleId);
-            return Promise.all([del1, del2]).then(function(){
-                var insMem = (DATA.anniversaries||[]).map(function(a){ return anniversaryToRow(a, coupleId); });
-                var insMsg = (DATA.chats||[]).map(function(c){ return chatToRow(c, coupleId, user.id); });
-                var tasks = [];
-                if(insMem.length) tasks.push(sb.from('memorials').insert(insMem));
-                if(insMsg.length) tasks.push(sb.from('messages').insert(insMsg));
-                return Promise.all(tasks);
-            });
+            var tasks = [];
+            if(!memSame){
+                var del1 = sb.from('memorials').delete().eq('couple_id', coupleId);
+                var del2 = sb.from('messages').delete().eq('couple_id', coupleId);
+                tasks.push(Promise.all([del1, del2]).then(function(){
+                    var insMem = (DATA.anniversaries||[]).map(function(a){ return anniversaryToRow(a, coupleId); });
+                    var insMsg = (DATA.chats||[]).map(function(c){ return chatToRow(c, coupleId, user.id); });
+                    var ins = [];
+                    if(insMem.length) ins.push(sb.from('memorials').insert(insMem));
+                    if(insMsg.length) ins.push(sb.from('messages').insert(insMsg));
+                    return Promise.all(ins);
+                }));
+            }
+            if(!periodSame){
+                var delP = sb.from('period_records').delete().eq('couple_id', coupleId);
+                tasks.push(delP.then(function(){
+                    var insP = (DATA.periodRecords||[]).map(function(p){ return periodToRow(p, coupleId); });
+                    if(insP.length){ return sb.from('period_records').insert(insP); }
+                    return null;
+                }));
+            }
+            return Promise.all(tasks);
         });
     }).then(function(){
         cloudSyncLock = false;
@@ -2109,6 +2323,13 @@ function cloudSyncNow(){
         cloudSyncLock = false;
         console.error('云端同步错误', e);
     });
+}
+
+// 按给定 key 把数组转成去重 map
+function listToMap(list, key){
+    var m = {};
+    (list || []).forEach(function(x){ if(x && x[key] != null){ m[x[key]] = x; } });
+    return m;
 }
 
 // 节流：多次改动合并为一次保存
@@ -2144,12 +2365,7 @@ function initAuthFlow(){
             var session = res.data && res.data.session;
             if(session && session.user){
                 cloudUser = session.user;
-                if(cloudSpace){
-                    showScreen('main-screen');
-                    startCloudPoll();
-                } else {
-                    showScreen('pair-screen');
-                }
+                enterMainAfterAuth();
             } else {
                 cloudUser = null; cloudSpace = null;
                 LS_del('cloud_session');
@@ -2176,6 +2392,7 @@ function startRealtime(){
         ch.on('postgres_changes', { event: '*', schema: 'public', table: 'memorials', filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
         ch.on('postgres_changes', { event: '*', schema: 'public', table: 'messages',  filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
         ch.on('postgres_changes', { event: '*', schema: 'public', table: 'couples',   filter: 'id=eq.' + coupleId },       realtimeSchedulePull);
+        ch.on('postgres_changes', { event: '*', schema: 'public', table: 'period_records', filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
         cloudRealtime = ch;
         ch.subscribe(function(status){
             if(status === 'SUBSCRIBED') return;
@@ -2251,33 +2468,45 @@ window.doLoginSubmit = function(){
     var st = $('login-status'); st.innerHTML = '登录中…';
     cloudLogin(email, pass, function(ok, msg){
         if(!ok){ st.innerHTML = '❌ ' + (msg || '登录失败'); return; }
-        if(cloudSpace){ showScreen('main-screen'); }
-        else { showScreen('pair-screen'); }
+        enterMainAfterAuth();
     });
 };
 
 window.doRegisterSubmit = function(){
-    var email = $('login-email').value.trim();
-    var pass = $('login-pass').value;
+    var email = $('reg-email').value.trim();
+    var pass = $('reg-pass').value;
     if(!email || !pass){ alert('请填写邮箱和密码'); return; }
     if(pass.length < 6){ alert('密码至少 6 位'); return; }
-    var st = $('login-status'); st.innerHTML = '注册中…';
+    var st = $('reg-status'); st.innerHTML = '注册中…';
     cloudRegister(email, pass, function(ok, msg){
         if(!ok){ st.innerHTML = '❌ ' + (msg || '注册失败'); return; }
-        showScreen('pair-screen');
+        enterMainAfterAuth();
     });
 };
 
 window.doPairSubmit = function(){
-    var code = $('pair-code').value.trim();
-    if(!code){ alert('请输入配对码'); return; }
-    var st = $('pair-status'); st.innerHTML = '配对中…';
-    cloudPair(code, function(ok, msg){
-        if(!ok){ st.innerHTML = '❌ ' + (msg || '配对失败'); return; }
+    var code = $('pair-code').value.trim().toUpperCase();
+    if(!code){ alert('请输入对方的配对 ID'); return; }
+    var st = $('pair-status'); st.innerHTML = '加入中…';
+    cloudJoinById(code, function(ok, msg){
+        if(!ok){ st.innerHTML = '❌ ' + (msg || '加入失败'); return; }
         st.innerHTML = '✅ ' + (msg || '配对成功');
-        setTimeout(function(){ showScreen('main-screen'); }, 400);
+        setTimeout(function(){ showScreen('main-screen'); }, 500);
     });
 };
+
+// 登录/注册成功后的统一入口：直接进主页（微信式），再拉资料、启同步
+function enterMainAfterAuth(){
+    showScreen('main-screen');
+    pullMyProfile();
+    if(cloudSpace){
+        startCloudPoll();      // 立即同步 + 实时订阅
+        pullPartnerProfile();
+        renderProfilePairStatus();
+    } else {
+        renderProfilePairStatus();
+    }
+}
 
 window.doLogout = function(){
     cloudLogout().then(function(){ showScreen('login-screen'); });
@@ -2310,7 +2539,7 @@ window.initApp = function(){
 function showScreen(id){
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     $(id).classList.add('active');
-    if(id === 'main-screen') renderEverything();
+    if(id === 'main-screen'){ renderEverything(); renderProfilePairStatus(); }
 }
 
 function renderEverything(){
@@ -2457,20 +2686,20 @@ window.backToProfileDashboard = function(){
     updateProfileHeader();
 };
 
-window.openMyProfile = function(){ openProfileCard(DATA.currentUser); };
+window.openMyProfile = function(){ openProfileCard(); };
 
 window.updateProfileHeader = function(){
-    var role = DATA.currentUser;
-    var nick = role === 'boy' ? DATA.boyNick : DATA.girlNick;
-    var avatar = role === 'boy' ? DATA.boyAvatar : DATA.girlAvatar;
-    var tag = role === 'boy' ? '男生账号' : '女生账号';
+    var nick = DATA.myNick || '我';
+    var avatar = DATA.myAvatar;
+    var gender = DATA.myGender;
+    var tag = gender === 'female' ? '女 · 她' : (gender === 'male' ? '男 · 他' : '未设置性别');
     $('profile-header-nick').textContent = nick;
     $('profile-header-acct').textContent = tag;
     var avtEl = $('profile-header-avatar');
     if(avatar){
         avtEl.innerHTML = '<img src="'+avatar+'">';
     } else {
-        avtEl.innerHTML = role === 'boy' ? '👦' : '👧';
+        avtEl.innerHTML = gender === 'female' ? '👧' : (gender === 'male' ? '👦' : '👤');
     }
 };
 
@@ -2560,7 +2789,7 @@ window.renderPeriodTracker = function(){
     var settings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
     var today = new Date();
     var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
-    var isGirl = DATA.currentUser === 'girl';
+    var isGirl = DATA.myGender === 'female';
     var phaseInfo = getPhaseInfo('none', 0, settings);
     var nextPeriod = null;
     var phaseData = { day: 0, phase: 'none' };
@@ -2686,7 +2915,7 @@ window.selectPeriodDate = function(el, dateStr){
     var cells = grid.querySelectorAll('.period-cal-day');
     for(var i = 0; i < cells.length; i++) cells[i].classList.remove('selected');
     if(el) el.classList.add('selected');
-    updatePeriodActionBar(DATA.currentUser === 'girl', getLastPeriod(), DATA.periodSettings || { cycleDays: 28, periodDays: 5 });}
+    updatePeriodActionBar(DATA.myGender === 'female', getLastPeriod(), DATA.periodSettings || { cycleDays: 28, periodDays: 5 });}
 
 window.getSelectedDate = function(){
     if(periodSelectedDate) return periodSelectedDate;
@@ -2695,13 +2924,13 @@ window.getSelectedDate = function(){
 };
 
 window.startPeriodFromSelected = function(){
-    if(DATA.currentUser !== 'girl'){ alert('只有 TA 可以记录哦~'); return; }
+    if(DATA.myGender !== 'female'){ alert('只有 TA 可以记录哦~'); return; }
     var dateStr = getSelectedDate();
     recordPeriodStart(dateStr);
 };
 
 window.endPeriodFromSelected = function(){
-    if(DATA.currentUser !== 'girl'){ alert('只有 TA 可以记录哦~'); return; }
+    if(DATA.myGender !== 'female'){ alert('只有 TA 可以记录哦~'); return; }
     var last = getLastPeriod();
     if(!last){ alert('还没有进行中的经期记录哦'); return; }
     var dateStr = getSelectedDate();
@@ -2716,7 +2945,7 @@ window.endPeriodFromSelected = function(){
 };
 
 window.delayPeriodFromSelected = function(){
-    if(DATA.currentUser !== 'girl'){ alert('只有 TA 可以记录哦~'); return; }
+    if(DATA.myGender !== 'female'){ alert('只有 TA 可以记录哦~'); return; }
     var last = getLastPeriod();
     if(!last){ alert('还没有经期记录哦'); return; }
     var dateStr = getSelectedDate();
@@ -2793,7 +3022,7 @@ window.renderPeriodHistory = function(){
 };
 
 window.recordPeriodStart = function(dateStr){
-    if(DATA.currentUser !== 'girl') return;
+    if(DATA.myGender !== 'female') return;
     var settings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
     var periodDays = settings.periodDays || 5;
     var startStr = dateStr || (function(){
@@ -2816,7 +3045,7 @@ window.recordPeriodStart = function(dateStr){
 };
 
 window.openPeriodDatePicker = function(){
-    if(DATA.currentUser !== 'girl') return;
+    if(DATA.myGender !== 'female') return;
     var today = new Date();
     var yearSelect = $('pdp-year');
     yearSelect.innerHTML = '';
@@ -2857,7 +3086,7 @@ window.closePeriodDatePicker = function(){
     $('period-progress-legend').style.display = '';
     $('period-settings-panel').style.display = 'none';
     document.querySelectorAll('#tab-period .period-calendar-section, #tab-period .period-info-card, #tab-period .period-record-btn, #tab-period .period-history-card').forEach(function(el){ el.style.display = ''; });
-    updatePeriodRecordBtn(DATA.currentUser === 'girl', false, getLastPeriod(), DATA.periodSettings || {});
+    updatePeriodRecordBtn(DATA.myGender === 'female', false, getLastPeriod(), DATA.periodSettings || {});
 };
 
 window.updatePeriodPickerDays = function(){
@@ -2885,7 +3114,7 @@ window.confirmPeriodDate = function(){
 };
 
 window.deletePeriodRecord = function(index){
-    if(DATA.currentUser !== 'girl') return;
+    if(DATA.myGender !== 'female') return;
     var recs = DATA.periodRecords || [];
     var sorted = recs.slice().sort(function(a,b){ return new Date(b.start) - new Date(a.start); });
     if(index < 0 || index >= sorted.length) return;
@@ -2911,7 +3140,7 @@ window.updatePeriodSettingsBtn = function(isGirl){
 };
 
 window.openPeriodSettings = function(){
-    if(DATA.currentUser !== 'girl') return;
+    if(DATA.myGender !== 'female') return;
     tempPeriodSettings = {
         cycleDays: (DATA.periodSettings && DATA.periodSettings.cycleDays) || 28,
         periodDays: (DATA.periodSettings && DATA.periodSettings.periodDays) || 5
@@ -2965,13 +3194,25 @@ window.savePeriodSettings = function(){
 /* ===== 在一起天数 ===== */
 var _togetherTimer = null;
 function updateTogetherDays(){
-    var sd = DATA.startDate;
     var el = $('together-days');
-    if(!el || !sd){
-        if(_togetherTimer){ clearInterval(_togetherTimer); _togetherTimer = null; }
+    if(_togetherTimer){ clearInterval(_togetherTimer); _togetherTimer = null; }
+    if(!el) return;
+    var timerEl = $('together-timer');
+    var editRow = document.querySelector('#together-card-3d .together-date-row');
+    // 未配对：占位提示
+    if(!isPaired()){
+        if(timerEl) timerEl.textContent = '🔒';
+        el.textContent = '配对后开启';
+        if(editRow) editRow.style.display = 'none';
         return;
     }
-    if(_togetherTimer) clearInterval(_togetherTimer);
+    if(timerEl) timerEl.textContent = '我们在一起已经';
+    if(editRow) editRow.style.display = '';
+    var sd = DATA.startDate;
+    if(!sd){
+        el.textContent = '0天';
+        return;
+    }
     function tick(){
         var start = new Date(sd + 'T00:00:00');
         var now = new Date();
@@ -3086,6 +3327,12 @@ window.addAnniversary = function(){
 function renderAnniversaries(){
     var el = $('anniversary-list');
     if(!el) return;
+    if(!isPaired()){
+        el.innerHTML = '<div style="color:#999;text-align:center;padding:22px;font-size:0.9rem;">🔒 配对后开启纪念日</div>';
+        var badge0 = $('recent-anniversary');
+        if(badge0) badge0.style.display = 'none';
+        return;
+    }
     var now = new Date();
     var arr = DATA.anniversaries.slice();
     arr.sort(function(a,b){
@@ -3415,30 +3662,13 @@ document.addEventListener('keydown', function(e){
 window.renderAccountSwitcher = function(){
     var el = $('account-switcher');
     if(!el) return;
-    var boyAvt = DATA.boyAvatar ? '<img src="'+DATA.boyAvatar+'">' : '👦';
-    var girlAvt = DATA.girlAvatar ? '<img src="'+DATA.girlAvatar+'">' : '👧';
+    var avt = DATA.myAvatar ? '<img src="'+DATA.myAvatar+'">' : (DATA.myGender==='female'?'👧':(DATA.myGender==='male'?'👦':'👤'));
+    var genderLabel = DATA.myGender==='female' ? '女 · 她' : (DATA.myGender==='male' ? '男 · 他' : '未设置性别');
     el.innerHTML =
-        '<div class="account-item'+(DATA.currentUser==='boy'?' active':'')+'">' +
-            '<div class="account-avatar" onclick="event.stopPropagation();openProfileCard(\'boy\')">'+boyAvt+'</div>' +
-            '<div class="account-info" onclick="switchAccount(\'boy\')"><div class="account-nick">'+DATA.boyNick+' <span class="account-edit" onclick="event.stopPropagation();openProfileCard(\'boy\')">✏️</span></div><div class="account-tag">他的账号</div></div>' +
-            (DATA.currentUser==='boy'?'<div class="account-check">✓</div>':'') +
-        '</div>' +
-        '<div class="account-item'+(DATA.currentUser==='girl'?' active':'')+'">' +
-            '<div class="account-avatar" onclick="event.stopPropagation();openProfileCard(\'girl\')">'+girlAvt+'</div>' +
-            '<div class="account-info" onclick="switchAccount(\'girl\')"><div class="account-nick">'+DATA.girlNick+' <span class="account-edit" onclick="event.stopPropagation();openProfileCard(\'girl\')">✏️</span></div><div class="account-tag">她的账号</div></div>' +
-            (DATA.currentUser==='girl'?'<div class="account-check">✓</div>':'') +
+        '<div class="account-item active">' +
+            '<div class="account-avatar" onclick="openProfileCard()">'+avt+'</div>' +
+            '<div class="account-info" onclick="openProfileCard()"><div class="account-nick">'+DATA.myNick+' <span class="account-edit">✏️</span></div><div class="account-tag">我的资料 · '+genderLabel+'</div></div>' +
         '</div>';
-};
-
-window.switchAccount = function(role){
-    DATA.currentUser = role;
-    saveData();
-    renderAccountSwitcher();
-    renderConversationList();
-    renderChats();
-    updateProfileHeader();
-    var input = $('chat-msg-input');
-    if(input) input.placeholder = role==='boy' ? '想对'+DATA.girlNick+'说点什么...' : '想对'+DATA.boyNick+'说点什么...';
 };
 
 window.deleteChatMsg = function(id){
@@ -3524,7 +3754,7 @@ window.setChatBg = function(e){
             var ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
             var base64 = canvas.toDataURL('image/jpeg', 0.85);
-            DATA[DATA.currentUser + 'ChatBg'] = base64;
+            DATA.myChatBg = base64;
             saveData();
             applyChatBg(base64);
         };
@@ -3551,7 +3781,7 @@ function applyChatBg(url){
 }
 
 window.clearChatBg = function(){
-    DATA[DATA.currentUser + 'ChatBg'] = '';
+    DATA.myChatBg = '';
     saveData();
     applyChatBg('');
 };
@@ -3573,7 +3803,7 @@ window.setAppBg = function(e){
             var ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
             var base64 = canvas.toDataURL('image/jpeg', 0.82);
-            DATA[DATA.currentUser + 'AppBg'] = base64;
+            DATA.myAppBg = base64;
             saveData();
             applyAppBg(base64);
         };
@@ -3593,13 +3823,12 @@ function applyAppBg(url){
 }
 
 window.clearAppBg = function(){
-    DATA[DATA.currentUser + 'AppBg'] = '';
+    DATA.myAppBg = '';
     saveData();
     applyAppBg('');
 };
 
 // 资料卡弹窗
-var profileModalRole = null;
 var profileModalNewAvt = null;
 var profileModalGender = null;
 
@@ -3611,18 +3840,16 @@ window.selectGender = function(g){
     if(target) target.classList.add('active');
 };
 
-window.openProfileCard = function(role){
-    profileModalRole = role;
+window.openProfileCard = function(){
     profileModalNewAvt = null;
-    var avt = role === 'boy' ? DATA.boyAvatar : DATA.girlAvatar;
-    var nick = role === 'boy' ? DATA.boyNick : DATA.girlNick;
-    var gender = role === 'boy' ? (DATA.boyGender || 'male') : (DATA.girlGender || 'female');
-    var tag = role === 'boy' ? '他的账号' : '她的账号';
+    var avt = DATA.myAvatar;
+    var nick = DATA.myNick || '我';
+    var gender = DATA.myGender || '';
     profileModalGender = gender;
     var avtEl = $('profile-modal-avatar-img');
-    avtEl.innerHTML = avt ? '<img src="'+avt+'">' : (role==='boy'?'👦':'👧');
+    avtEl.innerHTML = avt ? '<img src="'+avt+'">' : (gender==='female'?'👧':(gender==='male'?'👦':'👤'));
     $('profile-modal-nick').textContent = nick;
-    $('profile-modal-role').textContent = tag;
+    $('profile-modal-role').textContent = '我的资料';
     var modal = $('profile-modal');
     modal.style.display = 'flex';
     var btns = document.querySelectorAll('#profile-modal-gender .gender-btn');
@@ -3633,14 +3860,13 @@ window.openProfileCard = function(role){
 
 window.closeProfileCard = function(){
     $('profile-modal').style.display = 'none';
-    profileModalRole = null;
     profileModalNewAvt = null;
     profileModalGender = null;
 };
 
 window.setProfileAvatarFromModal = function(e){
     var file = e.target.files[0];
-    if(!file || !profileModalRole) return;
+    if(!file) return;
     var reader = new FileReader();
     reader.onload = function(ev){
         var img = new Image();
@@ -3680,11 +3906,7 @@ window.editProfileNick = function(){
 };
 
 window.saveProfileFromModal = function(){
-    if(!profileModalRole) return;
-    if(profileModalNewAvt){
-        if(profileModalRole === 'boy') DATA.boyAvatar = profileModalNewAvt;
-        else DATA.girlAvatar = profileModalNewAvt;
-    }
+    if(profileModalNewAvt){ DATA.myAvatar = profileModalNewAvt; }
     var nickEl = $('profile-modal-nick');
     var nick;
     if(nickEl){
@@ -3695,14 +3917,11 @@ window.saveProfileFromModal = function(){
         nick = input ? input.value.trim() : '';
         if(input) input.blur(); // 触发 blur 恢复 span
     }
-    if(!nick) return;
-    if(profileModalRole === 'boy') DATA.boyNick = nick;
-    else DATA.girlNick = nick;
-    if(profileModalGender){
-        if(profileModalRole === 'boy') DATA.boyGender = profileModalGender;
-        else DATA.girlGender = profileModalGender;
-    }
+    if(!nick) nick = DATA.myNick || '我';
+    DATA.myNick = nick;
+    if(profileModalGender){ DATA.myGender = profileModalGender; }
     saveData();
+    pushProfile();   // 我的资料上云（昵称/头像/性别）
     renderAccountSwitcher();
     renderConversationList();
     renderChats();
@@ -3726,11 +3945,12 @@ window.setChatAvatar = function(role, e){
             var sx = (img.width - s) / 2, sy = (img.height - s) / 2;
             ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
             var base64 = canvas.toDataURL('image/jpeg', 0.85);
-            if(role === 'boy') DATA.boyAvatar = base64;
-            else DATA.girlAvatar = base64;
+            DATA.myAvatar = base64;
             saveData();
+            pushProfile();
             renderAccountSwitcher();
             renderChats();
+            updateProfileHeader();
         };
         img.src = ev.target.result;
     };
@@ -3741,7 +3961,7 @@ window.setChatAvatar = function(role, e){
 window.addChatMsg = function(){
     var msg = $('chat-msg-input').value.trim();
     if(!msg) return;
-    DATA.chats.push({role: DATA.currentUser, msg:msg, time:getTimeStr(), id:Date.now()});
+    DATA.chats.push({senderId: (cloudUser && cloudUser.id) || 'me', msg:msg, time:getTimeStr(), id:Date.now()});
     saveData();
     $('chat-msg-input').value = '';
     autoResizeChatInput();
@@ -3829,30 +4049,30 @@ function getTimeStr(){
 function renderChats(){
     var el = $('chat-container');
     if(!el) return;
-    var boyAvtSrc = DATA.boyAvatar ? '<img src="'+DATA.boyAvatar+'">' : '👦';
-    var girlAvtSrc = DATA.girlAvatar ? '<img src="'+DATA.girlAvatar+'">' : '👧';
+    var myAvtSrc = DATA.myAvatar ? '<img src="'+DATA.myAvatar+'">' : (DATA.myGender==='female'?'👧':'👦');
+    var partnerAvtSrc = DATA.partnerAvatar ? '<img src="'+DATA.partnerAvatar+'">' : (DATA.partnerGender==='female'?'👧':'👦');
+    var myId = (cloudUser && cloudUser.id) || 'me';
     if(DATA.chats.length === 0){ el.innerHTML = '<div style="width:100%;text-align:center;color:#bbb;font-size:0.85rem;padding:20px;">开始聊天吧~</div>'; }
     else {
         var h = '';
         for(var i=0; i<DATA.chats.length; i++){
             var c = DATA.chats[i];
-            var isMe = c.role === DATA.currentUser;
-            var avtRole = c.role;
-            var avtSrc = avtRole === 'boy' ? boyAvtSrc : girlAvtSrc;
-            var metaNick = c.role === 'boy' ? DATA.boyNick : DATA.girlNick;
+            var isMe = c.senderId === myId;
+            var avtSrc = isMe ? myAvtSrc : partnerAvtSrc;
+            var metaNick = isMe ? (DATA.myNick||'我') : (DATA.partnerNick||'TA');
             if (isMe) {
                 h += '<div class="msg-row right-row">' +
                     '<div class="chat-msg">' +
                         '<div class="chat-body right-body">' +
                             '<div class="bubble" data-id="'+c.id+'" onmousedown="startLongPress(event,'+c.id+')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event,'+c.id+')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+c.msg+'</div>' +
                         '</div>' +
-                        '<div class="chat-avatar" onclick="event.stopPropagation();openProfileCard(\''+avtRole+'\')">'+avtSrc+'</div>' +
+                        '<div class="chat-avatar" onclick="openProfileCard()">'+avtSrc+'</div>' +
                     '</div>' +
                     '</div>';
             } else {
                 h += '<div class="msg-row left-row">' +
                     '<div class="chat-msg">' +
-                        '<div class="chat-avatar" onclick="event.stopPropagation();openProfileCard(\''+avtRole+'\')">'+avtSrc+'</div>' +
+                        '<div class="chat-avatar">'+avtSrc+'</div>' +
                         '<div class="chat-body left-body">' +
                             '<div class="chat-nick-name">'+metaNick+'</div>' +
                             '<div class="bubble" data-id="'+c.id+'" onmousedown="startLongPress(event,'+c.id+')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event,'+c.id+')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+c.msg+'</div>' +
@@ -3863,18 +4083,20 @@ function renderChats(){
         }
         el.innerHTML = h;
     }
-    applyChatBg(DATA[DATA.currentUser + 'ChatBg']);
-    applyAppBg(DATA[DATA.currentUser + 'AppBg']);
+    applyChatBg(DATA.myChatBg);
+    applyAppBg(DATA.myAppBg);
 }
 
 // 会话列表渲染（微信风格）
 window.renderConversationList = function(){
     var el = $('conversation-list');
     if(!el) return;
-    var partnerRole = DATA.currentUser === 'boy' ? 'girl' : 'boy';
-    var partnerNick = partnerRole === 'boy' ? DATA.boyNick : DATA.girlNick;
-    var partnerAvt = partnerRole === 'boy' ? DATA.boyAvatar : DATA.girlAvatar;
-    var partnerAvtSrc = partnerAvt ? '<img src="'+partnerAvt+'">' : (partnerRole==='boy'?'👦':'👧');
+    if(!isPaired()){
+        el.innerHTML = '<div style="color:#999;text-align:center;padding:22px;font-size:0.9rem;">🔒 配对后开启聊天</div>';
+        return;
+    }
+    var partnerNick = DATA.partnerNick || 'TA';
+    var partnerAvtSrc = DATA.partnerAvatar ? '<img src="'+DATA.partnerAvatar+'">' : (DATA.partnerGender==='female'?'👧':'👦');
     var lastMsg = '';
     var lastTime = '';
     for(var i=DATA.chats.length-1; i>=0; i--){
@@ -3897,8 +4119,7 @@ window.renderConversationList = function(){
 };
 
 window.enterChat = function(){
-    var partnerRole = DATA.currentUser === 'boy' ? 'girl' : 'boy';
-    var partnerNick = partnerRole === 'boy' ? DATA.boyNick : DATA.girlNick;
+    var partnerNick = DATA.partnerNick || 'TA';
     $('chat-partner-name').textContent = partnerNick;
     $('msg-chat-view').style.display = '';
     $('msg-chat-view').classList.add('active');
@@ -4347,7 +4568,7 @@ showEmojiPopover = window.showEmojiPopover;
     <div class="profile-modal" onclick="event.stopPropagation()">
         <div class="profile-modal-close" onclick="closeProfileCard()">✕</div>
         <div class="profile-modal-avatar" onclick="document.getElementById('profile-modal-avatar-input').click()">
-            <span id="profile-modal-avatar-img">👦</span>
+            <span id="profile-modal-avatar-img">👤</span>
             <input type="file" id="profile-modal-avatar-input" accept="image/*" style="display:none" onchange="setProfileAvatarFromModal(event)">
         </div>
         <div class="profile-modal-nick" id="profile-modal-nick" onclick="editProfileNick()">昵称</div>
@@ -4358,6 +4579,13 @@ showEmojiPopover = window.showEmojiPopover;
         </div>
         <button class="profile-modal-save" id="profile-modal-save" onclick="saveProfileFromModal()">保存</button>
     </div>
+</div>
+
+<!-- 微信式右上角 + 菜单 -->
+<div class="plus-menu-mask" id="plus-menu-mask" onclick="togglePlusMenu()"></div>
+<div class="plus-menu" id="plus-menu">
+    <div class="plus-menu-item" onclick="openPairPanel()"><span class="pm-icon">💞</span> 配对 / 关联</div>
+    <div class="plus-menu-item" onclick="openMyProfile()"><span class="pm-icon">👤</span> 我的资料</div>
 </div>
 </body>
 </html>
