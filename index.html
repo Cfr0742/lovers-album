@@ -1,0 +1,4297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>我们的纪念册</title>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.2.0/lunar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+    --theme: #f8bbd0;
+    --theme-deep: #f06292;
+    --theme-tint-l: rgba(255,182,205,0.6);
+    --theme-tint-m: rgba(255,161,199,0.42);
+    --theme-tint-d: rgba(206,183,255,0.45);
+    --theme-light: #fce4ec;
+    --theme-bg: #fff5f7;
+    --theme-bg-grad: radial-gradient(120% 90% at 10% 0%, #ffe4ec 0%, rgba(255,228,236,0) 55%), radial-gradient(100% 80% at 95% 15%, #ffe9ee 0%, rgba(255,233,238,0) 50%), linear-gradient(160deg, #fff5f7 30%, #ffeef3 100%);
+    --theme-blob: radial-gradient(circle at 15% 18%, rgba(255,182,205,0.85) 0%, rgba(255,182,205,0) 30%), radial-gradient(circle at 82% 20%, rgba(255,161,199,0.7) 0%, rgba(255,161,199,0) 26%), radial-gradient(circle at 65% 78%, rgba(255,205,164,0.6) 0%, rgba(255,205,164,0) 26%), radial-gradient(circle at 28% 82%, rgba(206,183,255,0.6) 0%, rgba(206,183,255,0) 28%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);
+    --theme-blob-2: radial-gradient(circle at 88% 72%, rgba(255,140,180,0.55) 0%, rgba(255,140,180,0) 22%), radial-gradient(circle at 8% 62%, rgba(255,224,180,0.5) 0%, rgba(255,224,180,0) 24%), radial-gradient(circle at 55% 18%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 60%);
+    --theme-card: #ffffff;
+    --theme-text: #4a3040;
+    --theme-sub: #9e7d8b;
+    --theme-accent: #ec407a;
+    --theme-gradient: linear-gradient(135deg, #f8bbd0, #f48fb1);
+    --tab-active: #f06292;
+    --bubble-left: #fff;
+    --bubble-right: #b3e5fc;
+    --shadow: 0 2px 12px rgba(200, 150, 160, 0.15);
+}
+
+body.theme-blue {
+    --theme: #bbdefb;
+    --theme-deep: #42a5f5;
+    --theme-tint-l: rgba(170,215,255,0.6);
+    --theme-tint-m: rgba(140,200,255,0.42);
+    --theme-tint-d: rgba(174,167,255,0.45);
+    --theme-light: #e3f2fd;
+    --theme-bg: #f5f9ff;
+    --theme-bg-grad: radial-gradient(120% 90% at 10% 0%, #e3f1ff 0%, rgba(227,241,255,0) 55%), radial-gradient(100% 80% at 95% 15%, #e8f4ff 0%, rgba(232,244,255,0) 50%), linear-gradient(160deg, #f5f9ff 30%, #eaf4fd 100%);
+    --theme-blob: radial-gradient(circle at 15% 18%, rgba(170,215,255,0.85) 0%, rgba(170,215,255,0) 30%), radial-gradient(circle at 82% 20%, rgba(140,200,255,0.7) 0%, rgba(140,200,255,0) 26%), radial-gradient(circle at 65% 78%, rgba(150,215,210,0.6) 0%, rgba(150,215,210,0) 26%), radial-gradient(circle at 28% 82%, rgba(174,167,255,0.6) 0%, rgba(174,167,255,0) 28%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);
+    --theme-blob-2: radial-gradient(circle at 88% 72%, rgba(120,185,255,0.55) 0%, rgba(120,185,255,0) 22%), radial-gradient(circle at 8% 62%, rgba(160,220,230,0.5) 0%, rgba(160,220,230,0) 24%), radial-gradient(circle at 55% 18%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 60%);
+    --theme-card: #ffffff;
+    --theme-text: #263545;
+    --theme-sub: #6d8ca8;
+    --theme-accent: #1e88e5;
+    --theme-gradient: linear-gradient(135deg, #bbdefb, #64b5f6);
+    --tab-active: #42a5f5;
+    --bubble-right: #c8e6c9;
+    --shadow: 0 2px 12px rgba(100, 150, 200, 0.15);
+}
+
+body.theme-purple {
+    --theme: #e1bee7;
+    --theme-deep: #ab47bc;
+    --theme-tint-l: rgba(216,186,255,0.6);
+    --theme-tint-m: rgba(196,160,255,0.42);
+    --theme-tint-d: rgba(186,180,255,0.45);
+    --theme-light: #f3e5f5;
+    --theme-bg: #faf5ff;
+    --theme-bg-grad: radial-gradient(120% 90% at 10% 0%, #f1e8ff 0%, rgba(241,232,255,0) 55%), radial-gradient(100% 80% at 95% 15%, #f3eaff 0%, rgba(243,234,255,0) 50%), linear-gradient(160deg, #faf5ff 30%, #f2eafc 100%);
+    --theme-blob: radial-gradient(circle at 15% 18%, rgba(216,186,255,0.85) 0%, rgba(216,186,255,0) 30%), radial-gradient(circle at 82% 20%, rgba(196,160,255,0.7) 0%, rgba(196,160,255,0) 26%), radial-gradient(circle at 65% 78%, rgba(215,190,255,0.6) 0%, rgba(215,190,255,0) 26%), radial-gradient(circle at 28% 82%, rgba(186,180,255,0.6) 0%, rgba(186,180,255,0) 28%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);
+    --theme-blob-2: radial-gradient(circle at 88% 72%, rgba(206,150,255,0.55) 0%, rgba(206,150,255,0) 22%), radial-gradient(circle at 8% 62%, rgba(222,180,255,0.5) 0%, rgba(222,180,255,0) 24%), radial-gradient(circle at 55% 18%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 60%);
+    --theme-card: #ffffff;
+    --theme-text: #3a2a40;
+    --theme-sub: #8e6d9e;
+    --theme-accent: #8e24aa;
+    --theme-gradient: linear-gradient(135deg, #e1bee7, #ce93d8);
+    --tab-active: #ab47bc;
+    --bubble-right: #fff9c4;
+    --shadow: 0 2px 12px rgba(150, 120, 180, 0.15);
+}
+
+body.theme-orange {
+    --theme: #ffe0b2;
+    --theme-deep: #ff8f00;
+    --theme-tint-l: rgba(255,203,166,0.6);
+    --theme-tint-m: rgba(255,180,140,0.42);
+    --theme-tint-d: rgba(255,200,150,0.45);
+    --theme-light: #fff3e0;
+    --theme-bg: #fffaf5;
+    --theme-bg-grad: radial-gradient(120% 90% at 10% 0%, #ffece0 0%, rgba(255,236,224,0) 55%), radial-gradient(100% 80% at 95% 15%, #fff0e4 0%, rgba(255,240,228,0) 50%), linear-gradient(160deg, #fffaf5 30%, #fff1e8 100%);
+    --theme-blob: radial-gradient(circle at 15% 18%, rgba(255,203,166,0.85) 0%, rgba(255,203,166,0) 30%), radial-gradient(circle at 82% 20%, rgba(255,180,140,0.7) 0%, rgba(255,180,140,0) 26%), radial-gradient(circle at 65% 78%, rgba(255,214,170,0.6) 0%, rgba(255,214,170,0) 26%), radial-gradient(circle at 28% 82%, rgba(255,200,150,0.6) 0%, rgba(255,200,150,0) 28%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);
+    --theme-blob-2: radial-gradient(circle at 88% 72%, rgba(255,170,120,0.55) 0%, rgba(255,170,120,0) 22%), radial-gradient(circle at 8% 62%, rgba(255,220,170,0.5) 0%, rgba(255,220,170,0) 24%), radial-gradient(circle at 55% 18%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 60%);
+    --theme-card: #ffffff;
+    --theme-text: #4a3520;
+    --theme-sub: #a08060;
+    --theme-accent: #e65100;
+    --theme-gradient: linear-gradient(135deg, #ffe0b2, #ffb74d);
+    --tab-active: #ff8f00;
+    --bubble-right: #ffe082;
+    --shadow: 0 2px 12px rgba(200, 150, 100, 0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(rgba(255,255,255,0.28), rgba(255,255,255,0.28)), var(--app-bg-url, none), var(--theme-bg-grad, var(--theme-bg));
+    background-size: cover, cover, auto;
+    background-position: center, center, 0 0;
+    color: var(--theme-text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    transition: background 0.4s, color 0.4s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+body::before, body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+body::before {
+    background: var(--theme-blob);
+}
+body::after {
+    background: var(--theme-blob-2);
+    animation: blobFloat 14s ease-in-out infinite;
+}
+@keyframes blobFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(-2vw,-3vh) scale(1.06); }
+    66% { transform: translate(2vw,3vh) scale(0.96); }
+}
+
+.screen { display:none; position:fixed; top:0; left:0; right:0; bottom:0; overflow:hidden; z-index:1; }
+.screen.active { display:flex; flex-direction:column; }
+
+/* ===== 封面 ===== */
+#cover-screen { justify-content:center; align-items:center; background:#1a0a10; }
+#heart-canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
+.cover-content { position:relative; z-index:2; text-align:center; color:#fff; padding:20px; }
+.cover-content h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(255,100,150,0.6);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+@keyframes glow { from{text-shadow:0 0 10px rgba(255,120,160,0.5)} to{text-shadow:0 0 30px rgba(255,80,140,0.9)} }
+.cover-subtitle { font-size:0.85rem; opacity:0.7; margin-bottom:24px; }
+.enter-btn {
+    padding: 14px 40px;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ff6b8a, #ff4081);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255,64,129,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 2px;
+}
+.enter-btn:active { transform: scale(0.95); }
+
+/* ===== 密码页 ===== */
+#password-screen { justify-content:center; align-items:center; background:var(--theme-bg); }
+.password-box {
+    background: var(--theme-card);
+    padding: 36px 28px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    width: 88%;
+    max-width: 360px;
+}
+.password-box h2 { font-size:1.2rem; margin-bottom:16px; color:var(--theme-text); }
+.password-box input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--theme-light);
+    border-radius: 12px;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+    margin-bottom: 12px;
+    background: var(--theme-bg);
+    color: var(--theme-text);
+}
+.password-box input:focus { border-color: var(--theme-deep); }
+.password-box button {
+    padding: 12px 40px;
+    border: none;
+    border-radius: 25px;
+    background: var(--theme-gradient);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.password-box .hint { font-size:0.75rem; margin-top:10px; color:var(--theme-sub); }
+
+/* ===== 登录页 / 配对页（微信式：先登录） ===== */
+#login-screen, #pair-screen { justify-content:center; align-items:center; background:var(--theme-bg); }
+#login-screen .password-box button, #pair-screen .password-box button { display:block; width:100%; }
+.password-box .ghost-btn {
+    background: transparent;
+    color: var(--theme-sub);
+    box-shadow: none;
+    margin-top: 6px;
+}
+.auth-link { color: var(--theme-sub); font-size: 0.8rem; text-decoration: none; }
+
+/* ===== 主页面 ===== */
+#main-screen { max-width:500px; margin:0 auto; left:50%; transform:translateX(-50%); width:100%; }
+
+.tab-content { flex:1; overflow-y:auto; padding:12px 12px 76px; -webkit-overflow-scrolling:touch; }
+.tab-page { display:none; flex-direction:column; gap:14px; }
+.tab-page.active { display:flex; }
+
+.main-header { text-align:center; padding:10px 8px 4px; }
+.main-header h1 { font-size:1.4rem; margin-bottom:2px; color:var(--theme-text); }
+.main-header p { font-size:0.8rem; color:var(--theme-sub); margin-bottom:0; }
+
+/* ===== 在一起天数 - 水滴立体透明卡片 ===== */
+.together-card-3d {
+    margin: 8px 4px 6px;
+    padding: 24px 18px 18px;
+    text-align: center;
+    border-radius: 34px;
+    position: relative;
+    overflow: hidden;
+    color: var(--theme-text);
+    background: linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.03));
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow:
+        0 18px 36px -10px var(--theme-dropshadow, rgba(0,0,0,0.22)),
+        inset 3px 4px 12px rgba(255,255,255,0.9),
+        inset -5px -8px 14px rgba(120,100,140,0.22);
+    animation: togetherFloat 4.5s ease-in-out infinite;
+    transition: box-shadow 0.3s, transform 0.2s;
+}
+/* 胶囊形立体感：中部加一层纵向柔和的“柱体”浓度渐变，
+   再把原本扁平的卡片“拱”成柱状体积 */
+.together-card-3d::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(ellipse 95% 120% at 50% -8%, rgba(255,255,255,0.55), rgba(255,255,255,0) 55%),
+                radial-gradient(ellipse 90% 110% at 50% 108%, rgba(100,80,120,0.2), rgba(100,80,120,0) 50%),
+                radial-gradient(circle at 20% 30%, var(--theme-tint-l) 0%, rgba(255,255,255,0) 45%),
+                radial-gradient(circle at 80% 70%, var(--theme-tint-m) 0%, rgba(255,255,255,0) 42%),
+                radial-gradient(circle at 55% 85%, var(--theme-tint-d) 0%, rgba(255,255,255,0) 40%);
+    filter: blur(3px);
+}
+/* 高光：让卡片像水珠一样有一条流动的光 */
+.together-card-3d .drop-shine {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: -30%;
+    width: 60%;
+    height: 220%;
+    background: rgba(255,255,255,0.5);
+    transform: rotate(18deg);
+    filter: blur(18px);
+    border-radius: 50%;
+    animation: dropShine 5.5s ease-in-out infinite;
+    pointer-events: none;
+}
+/* 顶部聚光：竖向胶囊形高光条，强化“水柱”体积感 */
+.together-card-3d::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 50%;
+    width: 200px; height: 78px;
+    margin-left: -100px;
+    background: radial-gradient(ellipse 60% 50% at 50% 38%, rgba(255,255,255,0.9), rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    filter: blur(4px);
+    pointer-events: none;
+}
+@keyframes togetherFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+}
+@keyframes dropShine {
+    0%, 45% { left: -30%; opacity: 0; }
+    55%, 100% { left: 130%; opacity: 0.9; }
+}
+.together-card-3d:active {
+    box-shadow: 0 6px 14px -6px rgba(0,0,0,0.15), inset 2px 2px 6px rgba(255,255,255,0.8), inset -3px -4px 8px rgba(160,140,160,0.15);
+    animation: none;
+    transform: scale(0.99);
+}
+.together-card-3d #together-timer { font-size:0.92rem; color:var(--theme-sub); margin-bottom:2px; text-shadow: 0 1px 1px rgba(255,255,255,0.6); position:relative; z-index:1; }
+.together-card-3d .together-num {
+    font-size:2.15rem; font-weight:900; margin:6px 0;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--theme-text), var(--theme));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    position: relative; z-index: 1;
+}
+.together-card-3d .together-anni { font-size:0.85rem; color:var(--theme-sub); margin-bottom:6px; text-shadow: 0 1px 1px rgba(255,255,255,0.6); position:relative; z-index:1; }
+.together-card-3d .together-date-row { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:6px; position:relative; z-index:2; }
+/* 水滴小按钮 */
+.together-card-3d .small-btn-3d {
+    padding: 7px 16px; font-size:0.78rem; border:none; border-radius: 14px;
+    color: var(--theme-text); cursor:pointer;
+    background: linear-gradient(145deg, rgba(255,255,255,0.75), rgba(255,255,255,0.25));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.75);
+    box-shadow: 0 5px 12px -4px rgba(0,0,0,0.15), inset 1px 1px 3px rgba(255,255,255,0.9), inset -2px -2px 4px rgba(160,140,160,0.12);
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+.together-card-3d .small-btn-3d:active { box-shadow: 0 2px 5px -2px rgba(0,0,0,0.15), inset 1px 1px 3px rgba(255,255,255,0.7), inset -1px -2px 3px rgba(160,140,160,0.1); transform:scale(0.94); }
+#date-editor { display:none; margin-top:8px; }
+#date-editor input { padding:6px 10px; border:1px solid #e0d0d5; border-radius:8px; font-size:0.85rem; background:#fff; color:var(--theme-text); }
+#date-editor button { padding:6px 14px; border:none; border-radius:8px; background:var(--theme-gradient); color:#fff; cursor:pointer; font-size:0.82rem; margin-left:6px; }
+
+/* ===== 首页入口卡片 ===== */
+.home-entry-card {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 0 4px 8px; padding: 14px 16px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.08));
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow: 0 8px 18px -8px rgba(0,0,0,0.12), inset 1px 1px 5px rgba(255,255,255,0.7), inset -2px -3px 6px rgba(120,100,140,0.1);
+    cursor: pointer; transition: box-shadow 0.15s, transform 0.12s, background 0.15s;
+    font-size: 0.95rem; color: var(--theme-text);
+    position: relative;
+    overflow: hidden;
+}
+.home-entry-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 100% at 50% -8%, rgba(255,255,255,0.45), rgba(255,255,255,0) 55%);
+    filter: blur(2px);
+}
+.home-entry-card > span { position: relative; z-index: 1; }
+.home-entry-card:hover { background: linear-gradient(145deg, rgba(255,255,255,0.45), rgba(255,255,255,0.18)); }
+.home-entry-card:active { transform: scale(0.98); }
+.entry-calendar { background: linear-gradient(145deg, rgba(180,215,255,0.5), rgba(140,190,255,0.22)); }
+.entry-status  { background: linear-gradient(145deg, rgba(185,245,215,0.5), rgba(140,215,180,0.22)); }
+.entry-daily   { background: linear-gradient(145deg, rgba(255,215,180,0.5), rgba(255,185,135,0.22)); }
+.entry-anni    { background: linear-gradient(145deg, rgba(255,195,215,0.5), rgba(255,150,180,0.22)); }
+.entry-photos  { background: linear-gradient(145deg, rgba(205,190,255,0.5), rgba(170,150,245,0.22)); }
+
+/* ===== 子页通用 ===== */
+.home-sub-page { flex-direction:column; gap:12px; }
+.sub-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 4px; font-size: 1.05rem; font-weight: 600; color: var(--theme-text);
+}
+.sub-back-btn {
+    border: 1px solid rgba(255,255,255,0.7); font-size: 1.3rem; cursor: pointer;
+    padding: 4px 12px; color: var(--theme); border-radius: 10px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12), inset 1px 1px 3px rgba(255,255,255,0.9);
+    display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1;
+}
+.sub-back-btn:active { background: linear-gradient(145deg, rgba(255,255,255,0.85), rgba(255,255,255,0.5)); transform: scale(0.94); }
+
+.album-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.32), rgba(255,255,255,0.08));
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 10px 22px -8px rgba(0,0,0,0.12), inset 2px 2px 8px rgba(255,255,255,0.7), inset -3px -4px 8px rgba(120,100,140,0.1);
+    position: relative;
+    overflow: hidden;
+}
+.album-card::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    pointer-events:none;
+    background: radial-gradient(ellipse 90% 100% at 50% -6%, rgba(255,255,255,0.45), rgba(255,255,255,0) 55%);
+    filter: blur(2px);
+}
+.album-card h2 { font-size:1.05rem; margin-bottom:12px; color:var(--theme-text); display:flex; align-items:center; gap:6px; }
+
+.input-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+}
+.input-row input[type="text"],
+.input-row input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 10px;
+    font-size: 0.88rem;
+    background: linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.12));
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--theme-text);
+    outline: none;
+    flex:1;
+    min-width:120px;
+    box-shadow: inset 1px 1px 4px rgba(255,255,255,0.6), inset -1px -2px 4px rgba(120,100,140,0.08);
+}
+.input-row input:focus { border-color: var(--theme-deep); }
+.input-row button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: var(--theme-gradient);
+    color: #fff;
+    font-size:0.88rem;
+    cursor:pointer;
+    white-space:nowrap;
+}
+.input-row button:active { opacity:0.8; }
+.input-row label { font-size:0.82rem; color:var(--theme-sub); }
+
+.tip { font-size:0.78rem; color:var(--theme-sub); margin-top:8px; }
+
+/* ===== 卡片列表 ===== */
+.card-list { margin-top:12px; display:flex; flex-direction:column; gap:10px; }
+.card-list .card-item {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(255,215,225,0.4), rgba(255,255,255,0.10));
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 8px 18px -8px rgba(0,0,0,0.12), inset 1px 1px 5px rgba(255,255,255,0.7), inset -2px -3px 6px rgba(160,100,140,0.14);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:0.9rem;
+    transition: transform 0.15s;
+    position:relative;
+    overflow:hidden;
+}
+.card-list .card-item::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    pointer-events:none;
+    background: radial-gradient(ellipse 80% 100% at 50% -8%, rgba(255,255,255,0.45), rgba(255,255,255,0) 55%);
+    filter: blur(2px);
+}
+.card-list .card-item > * { position: relative; }
+.card-list .card-item:active { transform:scale(0.98); }
+.card-list .card-item .del-btn {
+    margin-left:auto;
+    color:#d3545c;
+    cursor:pointer;
+    padding:6px 10px;
+    font-size:0.95rem;
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12), inset 1px 1px 3px rgba(255,255,255,0.9);
+    line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.card-list .card-item .del-btn:hover { background: rgba(255,210,210,0.8); color:#e53935; }
+.card-list .card-item .del-btn:active { transform: scale(0.92); }
+.card-list .card-date { font-size:0.75rem; color:var(--theme-sub); white-space:nowrap; }
+.card-list .card-name { font-weight:600; white-space:nowrap; }
+.card-list .card-emoji { font-size:1.3rem; }
+
+/* ===== 相册 ===== */
+.photo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:8px; }
+.photo-grid img {
+    width:100%;
+    aspect-ratio:1;
+    object-fit:cover;
+    border-radius:10px;
+    cursor:pointer;
+    transition:transform 0.2s;
+    background: var(--theme-light);
+}
+.photo-grid img:active { transform:scale(0.93); }
+.photo-item-wrap { position:relative; }
+.photo-item-wrap .photo-del {
+    position:absolute;
+    top:4px;
+    right:4px;
+    background:rgba(0,0,0,0.5);
+    color:#fff;
+    border-radius:50%;
+    width:22px;
+    height:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    cursor:pointer;
+    opacity:0;
+    transition:opacity 0.2s;
+}
+.photo-item-wrap:hover .photo-del { opacity:1; }
+.photo-checkbox {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: rgba(0,0,0,0.25);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    cursor: pointer;
+    font-size: 14px;
+    color: #fff;
+    transition: all 0.15s;
+}
+.photo-checkbox.checked { background: var(--theme); border-color: var(--theme); }
+.photo-checkbox.show { display: flex; }
+.photo-select-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    padding: 10px 14px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 500;
+    flex-wrap: wrap;
+}
+.photo-select-bar.show { display: flex; }
+.photo-select-bar .sel-count { flex: 1; font-size: 0.9rem; color: #333; min-width: 60px; }
+.photo-select-bar button {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sel-btn-save { background: var(--theme-gradient); color: #fff; }
+.sel-btn-del { background: #ff6b6b; color: #fff; }
+.sel-btn-cancel { background: #e0e0e0; color: #555; }
+.home-sub-page.photos-page { padding-bottom: 56px; }
+
+/* 图片灯箱 */
+.lightbox {
+    display:none;
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.92);
+    z-index:10000;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+}
+.lightbox.show { display:flex; }
+.lightbox img {
+    max-width:92vw;
+    max-height:75vh;
+    border-radius:12px;
+    object-fit:contain;
+    transition: transform 0.3s, opacity 0.3s;
+}
+.lightbox .lb-close {
+    position:absolute;
+    top:16px;
+    right:20px;
+    color:#fff;
+    font-size:2rem;
+    cursor:pointer;
+    z-index:1;
+}
+.lightbox .lb-nav {
+    display:flex;
+    justify-content:space-between;
+    width:90vw;
+    margin-top:16px;
+}
+.lightbox .lb-nav button {
+    background:rgba(255,255,255,0.15);
+    border:none;
+    color:#fff;
+    font-size:1.5rem;
+    padding:10px 20px;
+    border-radius:12px;
+    cursor:pointer;
+}
+.lightbox .lb-counter { color:#ccc; font-size:0.9rem; margin-top:8px; }
+
+/* ===== 全屏留言会话 ===== */
+#msg-chat-view {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    background-color: #f0efe6;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(0,0,0,0.025) 30px, rgba(0,0,0,0.025) 60px), repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(0,0,0,0.018) 30px, rgba(0,0,0,0.018) 60px);
+}
+#msg-chat-view.has-bg {
+    background-image: var(--chat-bg-url);
+    background-color: #e8e5df;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#msg-chat-view.active { display: flex; }
+.chat-header {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.chat-back-btn {
+    border: 1px solid rgba(255,255,255,0.7); font-size: 1.3rem; cursor:pointer; padding:4px 12px; color:var(--theme);
+    border-radius:10px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12), inset 1px 1px 3px rgba(255,255,255,0.9);
+    display:inline-flex; align-items:center; justify-content:center; line-height:1;
+}
+.chat-back-btn:active { background: linear-gradient(145deg, rgba(255,255,255,0.85), rgba(255,255,255,0.5)); transform: scale(0.94); }
+.chat-bg-btn { cursor:pointer; font-size:1rem; opacity:0.6; transition:opacity 0.2s; margin-left:auto; }
+.chat-bg-btn:hover { opacity:1; }
+.chat-bg-clear {
+    cursor:pointer; font-size:0.7rem; color:#d3545c; margin-left:6px; display:none;
+    border: 1px solid rgba(255,255,255,0.7); border-radius: 50%; padding: 4px 7px; line-height: 1;
+    background: linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1), inset 1px 1px 2px rgba(255,255,255,0.9);
+}
+.chat-bg-clear:hover { color:#e53935; background: rgba(255,210,210,0.8); }
+.chat-bg-clear.show { display:inline-flex; align-items:center; vertical-align:middle; }
+.chat-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: transparent;
+}
+.chat-input-row {
+    flex-shrink: 0;
+    display: flex; gap: 8px;
+    padding: 8px 10px;
+    background: rgba(247,247,247,0.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+/* ===== 账号切换 ===== */
+.account-item {
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px;
+    background:linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.08));
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.5);
+    box-shadow: inset 1px 1px 5px rgba(255,255,255,0.6);
+    cursor:pointer; transition:all 0.2s; margin-bottom:6px;
+}
+.account-item.active { border-color:var(--theme); background:linear-gradient(145deg, rgba(255,255,255,0.45), rgba(255,255,255,0.15)); }
+.account-item:hover { background:linear-gradient(145deg, rgba(255,255,255,0.5), rgba(255,255,255,0.18)); }
+.account-avatar {
+    width:40px; height:40px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.2));
+    border:1px solid rgba(255,255,255,0.6);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    box-shadow: inset 1px 1px 3px rgba(255,255,255,0.8), 0 2px 5px rgba(0,0,0,0.08);
+    flex-shrink:0; font-size:24px;
+}
+.account-avatar img { width:100%; height:100%; object-fit:cover; }
+.account-info { flex:1; }
+.account-nick { font-size:0.9rem; color:var(--theme-text); font-weight:500; }
+.account-tag { font-size:0.7rem; color:var(--theme-sub); }
+.account-check { color:var(--theme); font-size:1.2rem; }
+.account-edit {
+    font-size:0.75rem; cursor:pointer; opacity:1; margin-left:4px; vertical-align:middle;
+    display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px;
+    border:1px solid rgba(255,255,255,0.7); border-radius:50%;
+    background:linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    box-shadow: inset 1px 1px 2px rgba(255,255,255,0.9), 0 1px 3px rgba(0,0,0,0.08);
+    transition: transform 0.15s;
+}
+.account-edit:hover { transform:scale(1.1); }
+.account-edit:active { transform:scale(0.9); }
+
+/* ===== 资料卡弹窗 ===== */
+.profile-modal-bg { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:2000; display:flex; align-items:center; justify-content:center; animation:fadeIn 0.2s; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.profile-modal {
+    background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15));
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-radius: 22px;
+    padding:30px 24px 20px;
+    width:280px;
+    text-align:center;
+    position:relative;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.28), inset 2px 2px 8px rgba(255,255,255,0.8), inset -4px -6px 12px rgba(160,100,140,0.2);
+    animation:scaleIn 0.25s ease-out;
+}
+@keyframes scaleIn { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+.profile-modal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(ellipse 90% 100% at 50% -6%, rgba(255,255,255,0.55), rgba(255,255,255,0) 55%);
+    filter: blur(2px);
+}
+.profile-modal > *:not(.profile-modal-close) { position: relative; }
+.profile-modal-close {
+    position:absolute; top:12px; right:14px; font-size:1.1rem; color:#d3545c; cursor:pointer;
+    border: 1px solid rgba(255,255,255,0.8); border-radius: 50%; width:32px; height:32px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(145deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12), inset 1px 1px 3px rgba(255,255,255,0.95);
+}
+.profile-modal-close:active { transform: scale(0.92); }
+.profile-modal-avatar { width:64px; height:64px; border-radius:50%; overflow:hidden; margin:0 auto 10px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:32px; cursor:pointer; }
+.profile-modal-avatar:hover { opacity:0.8; }
+.profile-modal-avatar img { width:100%; height:100%; object-fit:cover; }
+.profile-modal-nick { font-size:1.1rem; font-weight:600; color:#333; cursor:pointer; padding:4px 8px; }
+.profile-modal-nick:hover { background:#f5f5f5; border-radius:6px; }
+.profile-modal-role { font-size:0.8rem; color:#999; margin-top:4px; margin-bottom:16px; }
+.profile-modal-role-gender { display:flex; gap:10px; margin-bottom:16px; justify-content:center; }
+.gender-btn {
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 2px solid #e0d0d5;
+    background: #fff;
+    color: #666;
+    transition: all 0.2s;
+    user-select: none;
+}
+.gender-btn:active { transform: scale(0.95); }
+.gender-btn.active { border-color: var(--theme-accent); background: #fff0f5; color: #d36b8e; font-weight: 600; }
+.profile-modal-save { padding:8px 40px; border:none; border-radius:20px; background:var(--theme-gradient); color:#fff; font-size:0.9rem; cursor:pointer; }
+.profile-modal-save:hover { opacity:0.9; }
+.msg-row { width: 100%; display: flex; }
+.msg-row.left-row { justify-content: flex-start; }
+.msg-row.right-row { justify-content: flex-end; }
+.chat-msg {
+    display: flex;
+    animation: msgIn 0.28s ease-out;
+    gap: 8px;
+}
+@keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.chat-body { display:flex; flex-direction:column; max-width:75%; }
+.chat-body.left-body { align-items:flex-start; }
+.chat-body.right-body { align-items:flex-end; }
+.chat-nick-name {
+    font-size: 0.75rem;
+    color: var(--theme-sub);
+    margin-bottom: 3px;
+    padding: 0 4px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.chat-msg .bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size:0.9rem;
+    line-height:1.45;
+    word-break: break-word;
+    position:relative;
+}
+.msg-row.left-row .bubble {
+    background: var(--bubble-left);
+    border-bottom-left-radius:4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.msg-row.right-row .bubble {
+    background: var(--bubble-right);
+    border-bottom-right-radius:4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.chat-msg .bubble { user-select: text; -webkit-user-select: text; }
+.chat-msg .chat-avatar { width:36px; height:36px; border-radius:4px; overflow:hidden; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:22px; background:#e0e0e0; }
+.chat-msg .chat-avatar img { width:100%; height:100%; object-fit:cover; }
+/* ===== 会话列表（微信风格） ===== */
+.conversation-item { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; cursor:pointer; transition:background 0.15s; }
+.conversation-item:hover { background:rgba(0,0,0,0.03); }
+.conversation-item:active { background:rgba(0,0,0,0.06); }
+.conversation-avatar { width:48px; height:48px; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#e0e0e0; font-size:28px; flex-shrink:0; }
+.conversation-avatar img { width:100%; height:100%; object-fit:cover; }
+.conversation-body { flex:1; min-width:0; }
+.conversation-name { font-size:0.95rem; font-weight:500; color:var(--theme-text); }
+.conversation-preview { font-size:0.78rem; color:var(--theme-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; margin-top:2px; }
+.conversation-time { font-size:0.7rem; color:#bbb; flex-shrink:0; align-self:flex-start; margin-top:3px; }
+
+.chat-input-row textarea {
+    flex:1;
+    resize: none;
+    overflow-y: auto;
+    max-height: 120px;
+    min-height: 36px;
+    padding: 8px 12px;
+    border:1px solid #e0d0d5;
+    border-radius: 8px;
+    font-size:0.88rem;
+    line-height:1.4;
+    background:var(--theme-bg);
+    color:var(--theme-text);
+    outline:none;
+    font-family: inherit;
+}
+.chat-input-row textarea:focus { border-color: var(--theme-deep); }
+.chat-input-row button {
+    padding:8px 18px;
+    border:none;
+    border-radius:20px;
+    background:var(--theme-gradient);
+    color:#fff;
+    cursor:pointer;
+    font-size:0.88rem;
+    flex-shrink:0;
+}
+.emoji-btn {
+    background: none !important;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 8px;
+    color: inherit;
+}
+.emoji-btn:active { background: rgba(0,0,0,0.06) !important; }
+.emoji-picker {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 8px;
+    background: rgba(247,247,247,0.95);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    max-height: 200px;
+    overflow-y: auto;
+    justify-content: center;
+}
+.emoji-picker span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.1s;
+}
+.emoji-picker span:hover { background: rgba(0,0,0,0.08); }
+.emoji-picker span:active { background: rgba(0,0,0,0.14); }
+.context-menu {
+    position: fixed;
+    z-index: 3000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(40,40,40,0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 4px 0;
+    min-width: 120px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: none;
+    animation: menuIn 0.15s ease-out;
+}
+@keyframes menuIn { from{opacity:0;transform:translate(-50%,-50%) scale(0.9)} to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
+.context-menu .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s;
+}
+.context-menu .menu-item:hover { background: rgba(255,255,255,0.12); }
+.context-menu .menu-item:active { background: rgba(255,255,255,0.2); }
+.context-menu .menu-item.danger { color: #ff6b6b; }
+.context-menu .menu-divider { height: 1px; background: rgba(255,255,255,0.12); margin: 2px 0; }
+.chat-role-select { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+.profile-row {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 12px;
+    border-radius:12px;
+    background:var(--theme-bg);
+    cursor:pointer;
+    transition:all 0.2s;
+    border:2px solid transparent;
+}
+.profile-row.active { border-color:var(--theme); background:var(--theme-light); }
+.profile-avatar { width:38px; height:38px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#e8e8e8; cursor:pointer; flex-shrink:0; font-size:22px; }
+.profile-avatar:hover { opacity:0.75; }
+.profile-avatar img { width:100%; height:100%; object-fit:cover; }
+.profile-nick { flex:1; font-size:0.9rem; color:var(--theme-text); cursor:pointer; }
+.profile-nick:hover { text-decoration:underline; }
+.profile-arrow { font-size:1.2rem; color:#c0c0c0; flex-shrink:0; }
+.nick-edit-input { flex:1; font-size:0.9rem; border:none; border-bottom:1px solid var(--theme); background:transparent; color:var(--theme-text); outline:none; padding:2px 0; }
+
+/* ===== 恋爱日历 ===== */
+.calendar-nav { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:10px; }
+.calendar-nav button { background:none; border:1px solid var(--theme); border-radius:8px; padding:4px 12px; cursor:pointer; font-size:1rem; color:var(--theme-text); }
+.calendar-nav span { font-weight:600; font-size:0.95rem; }
+.calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
+.calendar-grid .day-name { font-size:0.7rem; color:var(--theme-sub); padding:6px 0; }
+.calendar-grid .day-cell {
+    aspect-ratio:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border-radius:8px;
+    font-size:0.82rem;
+    cursor:pointer;
+    position:relative;
+    transition: background 0.15s;
+}
+.calendar-grid .day-cell:hover { background: var(--theme-light); }
+.calendar-grid .day-cell.today { background: var(--theme-deep); color:#fff; font-weight:700; border-radius:50%; }
+.calendar-grid .day-cell.other-month { opacity:0.3; }
+.calendar-grid .day-cell .mark-dot { font-size:0.6rem; }
+.day-label { font-size:0.45rem; color:var(--accent); word-break:break-all; overflow-wrap:break-word; max-width:100%; line-height:1.1; }
+
+/* ===== 设置 ===== */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 14px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.34), rgba(180,200,255,0.18));
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 10px 22px -8px rgba(0,0,0,0.12), inset 2px 2px 8px rgba(255,255,255,0.7), inset -3px -4px 8px rgba(120,100,150,0.1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.profile-header::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    pointer-events:none;
+    background: radial-gradient(ellipse 90% 100% at 50% -8%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%);
+    filter: blur(2px);
+}
+.profile-header > * { position:relative; z-index:1; }
+.profile-header:hover { background: linear-gradient(145deg, rgba(255,255,255,0.5), rgba(180,200,255,0.28)); }
+.profile-header:active { background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(180,200,255,0.32)); }
+.profile-header-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ffd6e8, #cfe0ff);
+    font-size: 30px;
+    flex-shrink: 0;
+    box-shadow: inset 1px 1px 4px rgba(255,255,255,0.8), 0 4px 10px -3px rgba(0,0,0,0.2);
+}
+.profile-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-header-info { flex: 1; min-width: 0; }
+.profile-header-nick { font-size: 1.1rem; font-weight: 600; color: #333; }
+.profile-header-acct { font-size: 0.8rem; color: #999; margin-top: 3px; }
+.profile-header-arrow {
+    color:#d3545c;
+    font-size:0.8rem;
+    width:28px; height:28px;
+    display:flex; align-items:center; justify-content:center; flex:none;
+    border:1px solid rgba(255,255,255,0.7); border-radius:50%;
+    background:linear-gradient(145deg, rgba(255,255,255,0.65), rgba(255,255,255,0.25));
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    box-shadow: inset 1px 1px 3px rgba(255,255,255,0.9), 0 1px 4px rgba(0,0,0,0.08);
+}
+.settings-list { display: flex; flex-direction: column; gap: 8px; }
+.settings-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 14px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.08));
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: inset 1px 1px 5px rgba(255,255,255,0.6), inset -2px -2px 5px rgba(120,100,140,0.07);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.settings-item:first-child { border-radius: 12px 12px 12px 12px; }
+.settings-item:last-child { border-radius: 12px 12px 12px 12px; }
+.settings-item:only-child { border-radius: 12px; }
+.settings-item:hover { background: linear-gradient(145deg, rgba(255,255,255,0.5), rgba(255,255,255,0.18)); }
+.settings-item:active { background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.22)); }
+.settings-item-icon { font-size: 1.2rem; width: 24px; text-align: center; }
+.settings-item-text { flex: 1; font-size: 0.95rem; color: #333; }
+.settings-item-arrow {
+    color:#d3545c;
+    font-size:0.8rem;
+    width:28px; height:28px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(255,255,255,0.7); border-radius:50%;
+    background:linear-gradient(145deg, rgba(255,255,255,0.65), rgba(255,255,255,0.25));
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    box-shadow: inset 1px 1px 3px rgba(255,255,255,0.9), 0 1px 4px rgba(0,0,0,0.08);
+    flex:none;
+}
+.settings-item-arrow:active { transform:scale(0.9); }
+.settings-section-title { font-size: 0.78rem; color: #999; padding: 12px 14px 6px; }
+.setting-item { margin-bottom:14px; }
+.setting-item label { display:block; font-size:0.88rem; font-weight:600; margin-bottom:6px; color:var(--theme-text); }
+.setting-item input[type="text"] {
+    width:100%;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,0.6);
+    border-radius:10px;
+    font-size:0.88rem;
+    background:linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0.12));
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+    box-shadow: inset 1px 1px 4px rgba(255,255,255,0.6);
+    color:var(--theme-text);
+    outline:none;
+}
+.setting-item input:focus { border-color:var(--theme-deep); }
+.theme-selector { display:flex; gap:10px; }
+.theme-btn {
+    width:44px; height:44px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,0.7);
+    cursor:pointer;
+    font-size:1.3rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(145deg, rgba(255,255,255,0.45), rgba(255,255,255,0.12));
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+    box-shadow: inset 1px 1px 4px rgba(255,255,255,0.7), inset -2px -2px 4px rgba(130,90,120,0.1);
+    transition:transform 0.2s, border 0.2s;
+}
+.theme-btn:active { transform:scale(0.9); }
+.theme-btn.active { border-color:var(--theme-accent); border-width:3px; box-shadow: 0 0 0 3px rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.12); }
+.share-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 22px;
+    background: var(--theme-gradient);
+    color: #fff;
+    font-size: 0.88rem;
+    cursor: pointer;
+    margin-right:6px;
+}
+.share-btn:active { opacity:0.8; }
+#share-link {
+    width:100%;
+    margin-top:8px;
+    padding:8px;
+    border:1px dashed rgba(255,255,255,0.7);
+    border-radius:8px;
+    font-size:0.75rem;
+    background:linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.1));
+    -webkit-backdrop-filter:blur(8px);
+    backdrop-filter:blur(8px);
+    color:var(--theme-sub);
+    text-align:center;
+}
+.online-badge { text-align:center; font-size:0.8rem; color:var(--theme-sub); margin-top:8px; }
+
+.recent-list { display:flex; flex-direction:column; gap:8px; }
+.recent-list .recent-item { padding:8px 12px; border-radius:10px; background:var(--theme-bg); font-size:0.88rem; }
+
+.recent-badge {
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(255,215,225,0.45), rgba(255,255,255,0.12));
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 6px 16px -6px rgba(0,0,0,0.12), inset 1px 1px 4px rgba(255,255,255,0.7);
+    font-size:0.88rem;
+    margin-bottom:8px;
+    font-weight:600;
+    color: var(--theme-text);
+}
+
+/* ===== 贴心 Tab ===== */
+.period-page { padding: 20px 16px calc(80px + env(safe-area-inset-bottom)); overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.period-phase-card { border-radius: 16px; padding: 20px; text-align: center; color: #fff; position: relative; overflow: hidden; }
+.period-phase-card.phase-period { background: linear-gradient(135deg, #f06292, #e91e63); }
+.period-phase-card.phase-safe { background: linear-gradient(135deg, #81c784, #43a047); }
+.period-phase-card.phase-fertile { background: linear-gradient(135deg, #ba68c8, #8e24aa); }
+.period-phase-card.phase-luteal { background: linear-gradient(135deg, #ffb74d, #f57c00); }
+.period-phase-day { font-size: 0.9rem; opacity: 0.85; margin-bottom: 4px; }
+.period-phase-num { font-size: 3rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.period-phase-label { font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
+.period-phase-msg { font-size: 0.85rem; opacity: 0.9; }
+.period-progress-bar { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.period-progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s; }
+.period-progress-dot.filled { background: #999; }
+.period-progress-dot.period-dot { background: #e91e63; }
+.period-progress-dot.fertile-dot { background: #ab47bc; }
+.period-progress-dot.luteal-dot { background: #ff9800; }
+.period-progress-dot.today-dot { width: 10px; height: 10px; box-shadow: 0 0 6px currentColor; }
+.period-progress-legend { display: flex; gap: 12px; justify-content: center; font-size: 0.7rem; color: #999; flex-wrap: wrap; }
+.period-progress-legend span { display: flex; align-items: center; gap: 4px; }
+.period-progress-legend .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.period-progress-legend .dot.red { background: #e91e63; }
+.period-progress-legend .dot.green { background: #999; }
+.period-progress-legend .dot.purple { background: #ab47bc; }
+.period-progress-legend .dot.orange { background: #ff9800; }
+.period-calendar-section {
+    background: linear-gradient(145deg, rgba(255,205,220,0.45), rgba(255,255,255,0.10));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-radius: 18px;
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 10px 22px -8px rgba(0,0,0,0.12), inset 2px 2px 8px rgba(255,255,255,0.7), inset -3px -4px 8px rgba(160,100,130,0.18);
+    position: relative;
+    overflow: hidden;
+}
+.period-calendar-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(ellipse 90% 100% at 50% -6%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%);
+    filter: blur(2px);
+}
+.period-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.period-cal-header .cal-month-label { font-size: 1rem; font-weight: 600; color: #333; }
+.period-cal-header button { width: 32px; height: 32px; border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15)); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 1px 1px 3px rgba(255,255,255,0.8); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; }
+.period-cal-header button:active { background: linear-gradient(145deg, rgba(255,255,255,0.75), rgba(255,255,255,0.25)); }
+.period-cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: #aaa; margin-bottom: 4px; }
+.period-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.period-cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-radius: 50%; position: relative; cursor: default; color: #444; }
+.period-cal-day.today { font-weight: 700; color: #333; }
+.period-cal-day.cal-stage { color: #fff; }
+.period-cal-day.safe-day { background: #4caf50; }
+.period-cal-day.fertile-day { background: #9c27b0; }
+.period-cal-day.luteal-day { background: #ffb300; color: #4a3500; }
+.period-cal-day.period-day { background: #e53935; }
+.period-cal-day.predicted-day { background: #f06292; opacity: 0.85; }
+.period-cal-day.ovulation-day { box-shadow: inset 0 0 0 2px #fff; }
+.period-cal-day.ovulation-day::after { content: '✦'; position: absolute; top: -2px; right: 0; font-size: 0.6rem; color: #fff; }
+.period-cal-day.today { box-shadow: inset 0 0 0 2px #333; }
+.period-cal-day.selected { background: #fff; color: #ec407a; box-shadow: inset 0 0 0 2px #ec407a; font-weight: 700; }
+.period-cal-day.selected::after { content: none; }
+.period-cal-day.empty { cursor: default; background: transparent; box-shadow: none; color: transparent; }
+.period-cal-legend { display: flex; gap: 12px; justify-content: center; margin-top: 10px; font-size: 0.7rem; color: #999; flex-wrap: wrap; }
+.period-cal-legend span { display: flex; align-items: center; gap: 4px; }
+.period-cal-legend .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.period-info-card {
+    background: linear-gradient(145deg, rgba(255,215,225,0.42), rgba(255,255,255,0.10));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-radius: 18px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 10px 22px -8px rgba(0,0,0,0.12), inset 2px 2px 8px rgba(255,255,255,0.7), inset -3px -4px 8px rgba(160,100,130,0.18);
+    position: relative;
+    overflow: hidden;
+}
+.period-info-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(ellipse 90% 100% at 50% -6%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%); filter: blur(2px); }
+.period-info-card h3 { font-size: 0.95rem; margin-bottom: 10px; color: #333; position: relative; z-index: 1; }
+.period-info-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: #666; border-bottom: 1px solid rgba(255,255,255,0.5); position: relative; }
+.period-info-row:last-child { border-bottom: none; }
+.period-info-row .val { font-weight: 600; color: #333; }
+.period-record-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg, #f06292, #ec407a); color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(240, 98, 146, 0.3); transition: transform 0.15s; }
+.period-record-btn:active { transform: scale(0.97); }
+.period-record-btn.done { background: linear-gradient(135deg, #bdbdbd, #9e9e9e); box-shadow: none; pointer-events: none; }
+.period-action-bar { display: flex; gap: 8px; }
+.period-action-btn { flex: 1; padding: 13px 0; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #fff; transition: transform 0.15s, opacity 0.2s; }
+.period-action-btn:active { transform: scale(0.96); }
+.period-action-btn.record { background: linear-gradient(135deg, #f06292, #ec407a); box-shadow: 0 3px 10px rgba(240,98,146,0.3); }
+.period-action-btn.end { background: linear-gradient(135deg, #81c784, #43a047); box-shadow: 0 3px 10px rgba(67,160,71,0.3); }
+.period-action-btn.delay { background: linear-gradient(135deg, #ffb74d, #fb8c00); box-shadow: 0 3px 10px rgba(251,140,0,0.3); }
+.period-action-btn.disabled { background: #e0e0e0; color: #999; box-shadow: none; pointer-events: none; }
+.period-history-card {
+    background: linear-gradient(145deg, rgba(255,220,230,0.40), rgba(255,255,255,0.10));
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-radius: 18px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 10px 22px -8px rgba(0,0,0,0.12), inset 2px 2px 8px rgba(255,255,255,0.7), inset -3px -4px 8px rgba(160,100,130,0.18);
+    position: relative;
+    overflow: hidden;
+}
+.period-history-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(ellipse 90% 100% at 50% -6%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%); filter: blur(2px); }
+.period-history-card h3 { font-size: 0.95rem; margin-bottom: 10px; color: #333; position: relative; z-index: 1; }
+.period-history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.5); font-size: 0.85rem; color: #555; position: relative; }
+.period-history-item:last-child { border-bottom: none; }
+.period-history-item .del-btn {
+    color: #d3545c; cursor: pointer; font-size: 0.9rem; padding: 6px 10px;
+    border: 1px solid rgba(255,255,255,0.7); border-radius: 50%; line-height: 1;
+    background: linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12), inset 1px 1px 3px rgba(255,255,255,0.9);
+    display: flex; align-items: center; justify-content: center;
+}
+.period-history-item .del-btn:hover { color: #e53935; background: rgba(255,210,210,0.8); }
+.period-history-item .del-btn:active { transform: scale(0.92); }
+.period-settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.period-settings-row label { font-size: 0.9rem; color: #333; }
+.period-settings-row .stepper { display: flex; align-items: center; gap: 8px; }
+.period-settings-row .stepper button { width: 30px; height: 30px; border: 1px solid #ddd; border-radius: 50%; background: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; }
+.period-settings-row .stepper button:active { background: #f5f5f5; }
+.period-settings-row .stepper .val { font-size: 1rem; font-weight: 600; color: #333; min-width: 24px; text-align: center; }
+.period-save-settings { width: 100%; margin-top: 20px; padding: 12px; border: none; border-radius: 10px; background: var(--theme-gradient); color: #fff; font-size: 0.95rem; cursor: pointer; }
+.period-date-selects { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 20px 0; }
+.period-date-selects select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; color: #333; background: #fff; appearance: auto; cursor: pointer; }
+.period-date-selects .pdp-label { font-size: 0.85rem; color: #999; }
+.period-title-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 0; }
+.period-title-row h2 { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 6px; color: #333; margin: 0; }
+.period-settings-btn { width: 34px; height: 34px; border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15)); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 1px 1px 3px rgba(255,255,255,0.8); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.period-settings-btn:active { background: linear-gradient(145deg, rgba(255,255,255,0.75), rgba(255,255,255,0.25)); }
+
+/* 底部 Tab */
+.bottom-tab-bar {
+    display:flex;
+    background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0.12));
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border-top: 1px solid rgba(255,255,255,0.6);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    max-width:500px;
+    margin:0 auto;
+    z-index:100;
+    box-shadow: 0 -4px 18px -6px rgba(0,0,0,0.12), inset 0 1px 4px rgba(255,255,255,0.6);
+}
+.tab-item {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    padding:4px 0;
+    cursor:pointer;
+    transition:color 0.2s;
+    color: var(--theme-sub);
+    font-size:0.7rem;
+}
+.tab-item .tab-icon { font-size:1.5rem; line-height:1; }
+.tab-item.active { color: var(--tab-active); font-weight:600; }
+.tab-item:active { transform:scale(0.92); }
+
+/* Custom Select & Emoji */
+.emoji-editable { display:inline-block; padding:1px 2px; border-radius:3px; cursor:default; }
+.emoji-popover {
+    position:fixed;
+    background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.12));
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.2), inset 1px 1px 4px rgba(255,255,255,0.8);
+    padding:12px; z-index:99999; width:280px; max-height:340px; overflow-y:auto;
+    border: 1px solid rgba(255,255,255,0.6);
+    font-size:22px; animation:popIn 0.15s ease-out;
+}
+@keyframes popIn { from{opacity:0;transform:translateY(-6px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+.emoji-popover .emoji-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.emoji-popover .emoji-item { text-align:center; padding:4px 0; border-radius:6px; cursor:pointer; transition:background 0.15s, transform 0.1s; }
+.emoji-popover .emoji-item:hover { background:#fce4ec; transform:scale(1.2); }
+.emoji-popover .emoji-add-row { display:flex; gap:6px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.55); }
+.emoji-popover .emoji-add-row input { flex:1; padding:6px 8px; border:1px solid rgba(255,255,255,0.6); border-radius:6px; font-size:16px; outline:none; background: rgba(255,255,255,0.35); }
+.emoji-popover .emoji-add-row input:focus { border-color:#f48fb1; }
+.emoji-popover .emoji-add-row button { padding:6px 12px; background:linear-gradient(135deg,#f48fb1,#f06292); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+.emoji-popover .popover-title { font-size:12px; color:#999; margin-bottom:8px; }
+
+.custom-select-wrap { display:inline-block; position:relative; }
+.custom-select { display:inline-flex; align-items:center; gap:4px; padding:7px 26px 7px 10px; border:1px solid rgba(255,255,255,0.6); border-radius:8px; background:linear-gradient(145deg, rgba(255,255,255,0.35), rgba(255,255,255,0.12)); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); cursor:pointer; font-size:14px; min-width:110px; box-shadow:inset 1px 1px 4px rgba(255,255,255,0.6); }
+.custom-select-arrow { position:absolute; right:8px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:10px; color:#999; }
+.custom-select-menu {
+    position:absolute; top:calc(100% + 4px); left:0;
+    background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15));
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius:12px; box-shadow:0 6px 24px rgba(0,0,0,0.15), inset 1px 1px 4px rgba(255,255,255,0.8);
+    z-index:99998; min-width:160px; padding:6px; animation:popIn 0.15s ease-out;
+}
+.custom-select-menu .menu-item { display:flex; align-items:center; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:14px; gap:6px; transition:background 0.15s; }
+.custom-select-menu .menu-item:hover { background: rgba(255,192,203,0.35); }
+.custom-select-menu .menu-item .del-option {
+    margin-left:auto; color:#d3545c; font-size:14px; padding:4px 7px;
+    border: 1px solid rgba(255,255,255,0.7); border-radius: 50%; line-height: 1;
+    background: linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1), inset 1px 1px 2px rgba(255,255,255,0.9);
+    display:flex; align-items:center; justify-content:center;
+}
+.custom-select-menu .menu-item .del-option:hover { color:#e53935; background: rgba(255,210,210,0.8); }
+.custom-select-menu .menu-item .del-option:active { transform: scale(0.9); }
+.custom-select-menu .add-option-row { display:flex; gap:4px; padding-top:6px; margin-top:6px; border-top:1px solid rgba(255,255,255,0.55); }
+.custom-select-menu .add-option-row input { flex:1; padding:4px 6px; border:1px solid rgba(255,255,255,0.6); border-radius:4px; font-size:13px; min-width:0; background: rgba(255,255,255,0.35); }
+.custom-select-menu .add-option-row input:first-child { width:46px; flex:none; text-align:center; }
+.custom-select-menu .add-option-row button { padding:4px 8px; background:#f48fb1; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; }
+</style>
+</head>
+<body onload="initApp()">
+
+<!-- ===== 封面 ===== -->
+<div id="cover-screen" class="screen">
+    <canvas id="heart-canvas"></canvas>
+    <div class="cover-content">
+        <h1 contenteditable="true">💕 我们的纪念册</h1>
+        <p class="cover-subtitle">点击标题可以修改文字哦</p>
+        <button class="enter-btn" onclick="enterMain()">
+            <span class="emoji-editable" data-key="cover_enter_l">✨</span> 进入我们的纪念册 <span class="emoji-editable" data-key="cover_enter_r">✨</span>
+        </button>
+    </div>
+</div>
+
+<!-- ===== 密码页 ===== -->
+<div id="password-screen" class="screen">
+    <div class="password-box">
+        <h2><span class="emoji-editable" data-key="pwd_lock">🔒</span> 这是属于我们的小秘密</h2>
+        <input type="password" id="password-input" placeholder="请输入密码" onkeydown="if(event.key==='Enter')checkPassword()">
+        <button onclick="checkPassword()">进入</button>
+        <p class="hint">忘记密码？清除浏览器数据即可</p>
+    </div>
+</div>
+
+<!-- ===== 登录页（微信式：先登录再进入） ===== -->
+<div id="login-screen" class="screen active">
+    <div class="password-box">
+        <h2>💕 我们的纪念册</h2>
+        <p class="hint" style="margin-bottom:14px;">请先登录，才能进入你们的专属空间</p>
+        <input type="email" id="login-email" placeholder="邮箱" autocomplete="email" onkeydown="if(event.key==='Enter')doLoginSubmit()">
+        <input type="password" id="login-pass" placeholder="密码（至少 6 位）" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLoginSubmit()">
+        <button onclick="doLoginSubmit()">登录</button>
+        <button class="ghost-btn" onclick="doRegisterSubmit()">注册新账号</button>
+        <div id="login-status" class="hint" style="margin-top:12px;min-height:1.2em;"></div>
+    </div>
+</div>
+
+<!-- ===== 配对页（两人填同一个配对码） ===== -->
+<div id="pair-screen" class="screen">
+    <div class="password-box">
+        <h2>💞 绑定你的另一半</h2>
+        <p class="hint" style="margin-bottom:14px;">两人填写同一个配对码即可共享纪念册<br>一方先填则创建，另一方再填则加入</p>
+        <input type="text" id="pair-code" placeholder="请输入配对码，例如 love2024" onkeydown="if(event.key==='Enter')doPairSubmit()">
+        <button onclick="doPairSubmit()">配对</button>
+        <div id="pair-status" class="hint" style="margin-top:12px;min-height:1.2em;"></div>
+        <p class="hint" style="margin-top:6px;"><a class="auth-link" href="javascript:void(0)" onclick="doLogout()">退出登录</a></p>
+    </div>
+</div>
+
+<!-- ===== 主页面 ===== -->
+<div id="main-screen" class="screen">
+    <div class="tab-content">
+
+        <!-- Tab 1: 首页 -->
+        <div class="tab-page active" id="tab-home">
+            <!-- 主面板 -->
+            <div id="home-dashboard">
+                <header class="main-header">
+                    <h1 contenteditable="true">💕 我们的纪念册</h1>
+                    <p contenteditable="true">这是我们的故事，从此刻开始记录...</p>
+                </header>
+
+                <!-- 在一起天数 - 新拟态3D卡片 -->
+                <div class="together-card-3d" id="together-card-3d">
+                    <div class="drop-shine"></div>
+                    <div id="together-timer">我们在一起已经</div>
+                    <div class="together-num" id="together-days">0天</div>
+                    <div id="nearest-anni" class="together-anni"></div>
+                    <div class="together-date-row">
+                        <span class="emoji-editable" data-key="btn_edit_date">📅</span>
+                        <button class="small-btn-3d" onclick="showDateEditor()">修改起始日期</button>
+                    </div>
+                    <div id="date-editor">
+                        <input type="date" id="home-start-date">
+                        <button onclick="updateStartDate('home')">确认</button>
+                        <button onclick="hideDateEditor()">取消</button>
+                    </div>
+                </div>
+
+                <!-- 入口卡片 -->
+                <div class="home-entry-card entry-calendar" onclick="openHomeSub('calendar')">
+                    <span>📅 恋爱日历</span><span>〉</span>
+                </div>
+                <div class="home-entry-card entry-status" onclick="openHomeSub('status')">
+                    <span>📊 最近状态</span><span>〉</span>
+                </div>
+                <div class="home-entry-card entry-daily" onclick="openHomeSub('daily')">
+                    <span><span class="emoji-editable" data-key="card_daily">💑</span> 情侣日常</span><span>〉</span>
+                </div>
+                <div class="home-entry-card entry-anni" onclick="openHomeSub('anni')">
+                    <span><span class="emoji-editable" data-key="card_anni">💝</span> 纪念日</span><span>〉</span>
+                </div>
+                <div class="home-entry-card entry-photos" onclick="openHomeSub('photos')">
+                    <span>📷 相册</span><span>〉</span>
+                </div>
+            </div>
+
+            <!-- 子页：恋爱日历 -->
+            <div id="home-sub-calendar" class="home-sub-page" style="display:none">
+                <div class="sub-header">
+                    <button class="sub-back-btn" onclick="backToDashboard()">←</button>
+                    <span>📅 恋爱日历</span>
+                </div>
+                <div class="calendar-nav">
+                    <button onclick="changeMonth(-1)">◀</button>
+                    <span id="calendar-title">2024年1月</span>
+                    <button onclick="changeMonth(1)">▶</button>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+            </div>
+
+            <!-- 子页：最近状态 -->
+            <div id="home-sub-status" class="home-sub-page" style="display:none">
+                <div class="sub-header">
+                    <button class="sub-back-btn" onclick="backToDashboard()">←</button>
+                    <span>📊 最近状态</span>
+                </div>
+                <div id="recent-activity" class="recent-list"></div>
+            </div>
+
+            <!-- 子页：情侣日常 -->
+            <div id="home-sub-daily" class="home-sub-page" style="display:none">
+                <div class="sub-header">
+                    <button class="sub-back-btn" onclick="backToDashboard()">←</button>
+                    <span><span class="emoji-editable" data-key="card_daily">💑</span> 情侣日常</span>
+                </div>
+                <div class="input-row" style="flex-wrap:wrap;">
+                    <input type="date" id="daily-date">
+                    <input type="text" id="daily-content" placeholder="今天一起做了什么？">
+                    <div class="custom-select-wrap" id="daily-mood-wrap">
+                        <div class="custom-select" id="daily-mood-display"><span>😊</span> 开心</div>
+                        <span class="custom-select-arrow">▼</span>
+                    </div>
+                    <button onclick="addDaily()">记录</button>
+                </div>
+                <div id="daily-list" class="card-list timeline"></div>
+            </div>
+
+            <!-- 子页：纪念日 -->
+            <div id="home-sub-anni" class="home-sub-page" style="display:none">
+                <div class="sub-header">
+                    <button class="sub-back-btn" onclick="backToDashboard()">←</button>
+                    <span><span class="emoji-editable" data-key="card_anni">💝</span> 纪念日</span>
+                </div>
+                <div id="recent-anniversary" class="recent-badge" style="display:none;"></div>
+                <div class="input-row" style="flex-wrap:wrap;">
+                    <input type="text" id="anni-name" placeholder="纪念日名称">
+                    <input type="date" id="anni-date">
+                    <div class="custom-select-wrap" id="anni-category-wrap">
+                        <div class="custom-select" id="anni-category-display"><span>🎂</span> 生日</div>
+                        <span class="custom-select-arrow">▼</span>
+                    </div>
+                    <label style="display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:0.82rem;color:var(--theme-sub);">
+                        <input type="checkbox" id="anni-repeat" checked> 每年重复
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:0.82rem;color:var(--theme-sub);">
+                        <input type="checkbox" id="anni-lunar"> 农历
+                    </label>
+                    <button onclick="addAnniversary()">添加</button>
+                </div>
+                <div id="anniversary-list" class="card-list" style="margin-top:12px;"></div>
+            </div>
+
+            <!-- 子页：相册 -->
+            <div id="home-sub-photos" class="home-sub-page photos-page" style="display:none">
+                <div class="sub-header">
+                    <button class="sub-back-btn" onclick="backToDashboard()">←</button>
+                    <span>📷 相册</span>
+                </div>
+                <div class="input-row">
+                    <input type="text" id="photo-url" placeholder="粘贴图片链接">
+                    <input type="file" id="photo-file" accept="image/*" multiple onchange="uploadPhotos(this)" style="display:none;">
+                    <button onclick="document.getElementById('photo-file').click()"><span class="emoji-editable" data-key="btn_upload">📁</span> 上传</button>
+                    <button onclick="addPhotoUrl()">添加链接</button>
+                </div>
+                <p class="tip"><span class="emoji-editable" data-key="tip_bulb">💡</span> 本地图自动压缩，支持外部链接</p>
+                <div id="photo-grid" class="photo-grid"></div>
+                <div class="photo-select-bar" id="photo-select-bar">
+                    <span class="sel-count" id="sel-count">已选 0 张</span>
+                    <button class="sel-btn-save" onclick="saveSelectedPhotos()">💾 保存选中</button>
+                    <button class="sel-btn-del" onclick="deleteSelectedPhotos()">🗑️ 删除选中</button>
+                    <button class="sel-btn-cancel" onclick="exitPhotoSelectMode()">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: 留言 -->
+        <div class="tab-page" id="tab-messages">
+            <div id="msg-list-view">
+                <section class="album-card">
+                    <h2><span class="emoji-editable" data-key="card_msgs">💌</span> 留言</h2>
+                    <div id="conversation-list"></div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Tab 3: 我的 -->
+        <div class="tab-page" id="tab-profile">
+            <div id="profile-dashboard">
+                <div class="profile-header" onclick="openMyProfile()">
+                    <div class="profile-header-avatar" id="profile-header-avatar">👤</div>
+                    <div class="profile-header-info">
+                        <div class="profile-header-nick" id="profile-header-nick"></div>
+                        <div class="profile-header-acct" id="profile-header-acct"></div>
+                    </div>
+                    <span class="profile-header-arrow" onclick="event.stopPropagation();openProfileSub('account')">〉</span>
+                </div>
+                <div class="settings-list">
+                    <div class="settings-item" onclick="openProfileSub('settings')">
+                        <span class="settings-item-icon">⚙️</span>
+                        <span class="settings-item-text">设置</span>
+                        <span class="settings-item-arrow">〉</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-sub-settings" class="home-sub-page" style="display:none">
+                <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>⚙️ 设置</span></div>
+                <div class="settings-list">
+                    <div class="settings-item" onclick="openProfileSub('account')">
+                        <span class="settings-item-icon">👤</span>
+                        <span class="settings-item-text">账号管理</span>
+                        <span class="settings-item-arrow">〉</span>
+                    </div>
+                    <div class="settings-item" onclick="openProfileSub('date')">
+                        <span class="settings-item-icon">📅</span>
+                        <span class="settings-item-text">恋爱起始日期</span>
+                        <span class="settings-item-arrow">〉</span>
+                    </div>
+                    <div class="settings-item" onclick="openProfileSub('privacy')">
+                        <span class="settings-item-icon">🔒</span>
+                        <span class="settings-item-text">隐私</span>
+                        <span class="settings-item-arrow">〉</span>
+                    </div>
+                    <div class="settings-item" onclick="openProfileSub('general')">
+                        <span class="settings-item-icon">🎨</span>
+                        <span class="settings-item-text">通用</span>
+                        <span class="settings-item-arrow">〉</span>
+                    </div>
+                    <div class="settings-item" onclick="openProfileSub('data')">
+                        <span class="settings-item-icon">📦</span>
+                        <span class="settings-item-text">数据管理</span>
+                        <span class="settings-item-arrow">〉</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-sub-account" class="home-sub-page" style="display:none">
+                <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>👤 账号管理</span></div>
+                <div id="account-switcher"></div>
+                <div class="setting-item">
+                    <label>云端实时同步（两台手机 / TA 都能看到同一份内容）</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button onclick="showCloudPanel()" style="flex:1;" class="share-btn">☁️ 云端同步设置</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-sub-cloud" class="home-sub-page" style="display:none">
+                <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>☁️ 云端实时同步</span></div>
+                <div class="setting-item">
+                    <div id="cloud-status" style="font-size:0.9rem;color:var(--theme-text);text-align:center;line-height:1.8;"></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                    <button class="share-btn" style="flex:1;" onclick="doLogout()">🚪 退出登录</button>
+                </div>
+            </div>
+
+            <div id="profile-sub-date" class="home-sub-page" style="display:none">
+                <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>📅 恋爱起始日期</span></div>
+                <div class="setting-item">
+                    <label>设定你们在一起的日期</label>
+                    <div class="input-row">
+                        <input type="text" id="start-date" placeholder="例如：2024-05-20">
+                        <button onclick="updateStartDate('settings')">确认</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-sub-privacy" class="home-sub-page" style="display:none">
+                <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>🔒 隐私</span></div>
+                <div class="setting-item">
+                    <label>页面密码（留空则不需要密码）</label>
+                    <input type="text" id="set-password" placeholder="设置密码" onchange="updatePassword()">
+                </div>
+            </div>
+
+            <div id="profile-sub-general" class="home-sub-page" style="display:none">
+                <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>🎨 通用</span></div>
+                <div class="setting-item">
+                    <label>主题颜色</label>
+                    <div class="theme-selector" id="theme-selector">
+                        <button onclick="switchTheme('pink')" class="theme-btn theme-pink active" title="粉色"><span>💗</span></button>
+                        <button onclick="switchTheme('blue')" class="theme-btn theme-blue" title="蓝色"><span>💙</span></button>
+                        <button onclick="switchTheme('purple')" class="theme-btn theme-purple" title="紫色"><span>💜</span></button>
+                        <button onclick="switchTheme('orange')" class="theme-btn theme-orange" title="日落橙"><span>🧡</span></button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>背景图片</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <button onclick="document.getElementById('app-bg-input').click()" class="share-btn" style="flex:1;background:linear-gradient(135deg,#f48fb1,#ec407a);">🖼️ 上传照片做背景</button>
+                        <button onclick="clearAppBg()" class="share-btn" id="app-bg-clear-btn" style="background:linear-gradient(135deg,#bdbdbd,#9e9e9e);">✕ 清除</button>
+                    </div>
+                    <input type="file" id="app-bg-input" accept="image/*" style="display:none" onchange="setAppBg(event)">
+                    <p style="font-size:0.75rem;color:var(--theme-sub);margin-top:6px;opacity:0.8;">上传的照片会作为整个页面的背景，彩色光斑会轻柔地叠加在上方，保持透明质感。</p>
+                </div>
+            </div>
+
+            <div id="profile-sub-data" class="home-sub-page" style="display:none">
+                <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>📦 数据管理</span></div>
+                <div class="setting-item">
+                    <button onclick="exportData()" class="share-btn"><span class="emoji-editable" data-key="btn_export">📥</span> 导出数据备份</button>
+                    <input type="file" id="import-file" accept=".json" onchange="importData(this)" style="display:none;">
+                    <button onclick="document.getElementById('import-file').click()" class="share-btn" style="margin-top:8px;background:linear-gradient(135deg,#81c784,#66bb6a);"><span class="emoji-editable" data-key="btn_import">📤</span> 导入数据恢复</button>
+                </div>
+                <div class="setting-item share-box">
+                    <button onclick="generateShareLink()" class="share-btn"><span class="emoji-editable" data-key="btn_share">🔗</span> 生成分享链接发给TA</button>
+                    <input type="text" id="share-link" readonly placeholder="点击按钮生成链接">
+                </div>
+                <div id="online-status" class="online-badge"></div>
+            </div>
+        </div>
+
+        <!-- Tab 4: 贴心 -->
+        <div class="tab-page" id="tab-period">
+            <div class="period-title-row">
+                <h2><span class="emoji-editable" data-key="title_period">🌸</span> 贴心</h2>
+                <button class="period-settings-btn" id="period-settings-btn" onclick="openPeriodSettings()" title="设置">⚙️</button>
+            </div>
+            <div class="period-page" id="period-page-content">
+                <div class="period-phase-card" id="period-phase-card">
+                    <div class="period-phase-day" id="period-phase-day"></div>
+                    <div class="period-phase-num" id="period-phase-num"></div>
+                    <div class="period-phase-label" id="period-phase-label"></div>
+                    <div class="period-phase-msg" id="period-phase-msg"></div>
+                </div>
+                <div class="period-progress-bar" id="period-progress-bar"></div>
+                <div class="period-progress-legend" id="period-progress-legend"></div>
+                <div class="period-calendar-section">
+                    <div class="period-cal-header">
+                        <button onclick="changePeriodMonth(-1)">◀</button>
+                        <span class="cal-month-label" id="period-cal-label"></span>
+                        <button onclick="changePeriodMonth(1)">▶</button>
+                    </div>
+                    <div class="period-cal-weekdays">
+                        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                    </div>
+                    <div class="period-cal-grid" id="period-cal-grid"></div>
+                    <div class="period-cal-legend">
+                        <span><span class="dot" style="background:#e53935"></span> 经期</span>
+                        <span><span class="dot" style="background:#f06292"></span> 预测</span>
+                        <span><span class="dot" style="background:#4caf50"></span> 安全</span>
+                        <span><span class="dot" style="background:#9c27b0"></span> 易孕</span>
+                        <span><span class="dot" style="background:#ffb300"></span> 黄体</span>
+                        <span style="color:#ab47bc">✦ 排卵</span>
+                    </div>
+                </div>
+                <div class="period-info-card" id="period-info-card">
+                    <h3>📊 预测信息</h3>
+                    <div id="period-info-content"></div>
+                </div>
+                <div class="period-action-bar" id="period-action-bar">
+                    <button class="period-action-btn record" id="btn-period-start" onclick="startPeriodFromSelected()">💖 记录开始</button>
+                    <button class="period-action-btn end" id="btn-period-end" onclick="endPeriodFromSelected()">✅ 记录结束</button>
+                    <button class="period-action-btn delay" id="btn-period-delay" onclick="delayPeriodFromSelected()">⏳ 延迟</button>
+                </div>
+                <div class="period-history-card" id="period-history-card">
+                    <h3>📝 历史记录</h3>
+                    <div id="period-history-list"></div>
+                </div>
+                <!-- 设置面板 -->
+                <div id="period-settings-panel" style="display:none;">
+                    <div class="sub-header"><button class="sub-back-btn" onclick="closePeriodSettings()">←</button><span>⚙️ 贴心设置</span></div>
+                    <div class="period-settings-row">
+                        <label>月经周期</label>
+                        <div class="stepper">
+                            <button onclick="stepPeriodSetting('cycleDays', -1)">−</button>
+                            <span class="val" id="ps-cycleDays">28</span>
+                            <button onclick="stepPeriodSetting('cycleDays', 1)">+</button>
+                            <span style="font-size:0.8rem;color:#999">天</span>
+                        </div>
+                    </div>
+                    <div class="period-settings-row">
+                        <label>经期持续</label>
+                        <div class="stepper">
+                            <button onclick="stepPeriodSetting('periodDays', -1)">−</button>
+                            <span class="val" id="ps-periodDays">5</span>
+                            <button onclick="stepPeriodSetting('periodDays', 1)">+</button>
+                            <span style="font-size:0.8rem;color:#999">天</span>
+                        </div>
+                    </div>
+                    <button class="period-save-settings" onclick="savePeriodSettings()">保存设置</button>
+                </div>
+                <!-- 日期选择面板 -->
+                <div id="period-date-picker" style="display:none;">
+                    <div class="sub-header"><button class="sub-back-btn" onclick="closePeriodDatePicker()">←</button><span>📅 选择经期开始日期</span></div>
+                    <div class="period-date-selects">
+                        <select id="pdp-year" onchange="updatePeriodPickerDays()"></select>
+                        <span class="pdp-label">年</span>
+                        <select id="pdp-month" onchange="updatePeriodPickerDays()"></select>
+                        <span class="pdp-label">月</span>
+                        <select id="pdp-day"></select>
+                        <span class="pdp-label">日</span>
+                    </div>
+                    <button class="period-save-settings" onclick="confirmPeriodDate()">✅ 确认记录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全屏留言会话 -->
+    <div id="msg-chat-view">
+        <div class="chat-header">
+            <button class="chat-back-btn" onclick="backToMsgList()">←</button>
+            <span id="chat-partner-name"></span>
+            <span class="chat-bg-btn" onclick="document.getElementById('chat-bg-input').click()" title="更换背景">🖼️</span>
+            <span class="chat-bg-clear" id="chat-bg-clear-btn" onclick="clearChatBg()" title="清除背景">✕</span>
+        </div>
+        <input type="file" id="chat-bg-input" accept="image/*" style="display:none" onchange="setChatBg(event)">
+        <div id="chat-container" class="chat-container" onclick="$('emoji-picker').style.display='none'"></div>
+        <div class="chat-input-row">
+            <button class="emoji-btn" onclick="toggleEmojiPicker()" title="表情">😊</button>
+            <textarea id="chat-msg-input" rows="1" placeholder="想对TA说点什么..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addChatMsg();}" oninput="autoResizeChatInput()"></textarea>
+            <button onclick="addChatMsg()">发送</button>
+        </div>
+        <div class="emoji-picker" id="emoji-picker" style="display:none"></div>
+    </div>
+
+    <!-- 长按菜单 -->
+    <div id="context-menu" class="context-menu" onclick="event.stopPropagation()">
+        <div class="menu-item" onclick="copyChatMsg()">📋 复制</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" onclick="deleteChatMsgFromMenu()">🗑️ 删除</div>
+    </div>
+
+    <!-- 照片长按菜单 -->
+    <div id="photo-context-menu" class="context-menu" style="display:none" onclick="event.stopPropagation()">
+        <div class="menu-item" onclick="enterPhotoSelectMode()">✅ 多选</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" onclick="deletePhotoFromMenu()">🗑️ 删除</div>
+    </div>
+
+    <!-- 底部 Tab -->
+    <nav class="bottom-tab-bar">
+        <div class="tab-item" onclick="switchTab('home', this)"><span class="tab-icon">🏠</span><span class="tab-text">首页</span></div>
+        <div class="tab-item" onclick="switchTab('messages', this)"><span class="tab-icon">💌</span><span class="tab-text">留言</span></div>
+        <div class="tab-item" onclick="switchTab('period', this)"><span class="tab-icon">🌸</span><span class="tab-text">贴心</span></div>
+        <div class="tab-item" onclick="switchTab('profile', this)"><span class="tab-icon">👤</span><span class="tab-text">我的</span></div>
+    </nav>
+</div>
+
+<!-- 图片灯箱 -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+    <span class="lb-close" onclick="closeLightbox()">✕</span>
+    <img id="lb-img" src="" alt="">
+    <div class="lb-counter" id="lb-counter"></div>
+    <div class="lb-nav">
+        <button onclick="event.stopPropagation();lbPrev()">◀ 上一张</button>
+        <button onclick="event.stopPropagation();lbNext()">下一张 ▶</button>
+    </div>
+</div>
+
+<script>
+(function(){
+var currentTheme = 'pink';
+var lbIndex = -1;
+var lbPhotos = [];
+var photoSelectMode = false;
+var selectedPhotoIds = {};
+var calendarYear, calendarMonth;
+var heartbeatInterval;
+
+function $(id){ return document.getElementById(id); }
+
+function LS(key, def){
+    try { var v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : def; }
+    catch(e){ return def; }
+}
+function LSS(key, val){
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
+}
+
+/* 核心数据 */
+var DATA = LS('couple_data', {
+    startDate: '',
+    password: '',
+    theme: 'pink',
+    anniversaries: [],
+    dailies: [],
+    photos: [],
+    chats: [],
+    users: [],
+    boyChatBg: '',
+    girlChatBg: '',
+    currentUser: 'boy',
+    boyAvatar: '',
+    girlAvatar: '',
+    boyNick: '我',
+    girlNick: 'TA',
+    boyGender: 'male',
+    girlGender: 'female',
+    periodRecords: [],
+    periodSettings: { cycleDays: 28, periodDays: 5 }
+});
+
+function saveData(){ LSS('couple_data', DATA); cloudPush(); }
+
+function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+/* ===== Supabase 云端实时同步 ===== */
+// Supabase 项目配置（部署时如地址/key 变化，只需改这里两行）
+var SUPABASE_URL = 'https://jxqrckxqqcdevqrzgocz.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_SDEvx6W200nIbtAtzvhngw_SnNciPVc';
+
+// Supabase 客户端（全局唯一）
+var sb = null;
+if (typeof supabase !== 'undefined') {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+var cloudUser = null;        // 登录用户 { id, email }
+var cloudSpace = null;       // { couple_id }
+var cloudTimeout = null;
+var cloudPollTimer = null;
+var cloudSyncLock = false;   // 防止同步重入
+
+// 需要保留在本地、不参与云端同步互换的字段（设备状态 / 当前角色）
+var CLOUD_LOCAL_FIELDS = ['currentUser'];
+
+// 取当前登录用户（返回本机维护的用户快照）
+function sbUser(){
+    return cloudUser || null;
+}
+
+/* ---------- 注册 / 登录（Supabase Auth） ---------- */
+window.cloudRegister = function(email, password, cb){
+    if(!sb){ cb(false, 'Supabase 未加载，请检查网络'); return; }
+    sb.auth.signUp({ email: email, password: password })
+        .then(function(res){
+            if(res.error){ cb(false, res.error.message || '注册失败'); return; }
+            if(res.data.session){   // 部分配置直接登录成功
+                cloudUser = res.data.session.user;
+                saveCloudSession();
+                cb(true);
+            } else {                // 需要邮箱验证
+                cb(false, '注册成功，请到邮箱点击验证链接后登录');
+            }
+        })
+        .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
+};
+
+window.cloudLogin = function(email, password, cb){
+    if(!sb){ cb(false, 'Supabase 未加载，请检查网络'); return; }
+    sb.auth.signInWithPassword({ email: email, password: password })
+        .then(function(res){
+            if(res.error){ cb(false, res.error.message || '登录失败'); return; }
+            cloudUser = res.data.user;
+            saveCloudSession();
+            cb(true);
+        })
+        .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
+};
+
+/* ---------- 情侣配对（两人填同一个配对码） ---------- */
+
+// 加入已存在的配对码
+function cloudJoinByCode(pairCode, cb){
+    var user = sbUser();
+    sb.from('couples').select('*').eq('pair_code', pairCode)
+        .then(function(res){
+            if(res.error){ cb(false, res.error.message || '查询失败'); return; }
+            var c = res.data && res.data[0];
+            if(!c){ cb(false, '没有找到这个配对码，请确认后再试'); return; }
+            if(c.user1_id === user.id || c.user2_id === user.id){
+                cloudSpace = { couple_id: c.id, pair_code: c.pair_code, my_side: c.user1_id === user.id ? 1 : 2 };
+                saveCloudSession();
+                startCloudPoll();
+                cb(true, '已进入配对');
+                return;
+            }
+            if(c.user2_id){ cb(false, '这个配对码已经被两个人使用了，请换一个'); return; }
+            return sb.from('couples').update({ user2_id: user.id }).eq('id', c.id)
+                .then(function(u){
+                    if(u.error){ cb(false, u.error.message || '加入失败'); return; }
+                    cloudSpace = { couple_id: c.id, pair_code: c.pair_code, my_side: 2 };
+                    saveCloudSession();
+                    startCloudPoll();
+                    cb(true, '已加入配对');
+                });
+        })
+        .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
+}
+
+// 配对：两人填同一个配对码（自动判断创建 / 加入）
+window.cloudPair = function(pairCode, cb){
+    var user = sbUser();
+    if(!user){ cb(false, '请先登录'); return; }
+    pairCode = (pairCode || '').trim();
+    if(!pairCode){ cb(false, '请输入配对码'); return; }
+    if(pairCode.length < 4 || pairCode.length > 20){ cb(false, '配对码建议 4-20 位字母或数字'); return; }
+
+    // 先查这个码是否已存在
+    sb.from('couples').select('*').eq('pair_code', pairCode)
+        .then(function(res){
+            if(res.error){ cb(false, res.error.message || '查询失败'); return; }
+            if(res.data && res.data.length){ cloudJoinByCode(pairCode, cb); return; }
+
+            // 不存在 → 创建
+            return sb.from('couples').insert({ pair_code: pairCode, user1_id: user.id }).select('id, pair_code')
+                .then(function(ins){
+                    if(ins.error){
+                        // 并发抢占：对方先创建了同一个码，转为加入
+                        if(ins.error.code === '23505' || /duplicate|unique/i.test(String(ins.error.message || ''))){
+                            cloudJoinByCode(pairCode, cb); return;
+                        }
+                        cb(false, ins.error.message || '创建失败'); return;
+                    }
+                    var c = ins.data && ins.data[0];
+                    if(!c){ cb(false, '创建失败，请重试'); return; }
+                    cloudSpace = { couple_id: c.id, pair_code: c.pair_code || pairCode, my_side: 1 };
+                    saveCloudSession();
+                    startCloudPoll();
+                    cb(true, '配对创建成功');
+                });
+        })
+        .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
+};
+
+/* ---------- 数据同步（memorials / messages / couples） ---------- */
+
+// 保存云端会话（本机记忆登录 + 配对状态）
+function saveCloudSession(){
+    LSS('cloud_session', { user: cloudUser, space: cloudSpace });
+}
+
+// 本地对象序列化 -> Supabase 行
+function anniversaryToRow(a, coupleId){
+    return {
+        couple_id: coupleId,
+        title: a.name || '',
+        event_date: (a.year || new Date().getFullYear()) + '-' + pad(a.month||1) + '-' + pad(a.day||1),
+        remark: JSON.stringify(a)   // 完整对象放 remark，方便原样还原
+    };
+}
+function rowToAnniversary(row){
+    try { return JSON.parse(row.remark); } catch(e){ return null; }
+}
+function chatToRow(c, coupleId, senderId){
+    return {
+        couple_id: coupleId,
+        sender_id: senderId,
+        content: JSON.stringify(c)  // 完整对象放 content，方便原样还原
+    };
+}
+function rowToChat(row){
+    try { return JSON.parse(row.content); } catch(e){ return null; }
+}
+
+// 完整同步：把本地纪念日/留言/起始日与云端做一次“双向合并”
+// 保证双方各自新增的内容都保留，实现两人实时可见。
+function cloudSyncNow(){
+    if(!cloudSpace || cloudSyncLock) return;
+    if(!sb || !sbUser()) return;
+    cloudSyncLock = true;
+    var coupleId = cloudSpace.couple_id;
+    var user = sbUser();
+
+    // 读云端
+    Promise.all([
+        sb.from('memorials').select('*').eq('couple_id', coupleId),
+        sb.from('messages').select('*').eq('couple_id', coupleId),
+        sb.from('couples').select('*').eq('id', coupleId).single()
+    ]).then(function(resArr){
+        var memRows = resArr[0].data || [];
+        var msgRows = resArr[1].data || [];
+        var coupleRow = resArr[2].data;
+
+        // = 合并纪念日（云端 ∪ 本地，按唯一键 id 去重） =
+        var memMap = {};
+        var mv = 0;
+        memRows.forEach(function(r){
+            var a = rowToAnniversary(r);
+            if(a){ a._cloud=1; memMap[a.id] = a; }
+        });
+        (DATA.anniversaries || []).forEach(function(a){
+            if(a && a.id != null){ memMap[a.id] = a; }
+        });
+        DATA.anniversaries = Object.keys(memMap).map(function(k){ return memMap[k]; }).filter(function(a){ return a; });
+
+        // = 合并留言（云端 ∪ 本地，按唯一键 id 去重） =
+        var msgMap = {};
+        msgRows.forEach(function(r){
+            var c = rowToChat(r);
+            if(c){ c._cloud=1; msgMap[c.id] = c; }
+        });
+        (DATA.chats || []).forEach(function(c){
+            if(c && c.id != null){ msgMap[c.id] = c; }
+        });
+        DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
+
+        // = 恋爱起始日期：本地有则用本地，否则取云端 =
+        if(DATA.startDate && (!coupleRow || !coupleRow.start_date)){
+            return sb.from('couples').update({ start_date: DATA.startDate }).eq('id', coupleId)
+                .then(function(){ return coupleRow; });
+        }
+        if(!DATA.startDate && coupleRow && coupleRow.start_date){
+            DATA.startDate = coupleRow.start_date;
+        }
+        return coupleRow;
+    }).then(function(coupleRow){
+        // 写回本地
+        DATA.anniversaries.forEach(function(a){ delete a._cloud; });
+        DATA.chats.forEach(function(c){ delete c._cloud; });
+        LSS('couple_data', DATA);
+        refreshAll();
+
+        // 把合并后的完整数据覆盖同步到云端（覆盖式，保证一致）
+        var user = sbUser();
+        var coupleId = cloudSpace.couple_id;
+
+        var del1 = sb.from('memorials').delete().eq('couple_id', coupleId);
+        var del2 = sb.from('messages').delete().eq('couple_id', coupleId);
+        return Promise.all([del1, del2]).then(function(){
+            var insMem = (DATA.anniversaries||[]).map(function(a){ return anniversaryToRow(a, coupleId); });
+            var insMsg = (DATA.chats||[]).map(function(c){ return chatToRow(c, coupleId, user.id); });
+            var tasks = [];
+            if(insMem.length) tasks.push(sb.from('memorials').insert(insMem));
+            if(insMsg.length) tasks.push(sb.from('messages').insert(insMsg));
+            return Promise.all(tasks);
+        });
+    }).then(function(){
+        cloudSyncLock = false;
+    }).catch(function(e){
+        cloudSyncLock = false;
+        console.error('云端同步错误', e);
+    });
+}
+
+// 节流：多次改动合并为一次保存
+function cloudPush(){
+    if(!cloudSpace) return;
+    if(cloudTimeout) clearTimeout(cloudTimeout);
+    cloudTimeout = setTimeout(function(){ cloudSyncNow(); }, 400);
+}
+
+// 从云端覆盖拉取（进入空间后立即同步一次）
+function cloudPull(){
+    if(cloudSpace && !cloudSyncLock) cloudSyncNow();
+}
+
+// 恢复会话 + 入口路由（微信式：先登录）
+function restoreCloudSession(){
+    try {
+        var s = LS('cloud_session', null);
+        if(s){
+            cloudUser = s.user;
+            cloudSpace = s.space;
+        }
+    } catch(e){}
+}
+
+function initAuthFlow(){
+    if(!sb){
+        showScreen('login-screen');
+        return;
+    }
+    sb.auth.getSession()
+        .then(function(res){
+            var session = res.data && res.data.session;
+            if(session && session.user){
+                cloudUser = session.user;
+                if(cloudSpace){
+                    showScreen('main-screen');
+                    startCloudPoll();
+                } else {
+                    showScreen('pair-screen');
+                }
+            } else {
+                cloudUser = null; cloudSpace = null;
+                LS_del('cloud_session');
+                showScreen('login-screen');
+            }
+        })
+        .catch(function(){
+            showScreen('login-screen');
+        });
+}
+
+// 定时轮询：每 20 秒同步一次，实现“两人互相实时可见”
+function startCloudPoll(){
+    if(cloudPollTimer || !cloudSpace || !cloudUser) return;
+    cloudPollTimer = setInterval(function(){ cloudSyncNow(); }, 20000);
+}
+function stopCloudPoll(){
+    if(cloudPollTimer){ clearInterval(cloudPollTimer); cloudPollTimer = null; }
+}
+
+window.cloudLogout = async function(){
+    stopCloudPoll();
+    if(sb){ try { await sb.auth.signOut(); } catch(e){} }
+    cloudUser = null; cloudSpace = null;
+    LS_del('cloud_session');
+}
+
+function LS_del(key){ try { localStorage.removeItem(key); } catch(e){} }
+
+window.refreshAll = function(){ if(window.renderEverything) renderEverything(); }
+
+// 云端设置页 UI
+window.showCloudPanel = function(){
+    openProfileSub('cloud');
+    updateCloudStatusByAuth();
+};
+
+// 根据实际登录状态刷新
+function updateCloudStatusByAuth(){
+    var user = sbUser();
+    var st = $('cloud-status');
+    if(!st) return;
+    if(user && cloudSpace){
+        st.innerHTML = '✅ 已同步<br>配对码：<b>' + (cloudSpace.pair_code || cloudSpace.couple_id || '') + '</b><br>当前账号：' + (user.email || '');
+    } else if(user){
+        st.innerHTML = '已登录：' + (user.email || '') + '<br>尚未配对';
+    } else {
+        st.innerHTML = '未登录';
+    }
+}
+
+/* ===== 微信式登录 / 配对流程 ===== */
+window.doLoginSubmit = function(){
+    var email = $('login-email').value.trim();
+    var pass = $('login-pass').value;
+    if(!email || !pass){ alert('请填写邮箱和密码'); return; }
+    var st = $('login-status'); st.innerHTML = '登录中…';
+    cloudLogin(email, pass, function(ok, msg){
+        if(!ok){ st.innerHTML = '❌ ' + (msg || '登录失败'); return; }
+        if(cloudSpace){ showScreen('main-screen'); }
+        else { showScreen('pair-screen'); }
+    });
+};
+
+window.doRegisterSubmit = function(){
+    var email = $('login-email').value.trim();
+    var pass = $('login-pass').value;
+    if(!email || !pass){ alert('请填写邮箱和密码'); return; }
+    if(pass.length < 6){ alert('密码至少 6 位'); return; }
+    var st = $('login-status'); st.innerHTML = '注册中…';
+    cloudRegister(email, pass, function(ok, msg){
+        if(!ok){ st.innerHTML = '❌ ' + (msg || '注册失败'); return; }
+        showScreen('pair-screen');
+    });
+};
+
+window.doPairSubmit = function(){
+    var code = $('pair-code').value.trim();
+    if(!code){ alert('请输入配对码'); return; }
+    var st = $('pair-status'); st.innerHTML = '配对中…';
+    cloudPair(code, function(ok, msg){
+        if(!ok){ st.innerHTML = '❌ ' + (msg || '配对失败'); return; }
+        st.innerHTML = '✅ ' + (msg || '配对成功');
+        setTimeout(function(){ showScreen('main-screen'); }, 400);
+    });
+};
+
+window.doLogout = function(){
+    cloudLogout().then(function(){ showScreen('login-screen'); });
+};
+
+/* ===== 初始化 ===== */
+window.initApp = function(){
+    currentTheme = DATA.theme || 'pink';
+    switchTheme(currentTheme, true);
+    if(DATA.startDate) updateTogetherDays();
+    renderAnniversaries();
+    renderDailies();
+    renderPhotos();
+    renderConversationList();
+    renderCalendar();
+    updateThemeBtns();
+    renderAccountSwitcher();
+    updateProfileHeader();
+    $('set-password').value = DATA.password || '';
+    $('start-date').value = DATA.startDate || '';
+    startHeartbeat();
+    $('home-start-date').value = DATA.startDate || '';
+    initAnniCategory();
+    initDailyMood();
+    restoreCloudSession();
+    initAuthFlow();   // 微信式：先登录，再配对，最后进主页
+    setTimeout(applySavedEmojis, 20);
+};
+
+function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    $(id).classList.add('active');
+    if(id === 'main-screen') renderEverything();
+}
+
+function renderEverything(){
+    updateTogetherDays();
+    renderRecentActivity();
+    renderAnniversaries();
+    renderDailies();
+    renderPhotos();
+    renderChats();
+    renderCalendar();
+}
+
+/* ===== 封面 → 进入 ===== */
+window.enterMain = function(){
+    if(DATA.password) showScreen('password-screen');
+    else { showScreen('main-screen'); }
+};
+
+window.checkPassword = function(){
+    var inp = $('password-input');
+    if(inp.value.trim() === DATA.password){
+        inp.value = '';
+        showScreen('main-screen');
+    } else {
+        alert('密码不对哦');
+    }
+};
+
+/* ===== 粒子爱心 ===== */
+function startHeartbeat(){
+    var canvas = $('heart-canvas');
+    if(!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var w, h, particles = [];
+    function resize(){ w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function heartX(t){ return 16 * Math.pow(Math.sin(t), 3); }
+    function heartY(t){ return 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t); }
+
+    for(var i=0; i<180; i++){
+        var t = (Math.PI*2 * i) / 180;
+        particles.push({
+            tx: heartX(t), ty: -heartY(t),
+            x: Math.random()*w, y: Math.random()*h,
+            ox: Math.random()*w, oy: Math.random()*h,
+            size: 1.5 + Math.random()*3,
+            hue: 340 + Math.random()*20,
+            phase: Math.random()*Math.PI*2,
+            speed: 0.005 + Math.random()*0.015
+        });
+    }
+
+    function draw(){
+        if(!$('cover-screen') || !$('cover-screen').classList.contains('active')){
+            requestAnimationFrame(draw); return;
+        }
+        ctx.fillStyle = 'rgba(26,10,16,0.15)';
+        ctx.fillRect(0,0,w,h);
+
+        var scale = Math.min(w,h) * 0.025;
+        var cx = w/2, cy = h/2 - 20;
+        var t = Date.now() * 0.0008;
+
+        for(var i=0; i<particles.length; i++){
+            var p = particles[i];
+            p.tx = heartX((Math.PI*2*i)/180 + t);
+            p.ty = -heartY((Math.PI*2*i)/180 + t);
+            var targetX = cx + p.tx * scale;
+            var targetY = cy + p.ty * scale;
+            p.x += (targetX - p.x) * 0.04;
+            p.y += (targetY - p.y) * 0.04;
+            var alpha = 0.6 + 0.4 * Math.sin(t * 2 + p.phase);
+            ctx.fillStyle = 'hsla(' + p.hue + ',80%,65%,' + alpha + ')';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+/* ===== Tab 切换 ===== */
+window.switchTab = function(tabName, el){
+    document.querySelectorAll('.tab-page').forEach(function(p){ p.classList.remove('active'); });
+    $('tab-' + tabName).classList.add('active');
+    document.querySelectorAll('.bottom-tab-bar .tab-item').forEach(function(t){ t.classList.remove('active'); });
+    el.classList.add('active');
+    if(tabName === 'profile'){ profileNavStack = []; backToProfileDashboard(); renderAccountSwitcher(); updateProfileHeader(); }
+    if(tabName === 'messages'){ renderConversationList(); $('msg-chat-view').classList.remove('active'); }
+    if(tabName === 'home'){ backToDashboard(); }
+    if(tabName === 'period'){ renderPeriodTracker(); }
+};
+
+/* ===== 首页子页切换 ===== */
+window.openHomeSub = function(section){
+    $('home-dashboard').style.display = 'none';
+    document.querySelectorAll('#tab-home .home-sub-page').forEach(function(p){ p.style.display = 'none'; });
+    var sub = $('home-sub-' + section);
+    if(sub) sub.style.display = 'flex';
+    if(section === 'calendar') renderCalendar();
+    if(section === 'status') renderRecentActivity();
+    if(section === 'daily') renderDailies();
+    if(section === 'anni'){ renderAnniversaries(); initAnniCategory(); }
+    if(section === 'photos') renderPhotos();
+};
+
+window.backToDashboard = function(){
+    document.querySelectorAll('#tab-home .home-sub-page').forEach(function(p){ p.style.display = 'none'; });
+    $('home-dashboard').style.display = 'block';
+};
+
+/* ===== 我的页子页切换 ===== */
+var profileNavStack = [];
+
+window.openProfileSub = function(section){
+    var current = 'dashboard';
+    var subs = document.querySelectorAll('#tab-profile .home-sub-page');
+    for(var i = 0; i < subs.length; i++){
+        if(subs[i].style.display !== 'none'){
+            current = subs[i].id.replace('profile-sub-', '');
+            break;
+        }
+    }
+    profileNavStack.push(current);
+    $('profile-dashboard').style.display = 'none';
+    subs.forEach(function(p){ p.style.display = 'none'; });
+    var sub = $('profile-sub-' + section);
+    if(sub) sub.style.display = 'flex';
+    if(section === 'account') renderAccountSwitcher();
+};
+
+window.backToProfileDashboard = function(){
+    var prev = profileNavStack.pop();
+    document.querySelectorAll('#tab-profile .home-sub-page').forEach(function(p){ p.style.display = 'none'; });
+    if(prev && prev !== 'dashboard'){
+        var sub = $('profile-sub-' + prev);
+        if(sub){ sub.style.display = 'flex'; return; }
+    }
+    profileNavStack = [];
+    $('profile-dashboard').style.display = 'block';
+    updateProfileHeader();
+};
+
+window.openMyProfile = function(){ openProfileCard(DATA.currentUser); };
+
+window.updateProfileHeader = function(){
+    var role = DATA.currentUser;
+    var nick = role === 'boy' ? DATA.boyNick : DATA.girlNick;
+    var avatar = role === 'boy' ? DATA.boyAvatar : DATA.girlAvatar;
+    var tag = role === 'boy' ? '男生账号' : '女生账号';
+    $('profile-header-nick').textContent = nick;
+    $('profile-header-acct').textContent = tag;
+    var avtEl = $('profile-header-avatar');
+    if(avatar){
+        avtEl.innerHTML = '<img src="'+avatar+'">';
+    } else {
+        avtEl.innerHTML = role === 'boy' ? '👦' : '👧';
+    }
+};
+
+/* ===== 贴心经期追踪 ===== */
+var periodCalendarYear, periodCalendarMonth;
+var tempPeriodSettings = null;
+var periodSelectedDate = null;
+
+window.getLastPeriod = function(){
+    var recs = DATA.periodRecords || [];
+    if(!recs.length) return null;
+    recs.sort(function(a,b){ return new Date(b.start) - new Date(a.start); });
+    return recs[0];
+};
+
+window.getPeriodPhase = function(date, lastPeriod, settings){
+    if(!lastPeriod || !settings) return { day: 0, phase: 'none' };
+    var cycleDays = settings.cycleDays || 28;
+    var periodDays = settings.periodDays || 5;
+    var lutealDays = 14;
+    var fertileBefore = 5;
+    var start = new Date(lastPeriod.start + 'T00:00:00');
+    var now = date || new Date();
+    var diff = Math.floor((now - start) / 86400000);
+    var day = diff + 1;
+    while(day > cycleDays){ day -= cycleDays; }
+    if(day < 1) day = 1;
+    var phase = 'safe';
+    if(day <= periodDays) phase = 'period';
+    else if(day > cycleDays - lutealDays - fertileBefore && day <= cycleDays - lutealDays) phase = 'fertile';
+    else if(day > cycleDays - lutealDays) phase = 'luteal';
+    return { day: day, phase: phase };
+};
+
+window.getPhaseInfo = function(phase, day, settings){
+    var periodDays = settings ? (settings.periodDays || 5) : 5;
+    var info = {
+        period:  { label: '经期中', cls: 'phase-period',  icon: '🔴', msg: '特殊时期，多喝热水，好好休息 💕' },
+        safe:    { label: '安全期', cls: 'phase-safe',    icon: '🟢', msg: '一切安好，享受每一天 🌿' },
+        fertile: { label: '易孕期', cls: 'phase-fertile', icon: '🟣', msg: '状态不错，注意保暖哦 🧣' },
+        luteal:  { label: '黄体期', cls: 'phase-luteal',  icon: '🟡', msg: '快到了，提前备好用品呀 🎒' },
+        none:    { label: '暂无记录', cls: 'phase-safe',  icon: '🌸', msg: '记录经期，贴心提醒不缺席' }
+    };
+    var r = info[phase] || info.none;
+    if(phase === 'period') r.label = '经期第' + day + '天';
+    return r;
+};
+
+window.getNextPeriod = function(lastPeriod, settings){
+    if(!lastPeriod) return null;
+    var cycleDays = settings.cycleDays || 28;
+    var periodDays = settings.periodDays || 5;
+    var delay = lastPeriod.delayDays || 0;
+    var start = new Date(lastPeriod.start + 'T00:00:00');
+    var nextStart = new Date(start.getTime() + (cycleDays + delay) * 86400000);
+    var nextEnd = new Date(nextStart.getTime() + (periodDays - 1) * 86400000);
+    var ovulation = new Date(nextStart.getTime() - 14 * 86400000);
+    var currEnd = new Date(start.getTime() + (periodDays - 1) * 86400000);
+    return {
+        currStart: start,
+        currEnd: currEnd,
+        nextStart: nextStart,
+        nextEnd: nextEnd,
+        ovulation: ovulation
+    };
+};
+
+window.fmtDate = function(d){ return d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate(); };
+
+window.getDaysInRange = function(start, end){
+    var days = [];
+    var cur = new Date(start);
+    while(cur <= end){
+        days.push(new Date(cur));
+        cur.setDate(cur.getDate() + 1);
+    }
+    return days;
+};
+
+window.renderPeriodTracker = function(){
+    if(!periodCalendarYear){
+        var now = new Date();
+        periodCalendarYear = now.getFullYear();
+        periodCalendarMonth = now.getMonth() + 1;
+    }
+    var lastPeriod = getLastPeriod();
+    var settings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    var isGirl = DATA.currentUser === 'girl';
+    var phaseInfo = getPhaseInfo('none', 0, settings);
+    var nextPeriod = null;
+    var phaseData = { day: 0, phase: 'none' };
+    var isRecordedToday = false;
+    if(lastPeriod){
+        phaseData = getPeriodPhase(today, lastPeriod, settings);
+        phaseInfo = getPhaseInfo(phaseData.phase, phaseData.day, settings);
+        nextPeriod = getNextPeriod(lastPeriod, settings);
+        var ls = lastPeriod.start;
+        var le = new Date(new Date(ls+'T00:00:00').getTime() + (settings.periodDays - 1) * 86400000);
+        var leStr = le.getFullYear() + '-' + pad(le.getMonth()+1) + '-' + pad(le.getDate());
+        if(todayStr >= ls && todayStr <= leStr) isRecordedToday = true;
+    }
+    renderPeriodPhaseCard(phaseInfo, phaseData, isRecordedToday, isGirl, lastPeriod);
+    renderPeriodProgress(phaseData, settings);
+    renderPeriodCalendar(lastPeriod, settings);
+    renderPeriodInfo(nextPeriod, settings);
+    renderPeriodHistory();
+    updatePeriodActionBar(isGirl, lastPeriod, settings);
+    updatePeriodSettingsBtn(isGirl);
+};
+
+window.renderPeriodPhaseCard = function(info, phaseData, isRecordedToday, isGirl, lastPeriod){
+    var card = $('period-phase-card');
+    card.className = 'period-phase-card ' + info.cls;
+    $('period-phase-day').textContent = lastPeriod ? '🌸 贴心日历' : '🌸 贴心日历';
+    $('period-phase-num').textContent = lastPeriod ? ('第 ' + phaseData.day + ' 天') : '—';
+    $('period-phase-label').textContent = info.icon + ' ' + info.label;
+    $('period-phase-msg').textContent = info.msg;
+};
+
+window.renderPeriodProgress = function(phaseData, settings){
+    var cycleDays = settings.cycleDays || 28;
+    var periodDays = settings.periodDays || 5;
+    var lutealDays = 14;
+    var fertileBefore = 5;
+    var bar = $('period-progress-bar');
+    var legend = $('period-progress-legend');
+    var h = '';
+    for(var i = 1; i <= cycleDays; i++){
+        var cls = '';
+        if(i <= periodDays) cls = 'period-dot';
+        else if(i > cycleDays - lutealDays - fertileBefore && i <= cycleDays - lutealDays) cls = 'fertile-dot';
+        else if(i > cycleDays - lutealDays) cls = 'luteal-dot';
+        else cls = 'filled';
+        if(i === phaseData.day) cls += ' today-dot';
+        h += '<span class="period-progress-dot ' + cls + '"></span>';
+    }
+    bar.innerHTML = h;
+    legend.innerHTML = '<span><span class="dot red"></span>经期</span><span><span class="dot green"></span>安全期</span><span><span class="dot purple"></span>易孕期</span><span><span class="dot orange"></span>黄体期</span>';
+};
+
+window.renderPeriodCalendar = function(lastPeriod, settings){
+    var cycleDays = settings.cycleDays || 28;
+    var periodDays = settings.periodDays || 5;
+    var lutealDays = 14;
+    var fertileBefore = 5;
+    var year = periodCalendarYear;
+    var month = periodCalendarMonth;
+    $('period-cal-label').textContent = year + '年 ' + month + '月';
+    var grid = $('period-cal-grid');
+    var today = new Date();
+    var todayKey = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    var ovKey = null;
+    if(lastPeriod){
+        var nextPeriod = getNextPeriod(lastPeriod, settings);
+        if(nextPeriod){
+            ovKey = nextPeriod.ovulation.getFullYear()+'-'+pad(nextPeriod.ovulation.getMonth()+1)+'-'+pad(nextPeriod.ovulation.getDate());
+        }
+    }
+    var firstDay = new Date(year, month - 1, 1);
+    var lastDay = new Date(year, month, 0);
+    var startDow = firstDay.getDay();
+    startDow = startDow === 0 ? 6 : startDow - 1;
+    var totalDays = lastDay.getDate();
+    var h = '';
+    for(var i = 0; i < startDow; i++){
+        h += '<span class="period-cal-day empty"></span>';
+    }
+    for(var d = 1; d <= totalDays; d++){
+        var key = year + '-' + pad(month) + '-' + pad(d);
+        var cls = 'period-cal-day';
+        if(key === todayKey) cls += ' today';
+        if(lastPeriod){
+            var stage = getCalendarStage(key, lastPeriod, settings, cycleDays, periodDays, lutealDays, fertileBefore);
+            if(stage) cls += ' ' + stage;
+        }
+        if(key === ovKey) cls += ' ovulation-day';
+        if(key === periodSelectedDate) cls += ' selected';
+        h += '<span class="' + cls + '" onclick="selectPeriodDate(this,\'' + key + '\')">' + d + '</span>';
+    }
+    grid.innerHTML = h;
+};
+
+window.getCalendarStage = function(dateKey, lastPeriod, settings, cycleDays, periodDays, lutealDays, fertileBefore){
+    var calStart = new Date(lastPeriod.start + 'T00:00:00');
+    var target = new Date(dateKey + 'T00:00:00');
+    var diff = Math.floor((target - calStart) / 86400000);
+    if(diff < 0) return null;
+    var dayInCycle = diff % cycleDays + 1;
+    if(dayInCycle <= periodDays){
+        return diff < cycleDays ? 'cal-stage period-day' : 'cal-stage predicted-day';
+    }
+    if(dayInCycle > cycleDays - lutealDays - fertileBefore && dayInCycle <= cycleDays - lutealDays){
+        return 'cal-stage fertile-day';
+    }
+    if(dayInCycle > cycleDays - lutealDays){
+        return 'cal-stage luteal-day';
+    }
+    return 'cal-stage safe-day';
+};
+
+window.changePeriodMonth = function(delta){
+    periodCalendarMonth += delta;
+    if(periodCalendarMonth < 1){ periodCalendarMonth = 12; periodCalendarYear--; }
+    if(periodCalendarMonth > 12){ periodCalendarMonth = 1; periodCalendarYear++; }
+    renderPeriodCalendar(getLastPeriod(), DATA.periodSettings || { cycleDays: 28, periodDays: 5 });
+};
+
+window.selectPeriodDate = function(el, dateStr){
+    periodSelectedDate = dateStr;
+    var grid = $('period-cal-grid');
+    var cells = grid.querySelectorAll('.period-cal-day');
+    for(var i = 0; i < cells.length; i++) cells[i].classList.remove('selected');
+    if(el) el.classList.add('selected');
+    updatePeriodActionBar(DATA.currentUser === 'girl', getLastPeriod(), DATA.periodSettings || { cycleDays: 28, periodDays: 5 });}
+
+window.getSelectedDate = function(){
+    if(periodSelectedDate) return periodSelectedDate;
+    var t = new Date();
+    return t.getFullYear() + '-' + pad(t.getMonth()+1) + '-' + pad(t.getDate());
+};
+
+window.startPeriodFromSelected = function(){
+    if(DATA.currentUser !== 'girl'){ alert('只有 TA 可以记录哦~'); return; }
+    var dateStr = getSelectedDate();
+    recordPeriodStart(dateStr);
+};
+
+window.endPeriodFromSelected = function(){
+    if(DATA.currentUser !== 'girl'){ alert('只有 TA 可以记录哦~'); return; }
+    var last = getLastPeriod();
+    if(!last){ alert('还没有进行中的经期记录哦'); return; }
+    var dateStr = getSelectedDate();
+    var start = new Date(last.start + 'T00:00:00');
+    var end = new Date(dateStr + 'T00:00:00');
+    if(end < start){ alert('结束日期要晚于开始日期~'); return; }
+    var dur = Math.round((end - start) / 86400000) + 1;
+    last.duration = dur;
+    saveData();
+    periodSelectedDate = null;
+    renderPeriodTracker();
+};
+
+window.delayPeriodFromSelected = function(){
+    if(DATA.currentUser !== 'girl'){ alert('只有 TA 可以记录哦~'); return; }
+    var last = getLastPeriod();
+    if(!last){ alert('还没有经期记录哦'); return; }
+    var dateStr = getSelectedDate();
+    var start = new Date(last.start + 'T00:00:00');
+    var target = new Date(dateStr + 'T00:00:00');
+    last.delayDays = Math.max(0, Math.round((target - start) / 86400000) - ((DATA.periodSettings && DATA.periodSettings.cycleDays) || 28));
+    saveData();
+    periodSelectedDate = null;
+    renderPeriodTracker();
+};
+
+window.updatePeriodActionBar = function(isGirl, lastPeriod, settings){
+    var startBtn = $('btn-period-start');
+    var endBtn = $('btn-period-end');
+    var delayBtn = $('btn-period-delay');
+    var bar = $('period-action-bar');
+    if(!isGirl){
+        if(bar) bar.style.display = 'none';
+        return;
+    }
+    if(bar) bar.style.display = 'flex';
+    startBtn.classList.remove('disabled');
+    if(lastPeriod){
+        endBtn.classList.remove('disabled');
+        delayBtn.classList.remove('disabled');
+    } else {
+        endBtn.classList.add('disabled');
+        delayBtn.classList.add('disabled');
+    }
+};
+
+window.getPeriodLastRecordEnd = function(){
+    var last = getLastPeriod();
+    if(!last) return null;
+    var settings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    var dur = last.duration || settings.periodDays || 5;
+    var end = new Date(new Date(last.start+'T00:00:00').getTime() + (dur - 1) * 86400000);
+    return end;
+};
+
+window.renderPeriodInfo = function(nextPeriod, settings){
+    var container = $('period-info-content');
+    if(!nextPeriod){
+        container.innerHTML = '<div class="period-info-row"><span>暂无预测数据</span><span class="val">请先记录经期</span></div>';
+        return;
+    }
+    var h = '';
+    h += '<div class="period-info-row"><span>本次经期</span><span class="val">' + fmtDate(nextPeriod.currStart) + ' ~ ' + fmtDate(nextPeriod.currEnd) + '</span></div>';
+    h += '<div class="period-info-row"><span>预计排卵</span><span class="val">' + fmtDate(nextPeriod.ovulation) + '</span></div>';
+    h += '<div class="period-info-row"><span>下次经期</span><span class="val">' + fmtDate(nextPeriod.nextStart) + ' ~ ' + fmtDate(nextPeriod.nextEnd) + '</span></div>';
+    h += '<div class="period-info-row"><span>周期长度</span><span class="val">' + (settings.cycleDays || 28) + ' 天</span></div>';
+    container.innerHTML = h;
+};
+
+window.renderPeriodHistory = function(){
+    var list = $('period-history-list');
+    var recs = DATA.periodRecords || [];
+    if(!recs.length){
+        list.innerHTML = '<div style="text-align:center;color:#bbb;padding:16px 0;font-size:0.85rem;">还没有记录，开始记录吧 🌸</div>';
+        return;
+    }
+    var sorted = recs.slice().sort(function(a,b){ return new Date(b.start) - new Date(a.start); });
+    var h = '';
+    for(var i = 0; i < sorted.length; i++){
+        var r = sorted[i];
+        var dur = r.duration || (DATA.periodSettings ? DATA.periodSettings.periodDays : 5);
+        var end = new Date(new Date(r.start+'T00:00:00').getTime() + (dur - 1) * 86400000);
+        h += '<div class="period-history-item">';
+        h += '<span>' + r.start + ' ~ ' + fmtDate(end) + '  <span style="color:#e91e63;font-size:0.8rem;">经期' + dur + '天</span></span>';
+        h += '<span class="del-btn" onclick="deletePeriodRecord(' + i + ')">✕</span>';
+        h += '</div>';
+    }
+    list.innerHTML = h;
+};
+
+window.recordPeriodStart = function(dateStr){
+    if(DATA.currentUser !== 'girl') return;
+    var settings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    var periodDays = settings.periodDays || 5;
+    var startStr = dateStr || (function(){
+        var t = new Date();
+        return t.getFullYear() + '-' + pad(t.getMonth()+1) + '-' + pad(t.getDate());
+    })();
+    if(!DATA.periodRecords) DATA.periodRecords = [];
+    var recs = DATA.periodRecords;
+    for(var i = 0; i < recs.length; i++){
+        if(recs[i].start === startStr){
+            alert('该日期已经记录过了~');
+            return false;
+        }
+    }
+    recs.push({ start: startStr, duration: periodDays });
+    if(recs.length > 50) recs.shift();
+    saveData();
+    renderPeriodTracker();
+    return true;
+};
+
+window.openPeriodDatePicker = function(){
+    if(DATA.currentUser !== 'girl') return;
+    var today = new Date();
+    var yearSelect = $('pdp-year');
+    yearSelect.innerHTML = '';
+    for(var y = today.getFullYear(); y >= today.getFullYear() - 2; y--){
+        var opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        if(y === today.getFullYear()) opt.selected = true;
+        yearSelect.appendChild(opt);
+    }
+    var monthSelect = $('pdp-month');
+    monthSelect.innerHTML = '';
+    for(var m = 1; m <= 12; m++){
+        var opt = document.createElement('option');
+        opt.value = m; opt.textContent = m;
+        if(m === today.getMonth() + 1) opt.selected = true;
+        monthSelect.appendChild(opt);
+    }
+    updatePeriodPickerDays();
+    var daySelect = $('pdp-day');
+    for(var j = 0; j < daySelect.options.length; j++){
+        if(parseInt(daySelect.options[j].value) === today.getDate()){
+            daySelect.options[j].selected = true;
+            break;
+        }
+    }
+    $('period-date-picker').style.display = 'block';
+    $('period-phase-card').style.display = 'none';
+    $('period-progress-bar').style.display = 'none';
+    $('period-progress-legend').style.display = 'none';
+    $('period-settings-panel').style.display = 'none';
+    document.querySelectorAll('#tab-period .period-calendar-section, #tab-period .period-info-card, #tab-period .period-record-btn, #tab-period .period-history-card').forEach(function(el){ el.style.display = 'none'; });
+};
+
+window.closePeriodDatePicker = function(){
+    $('period-date-picker').style.display = 'none';
+    $('period-phase-card').style.display = '';
+    $('period-progress-bar').style.display = '';
+    $('period-progress-legend').style.display = '';
+    $('period-settings-panel').style.display = 'none';
+    document.querySelectorAll('#tab-period .period-calendar-section, #tab-period .period-info-card, #tab-period .period-record-btn, #tab-period .period-history-card').forEach(function(el){ el.style.display = ''; });
+    updatePeriodRecordBtn(DATA.currentUser === 'girl', false, getLastPeriod(), DATA.periodSettings || {});
+};
+
+window.updatePeriodPickerDays = function(){
+    var y = parseInt($('pdp-year').value);
+    var m = parseInt($('pdp-month').value);
+    var daysInMonth = new Date(y, m, 0).getDate();
+    var daySelect = $('pdp-day');
+    var curVal = parseInt(daySelect.value) || 1;
+    daySelect.innerHTML = '';
+    for(var d = 1; d <= daysInMonth; d++){
+        var opt = document.createElement('option');
+        opt.value = d; opt.textContent = d;
+        if(d === curVal && d <= daysInMonth) opt.selected = true;
+        daySelect.appendChild(opt);
+    }
+};
+
+window.confirmPeriodDate = function(){
+    var y = $('pdp-year').value;
+    var m = pad(parseInt($('pdp-month').value));
+    var d = pad(parseInt($('pdp-day').value));
+    var dateStr = y + '-' + m + '-' + d;
+    var ok = recordPeriodStart(dateStr);
+    if(ok !== false) closePeriodDatePicker();
+};
+
+window.deletePeriodRecord = function(index){
+    if(DATA.currentUser !== 'girl') return;
+    var recs = DATA.periodRecords || [];
+    var sorted = recs.slice().sort(function(a,b){ return new Date(b.start) - new Date(a.start); });
+    if(index < 0 || index >= sorted.length) return;
+    var target = sorted[index];
+    for(var i = recs.length - 1; i >= 0; i--){
+        if(recs[i].start === target.start){
+            recs.splice(i, 1);
+            break;
+        }
+    }
+    saveData();
+    periodCalendarYear = null; periodCalendarMonth = null;
+    renderPeriodTracker();
+};
+
+window.updatePeriodRecordBtn = function(isGirl, isRecordedToday, lastPeriod, settings){
+    updatePeriodActionBar(isGirl, lastPeriod, settings);
+};
+
+window.updatePeriodSettingsBtn = function(isGirl){
+    var btn = $('period-settings-btn');
+    btn.style.display = isGirl ? 'flex' : 'none';
+};
+
+window.openPeriodSettings = function(){
+    if(DATA.currentUser !== 'girl') return;
+    tempPeriodSettings = {
+        cycleDays: (DATA.periodSettings && DATA.periodSettings.cycleDays) || 28,
+        periodDays: (DATA.periodSettings && DATA.periodSettings.periodDays) || 5
+    };
+    $('ps-cycleDays').textContent = tempPeriodSettings.cycleDays;
+    $('ps-periodDays').textContent = tempPeriodSettings.periodDays;
+    $('period-settings-panel').style.display = 'block';
+    $('period-date-picker').style.display = 'none';
+    $('period-phase-card').style.display = 'none';
+    $('period-progress-bar').style.display = 'none';
+    $('period-progress-legend').style.display = 'none';
+    document.querySelectorAll('#tab-period .period-calendar-section, #tab-period .period-info-card, #tab-period .period-record-btn, #tab-period .period-history-card').forEach(function(el){ el.style.display = 'none'; });
+};
+
+window.closePeriodSettings = function(){
+    $('period-settings-panel').style.display = 'none';
+    $('period-phase-card').style.display = '';
+    $('period-progress-bar').style.display = '';
+    $('period-progress-legend').style.display = '';
+    document.querySelectorAll('#tab-period .period-calendar-section, #tab-period .period-info-card, #tab-period .period-record-btn, #tab-period .period-history-card').forEach(function(el){ el.style.display = ''; });
+    tempPeriodSettings = null;
+};
+
+window.stepPeriodSetting = function(key, delta){
+    if(!tempPeriodSettings) return;
+    tempPeriodSettings[key] += delta;
+    var min = key === 'cycleDays' ? 21 : 3;
+    var max = key === 'cycleDays' ? 35 : 7;
+    if(tempPeriodSettings[key] < min) tempPeriodSettings[key] = min;
+    if(tempPeriodSettings[key] > max) tempPeriodSettings[key] = max;
+    $('ps-' + key).textContent = tempPeriodSettings[key];
+};
+
+window.savePeriodSettings = function(){
+    if(!tempPeriodSettings) return;
+    DATA.periodSettings = {
+        cycleDays: tempPeriodSettings.cycleDays,
+        periodDays: tempPeriodSettings.periodDays
+    };
+    if(DATA.periodRecords && DATA.periodRecords.length > 0){
+        var last = DATA.periodRecords[DATA.periodRecords.length - 1];
+        last.duration = DATA.periodSettings.periodDays;
+    }
+    saveData();
+    tempPeriodSettings = null;
+    closePeriodSettings();
+    periodCalendarYear = null; periodCalendarMonth = null;
+    renderPeriodTracker();
+};
+
+/* ===== 在一起天数 ===== */
+var _togetherTimer = null;
+function updateTogetherDays(){
+    var sd = DATA.startDate;
+    var el = $('together-days');
+    if(!el || !sd){
+        if(_togetherTimer){ clearInterval(_togetherTimer); _togetherTimer = null; }
+        return;
+    }
+    if(_togetherTimer) clearInterval(_togetherTimer);
+    function tick(){
+        var start = new Date(sd + 'T00:00:00');
+        var now = new Date();
+        var diff = now - start;
+        if(diff < 0) diff = 0;
+        var d = Math.floor(diff / 86400000);
+        var h = Math.floor((diff % 86400000) / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        var txt = '';
+        if(d > 0) txt += d + '天';
+        if(h > 0 || d > 0) txt += h + '时';
+        txt += m + '分' + s + '秒';
+        el.textContent = txt;
+    }
+    tick();
+    _togetherTimer = setInterval(tick, 1000);
+    setTimeout(function(){
+        var nd = new Date(); nd.setHours(0,0,0,0);
+        var st = new Date(sd + 'T00:00:00');
+        if(nd - st < 0) return;
+        var best = null;
+        for(var i=0; i<DATA.anniversaries.length; i++){
+            var a = DATA.anniversaries[i];
+            if(!a.repeat) continue;
+            var ad = new Date(nd.getFullYear(), a.month-1, a.day);
+            if(ad <= nd) ad = new Date(nd.getFullYear()+1, a.month-1, a.day);
+            var left = Math.ceil((ad - nd) / 86400000);
+            if(!best || left < best.daysLeft) best = {name:a.name, daysLeft:left};
+        }
+        var badge = $('nearest-anni');
+        if(badge && best) badge.textContent = '最近的纪念日：' + best.name + ' 还有 ' + best.daysLeft + ' 天';
+        else if(badge) badge.textContent = '';
+    }, 10);
+}
+
+window.showDateEditor = function(){ $('date-editor').style.display = 'block'; $('home-start-date').value = DATA.startDate || ''; };
+window.hideDateEditor = function(){ $('date-editor').style.display = 'none'; };
+
+window.updateStartDate = function(source){
+    var v;
+    if(source === 'home'){
+        v = $('home-start-date').value;
+        if(!v) return;
+        $('start-date').value = v;
+        $('date-editor').style.display = 'none';
+    } else {
+        v = $('start-date').value;
+        if(!v) return;
+        $('home-start-date').value = v;
+    }
+    DATA.startDate = v;
+    saveData();
+    updateTogetherDays();
+};
+
+/* ===== 最近动态 ===== */
+function renderRecentActivity(){
+    var el = $('recent-activity');
+    if(!el) return;
+    var items = [];
+    for(var i=0; i<DATA.dailies.length; i++){
+        items.push({date:DATA.dailies[i].date, text:'记录了日常：'+DATA.dailies[i].content, emoji:DATA.dailies[i].mood});
+    }
+    for(var j=0; j<DATA.photos.length; j++){
+        var p = DATA.photos[j];
+        items.push({date:p.date||'', text:'上传了新照片', emoji:'📷'});
+    }
+    for(var k=0; k<DATA.chats.length; k++){
+        var c = DATA.chats[k];
+        items.push({date:c.time||'', text:'发了悄悄话：'+c.msg, emoji:c.role==='boy'?'👦':'👧'});
+    }
+    items.sort(function(a,b){ return a.date>b.date ? -1 : 1; });
+    items = items.slice(0, 10);
+    if(items.length === 0){ el.innerHTML = '<div style="color:#bbb;font-size:0.85rem;text-align:center;">还没有动态哦，快去记录吧~</div>'; return; }
+    var h = '';
+    for(var i=0; i<items.length; i++){
+        h += '<div class="recent-item">'+items[i].emoji+' '+items[i].text+' <span style="color:#bbb;font-size:0.75rem;">'+items[i].date+'</span></div>';
+    }
+    el.innerHTML = h;
+}
+
+/* ===== 纪念日 ===== */
+function initAnniCategory(){
+    window.initCustomSelect('anni-category-wrap', 'anni_category_opts', [
+        {emoji:'🎂', label:'生日', value:'🎂'},
+        {emoji:'💕', label:'恋爱', value:'💕'},
+        {emoji:'💍', label:'结婚', value:'💍'},
+        {emoji:'✈️', label:'旅行', value:'✈️'},
+        {emoji:'🎉', label:'其他', value:'🎉'}
+    ], 'anni-category');
+}
+
+window.addAnniversary = function(){
+    var name = $('anni-name').value.trim();
+    var date = $('anni-date').value;
+    var catWrap = document.getElementById('anni-category-wrap');
+    var cat = catWrap && catWrap.getSelected ? (catWrap.getSelected().value || '🎂') : '🎂';
+    var repeat = $('anni-repeat').checked;
+    var lunar = $('anni-lunar').checked;
+    if(!name || !date) { alert('请填写名称和日期'); return; }
+    var parts = date.split('-');
+    var entry = {name:name, month:parseInt(parts[1]), day:parseInt(parts[2]), category:cat, repeat:repeat, lunar:lunar, id:Date.now()};
+    DATA.anniversaries.push(entry);
+    saveData();
+    $('anni-name').value = '';
+    $('anni-date').value = '';
+    renderAnniversaries();
+    updateTogetherDays();
+};
+
+function renderAnniversaries(){
+    var el = $('anniversary-list');
+    if(!el) return;
+    var now = new Date();
+    var arr = DATA.anniversaries.slice();
+    arr.sort(function(a,b){
+        var da = (a.month < now.getMonth()+1 || (a.month === now.getMonth()+1 && a.day < now.getDate())) ? 1 : 0;
+        var db = (b.month < now.getMonth()+1 || (b.month === now.getMonth()+1 && b.day < now.getDate())) ? 1 : 0;
+        if(da!==db) return da-db;
+        if(a.month!==b.month) return a.month-b.month;
+        return a.day-b.day;
+    });
+    var h = '';
+    for(var i=0; i<arr.length; i++){
+        var a = arr[i];
+        var nextDate = new Date(now.getFullYear(), a.month-1, a.day);
+        if(nextDate <= now) nextDate.setFullYear(nextDate.getFullYear()+1);
+        var dd = Math.ceil((nextDate - now)/(1000*60*60*24));
+        var countdown = a.repeat ? ' 还有 '+dd+' 天' : '';
+        h += '<div class="card-item">' +
+            '<span class="card-emoji">'+a.category+'</span>' +
+            '<span class="card-name">'+a.name+'</span>' +
+            '<span class="card-date">'+a.month+'月'+a.day+'日'+(a.lunar?'(农历)':'')+countdown+'</span>' +
+            '<span class="del-btn" onclick="event.stopPropagation();delAnni('+a.id+')">✕</span>' +
+            '</div>';
+    }
+    if(!h) h = '<div style="color:#bbb;font-size:0.85rem;text-align:center;">还没有纪念日</div>';
+    el.innerHTML = h;
+
+    var badge = $('recent-anniversary');
+    if(badge && arr.length>0){
+        var next = arr[0];
+        badge.style.display = 'block';
+        var nd = new Date(now.getFullYear(), next.month-1, next.day);
+        if(nd <= now) nd.setFullYear(nd.getFullYear()+1);
+        var nl = Math.ceil((nd - now)/(1000*60*60*24));
+        badge.innerHTML = '📌 下一个纪念日：'+next.name+' 还有 <b>'+nl+'</b> 天';
+    } else if(badge) badge.style.display = 'none';
+}
+
+window.delAnni = function(id){
+    if(!confirm('确定删除吗？')) return;
+    DATA.anniversaries = DATA.anniversaries.filter(function(a){ return a.id !== id; });
+    saveData();
+    renderAnniversaries();
+    updateTogetherDays();
+};
+
+/* ===== 日常 ===== */
+function initDailyMood(){
+    window.initCustomSelect('daily-mood-wrap', 'daily_mood_opts', [
+        {emoji:'😊', label:'开心', value:'😊'},
+        {emoji:'😘', label:'甜蜜', value:'😘'},
+        {emoji:'🥰', label:'幸福', value:'🥰'},
+        {emoji:'😎', label:'酷', value:'😎'},
+        {emoji:'🤗', label:'温暖', value:'🤗'},
+        {emoji:'😋', label:'好吃', value:'😋'},
+        {emoji:'🥳', label:'庆祝', value:'🥳'}
+    ], 'daily-mood');
+}
+
+window.addDaily = function(){
+    var date = $('daily-date').value || new Date().toISOString().slice(0,10);
+    var content = $('daily-content').value.trim();
+    var moodWrap = document.getElementById('daily-mood-wrap');
+    var mood = moodWrap && moodWrap.getSelected ? (moodWrap.getSelected().value || '😊') : '😊';
+    if(!content){ alert('写点什么吧~'); return; }
+    DATA.dailies.push({date:date, content:content, mood:mood, id:Date.now()});
+    saveData();
+    $('daily-content').value = '';
+    renderDailies();
+};
+
+function renderDailies(){
+    var el = $('daily-list');
+    if(!el) return;
+    var arr = DATA.dailies.slice().sort(function(a,b){ return a.date<b.date?1:-1; });
+    var h = '';
+    for(var i=0; i<arr.length; i++){
+        var d = arr[i];
+        h += '<div class="card-item"><span class="card-emoji">'+d.mood+'</span>' +
+            '<span>'+d.content+'</span><span class="card-date">'+d.date+'</span>' +
+            '<span class="del-btn" onclick="event.stopPropagation();delDaily('+d.id+')">✕</span></div>';
+    }
+    if(!h) h = '<div style="color:#bbb;font-size:0.85rem;text-align:center;">还没有日常记录</div>';
+    el.innerHTML = h;
+}
+
+window.delDaily = function(id){
+    if(!confirm('确定删除吗？')) return;
+    DATA.dailies = DATA.dailies.filter(function(d){ return d.id !== id; });
+    saveData();
+    renderDailies();
+};
+
+/* ===== 相册 ===== */
+window.uploadPhotos = function(input){
+    var files = input.files;
+    if(!files || files.length === 0) return;
+    if(files.length > 5){ alert('一次最多上传5张照片，已自动选取前5张'); }
+    var limit = Math.min(files.length, 5);
+    var done = 0;
+    function processOne(file){
+        var reader = new FileReader();
+        reader.onload = function(e){
+            var img = new Image();
+            img.onload = function(){
+                var src = compressPhoto(img);
+                DATA.photos.push({src:src, date:new Date().toISOString().slice(0,10), id:Date.now() + done});
+                done++;
+                saveData();
+                if(done >= limit){ renderPhotos(); input.value = ''; }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+    for(var i = 0; i < limit; i++){ processOne(files[i]); }
+};
+
+function compressPhoto(img){
+    var maxW = 1200, maxH = 1200;
+    var w = img.width, h = img.height;
+    if(w > maxW || h > maxH){
+        var ratio = Math.min(maxW/w, maxH/h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+    }
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', 0.8);
+}
+
+window.addPhotoUrl = function(){
+    var url = $('photo-url').value.trim();
+    if(!url){ alert('请输入图片链接'); return; }
+    DATA.photos.push({src:url, date:new Date().toISOString().slice(0,10), id:Date.now()});
+    saveData();
+    $('photo-url').value = '';
+    renderPhotos();
+};
+
+function renderPhotos(){
+    var el = $('photo-grid');
+    if(!el) return;
+    if(DATA.photos.length === 0){ el.innerHTML = '<div style="color:#bbb;font-size:0.85rem;text-align:center;grid-column:1/-1;padding:20px;">还没有照片，快来上传吧~</div>'; return; }
+    var h = '';
+    for(var i=0; i<DATA.photos.length; i++){
+        var pid = DATA.photos[i].id;
+        var checked = selectedPhotoIds[pid] ? ' checked' : '';
+        var cbShow = photoSelectMode ? ' show' : '';
+        h += '<div class="photo-item-wrap">' +
+            '<div class="photo-checkbox' + cbShow + checked + '" onclick="event.stopPropagation();togglePhotoSelect('+pid+')">' + (selectedPhotoIds[pid] ? '✓' : '') + '</div>' +
+            '<img src="'+DATA.photos[i].src+'" data-id="'+pid+'" data-idx="'+i+'" loading="lazy"' +
+                ' onmousedown="startPhotoLongPress(event,'+pid+')" onmouseup="cancelPhotoLongPress()" onmouseleave="cancelPhotoLongPress()"' +
+                ' ontouchstart="startPhotoLongPress(event,'+pid+')" ontouchend="cancelPhotoLongPress()" ontouchmove="cancelPhotoLongPress()"' +
+                ' onclick="onPhotoClick(event,'+i+','+pid+')">' +
+            '</div>';
+    }
+    el.innerHTML = h;
+    $('photo-select-bar').classList.toggle('show', photoSelectMode);
+    updateSelCount();
+}
+
+window.onPhotoClick = function(e, idx, pid){
+    if(photoSelectMode){ togglePhotoSelect(pid); return; }
+    openLightbox(idx);
+};
+
+window.delPhoto = function(id){
+    DATA.photos = DATA.photos.filter(function(p){ return p.id !== id; });
+    saveData();
+    renderPhotos();
+};
+
+var photoLongPressTimer = null;
+var photoLongPressId = null;
+
+window.startPhotoLongPress = function(e, id){
+    e.stopPropagation();
+    photoLongPressId = id;
+    photoLongPressTimer = setTimeout(function(){
+        showPhotoMenu(id);
+    }, 500);
+};
+
+window.cancelPhotoLongPress = function(){
+    if(photoLongPressTimer){ clearTimeout(photoLongPressTimer); photoLongPressTimer = null; }
+};
+
+window.showPhotoMenu = function(id){
+    photoLongPressId = id;
+    var menu = $('photo-context-menu');
+    if(menu) menu.style.display = 'block';
+    hideContextMenu();
+};
+
+window.hidePhotoMenu = function(){
+    var menu = $('photo-context-menu');
+    if(menu) menu.style.display = 'none';
+    photoLongPressId = null;
+};
+
+window.deletePhotoFromMenu = function(){
+    if(photoLongPressId !== null && confirm('确定删除这张照片吗？')){
+        delPhoto(photoLongPressId);
+    }
+    hidePhotoMenu();
+};
+
+window.enterPhotoSelectMode = function(){
+    hidePhotoMenu();
+    photoSelectMode = true;
+    selectedPhotoIds = {};
+    renderPhotos();
+};
+
+window.togglePhotoSelect = function(id){
+    if(selectedPhotoIds[id]){ delete selectedPhotoIds[id]; }
+    else { selectedPhotoIds[id] = true; }
+    var cb = document.querySelector('.photo-item-wrap .photo-checkbox[onclick*="'+id+'"]');
+    if(cb){
+        if(selectedPhotoIds[id]){ cb.classList.add('checked'); cb.textContent = '✓'; }
+        else { cb.classList.remove('checked'); cb.textContent = ''; }
+    }
+    updateSelCount();
+};
+
+window.updateSelCount = function(){
+    var count = Object.keys(selectedPhotoIds).length;
+    var el = $('sel-count');
+    if(el) el.textContent = '已选 ' + count + ' 张';
+};
+
+window.dataUrlToBlob = function(dataUrl){
+    var arr = dataUrl.split(',');
+    var mime = arr[0].match(/:(.*?);/)[1];
+    var bstr = atob(arr[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
+    for(var i=0; i<n; i++){ u8arr[i] = bstr.charCodeAt(i); }
+    return new Blob([u8arr], {type:mime});
+};
+
+window.saveSelectedPhotos = function(){
+    var ids = Object.keys(selectedPhotoIds);
+    if(ids.length === 0){ alert('请先勾选照片'); return; }
+    var blobs = [];
+    for(var i=0; i<ids.length; i++){
+        var p = DATA.photos.find(function(ph){ return ph.id == ids[i]; });
+        if(p){ blobs.push(dataUrlToBlob(p.src)); }
+    }
+    if(blobs.length === 0) return;
+    var files = [];
+    for(var j=0; j<blobs.length; j++){
+        files.push(new File([blobs[j]], 'photo_' + ids[j] + '.jpg', {type:'image/jpeg'}));
+    }
+    if(navigator.share && navigator.canShare && navigator.canShare({files:files})){
+        navigator.share({files:files}).catch(function(){});
+    } else {
+        for(var k=0; k<blobs.length; k++){
+            var url = URL.createObjectURL(blobs[k]);
+            var a = document.createElement('a');
+            a.href = url; a.download = 'photo_' + ids[k] + '.jpg';
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    }
+};
+
+window.deleteSelectedPhotos = function(){
+    var ids = Object.keys(selectedPhotoIds);
+    if(ids.length === 0){ alert('请先勾选照片'); return; }
+    if(!confirm('确定删除选中的 ' + ids.length + ' 张照片吗？')) return;
+    var idSet = {};
+    for(var i=0; i<ids.length; i++){ idSet[ids[i]] = true; }
+    DATA.photos = DATA.photos.filter(function(p){ return !idSet[p.id]; });
+    saveData();
+    selectedPhotoIds = {};
+    photoSelectMode = false;
+    renderPhotos();
+};
+
+window.exitPhotoSelectMode = function(){
+    photoSelectMode = false;
+    selectedPhotoIds = {};
+    renderPhotos();
+};
+
+window.openLightbox = function(index){
+    lbPhotos = DATA.photos;
+    lbIndex = index;
+    updateLightbox();
+    $('lightbox').classList.add('show');
+    document.body.style.overflow = 'hidden';
+};
+
+function updateLightbox(){
+    if(lbIndex < 0 || lbPhotos.length === 0) return;
+    var p = lbPhotos[lbIndex];
+    $('lb-img').style.opacity = '0';
+    setTimeout(function(){
+        $('lb-img').src = p.src;
+        $('lb-img').onload = function(){ $('lb-img').style.opacity = '1'; };
+        $('lb-counter').textContent = (lbIndex+1) + ' / ' + lbPhotos.length;
+    }, 100);
+}
+
+window.lbNext = function(){ lbIndex = (lbIndex + 1) % lbPhotos.length; updateLightbox(); };
+window.lbPrev = function(){ lbIndex = (lbIndex - 1 + lbPhotos.length) % lbPhotos.length; updateLightbox(); };
+window.closeLightbox = function(e){
+    if(e && e.target !== e.currentTarget && e.target.tagName !== 'SPAN') return;
+    $('lightbox').classList.remove('show');
+    document.body.style.overflow = '';
+    lbIndex = -1;
+};
+
+document.addEventListener('keydown', function(e){
+    if(!$('lightbox').classList.contains('show')) return;
+    if(e.key === 'ArrowRight') lbNext();
+    if(e.key === 'ArrowLeft') lbPrev();
+    if(e.key === 'Escape') closeLightbox();
+});
+
+/* ===== 微信聊天风格消息 ===== */
+// 账号切换
+window.renderAccountSwitcher = function(){
+    var el = $('account-switcher');
+    if(!el) return;
+    var boyAvt = DATA.boyAvatar ? '<img src="'+DATA.boyAvatar+'">' : '👦';
+    var girlAvt = DATA.girlAvatar ? '<img src="'+DATA.girlAvatar+'">' : '👧';
+    el.innerHTML =
+        '<div class="account-item'+(DATA.currentUser==='boy'?' active':'')+'">' +
+            '<div class="account-avatar" onclick="event.stopPropagation();openProfileCard(\'boy\')">'+boyAvt+'</div>' +
+            '<div class="account-info" onclick="switchAccount(\'boy\')"><div class="account-nick">'+DATA.boyNick+' <span class="account-edit" onclick="event.stopPropagation();openProfileCard(\'boy\')">✏️</span></div><div class="account-tag">他的账号</div></div>' +
+            (DATA.currentUser==='boy'?'<div class="account-check">✓</div>':'') +
+        '</div>' +
+        '<div class="account-item'+(DATA.currentUser==='girl'?' active':'')+'">' +
+            '<div class="account-avatar" onclick="event.stopPropagation();openProfileCard(\'girl\')">'+girlAvt+'</div>' +
+            '<div class="account-info" onclick="switchAccount(\'girl\')"><div class="account-nick">'+DATA.girlNick+' <span class="account-edit" onclick="event.stopPropagation();openProfileCard(\'girl\')">✏️</span></div><div class="account-tag">她的账号</div></div>' +
+            (DATA.currentUser==='girl'?'<div class="account-check">✓</div>':'') +
+        '</div>';
+};
+
+window.switchAccount = function(role){
+    DATA.currentUser = role;
+    saveData();
+    renderAccountSwitcher();
+    renderConversationList();
+    renderChats();
+    updateProfileHeader();
+    var input = $('chat-msg-input');
+    if(input) input.placeholder = role==='boy' ? '想对'+DATA.girlNick+'说点什么...' : '想对'+DATA.boyNick+'说点什么...';
+};
+
+window.deleteChatMsg = function(id){
+    DATA.chats = DATA.chats.filter(function(c){ return c.id !== id; });
+    saveData();
+    renderChats();
+    hideContextMenu();
+};
+
+var longPressTimer = null;
+var longPressTargetId = null;
+
+window.startLongPress = function(e, id){
+    e.stopPropagation();
+    longPressTargetId = id;
+    longPressTimer = setTimeout(function(){
+        showContextMenu(id);
+    }, 500);
+};
+
+window.cancelLongPress = function(){
+    if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; }
+};
+
+window.showContextMenu = function(id){
+    var menu = $('context-menu');
+    if(!menu) return;
+    longPressTargetId = id;
+    menu.style.display = 'block';
+};
+
+window.hideContextMenu = function(){
+    var menu = $('context-menu');
+    if(menu) menu.style.display = 'none';
+    longPressTargetId = null;
+};
+
+window.copyChatMsg = function(){
+    var chat = DATA.chats.find(function(c){ return c.id === longPressTargetId; });
+    if(chat){
+        navigator.clipboard.writeText(chat.msg).then(function(){});
+        var ta = document.createElement('textarea');
+        ta.value = chat.msg;
+        ta.style.position = 'fixed'; ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+    }
+    hideContextMenu();
+};
+
+window.deleteChatMsgFromMenu = function(){
+    if(longPressTargetId !== null){
+        deleteChatMsg(longPressTargetId);
+    }
+};
+
+document.addEventListener('click', function(e){
+    if(!e.target.closest('.context-menu') && !e.target.closest('.bubble')){
+        hideContextMenu();
+    }
+    if(!e.target.closest('.context-menu') && !e.target.closest('.photo-grid img')){
+        hidePhotoMenu();
+    }
+});
+
+document.addEventListener('scroll', function(){ hideContextMenu(); }, true);
+
+window.setChatBg = function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+        var img = new Image();
+        img.onload = function(){
+            var canvas = document.createElement('canvas');
+            var maxW = 1000, maxH = 1500;
+            var w = img.width, h = img.height;
+            if(w > maxW){ h = h * maxW / w; w = maxW; }
+            if(h > maxH){ w = w * maxH / h; h = maxH; }
+            canvas.width = w; canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            var base64 = canvas.toDataURL('image/jpeg', 0.85);
+            DATA[DATA.currentUser + 'ChatBg'] = base64;
+            saveData();
+            applyChatBg(base64);
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+};
+
+function applyChatBg(url){
+    var view = $('msg-chat-view');
+    var container = $('chat-container');
+    var clearBtn = document.querySelector('.chat-bg-clear');
+    if(url){
+        view.style.setProperty('--chat-bg-url', 'url('+url+')');
+        view.classList.add('has-bg');
+        if(container){ container.style.background = 'transparent'; container.style.backgroundColor = 'transparent'; }
+        if(clearBtn) clearBtn.classList.add('show');
+    } else {
+        view.classList.remove('has-bg');
+        if(container){ container.style.background = ''; container.style.backgroundColor = ''; }
+        if(clearBtn) clearBtn.classList.remove('show');
+    }
+}
+
+window.clearChatBg = function(){
+    DATA[DATA.currentUser + 'ChatBg'] = '';
+    saveData();
+    applyChatBg('');
+};
+
+// App 主背景：上传照片自定义背景
+window.setAppBg = function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+        var img = new Image();
+        img.onload = function(){
+            var canvas = document.createElement('canvas');
+            var maxW = 1200, maxH = 1800;
+            var w = img.width, h = img.height;
+            if(w > maxW){ h = h * maxW / w; w = maxW; }
+            if(h > maxH){ w = w * maxH / h; h = maxH; }
+            canvas.width = w; canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            var base64 = canvas.toDataURL('image/jpeg', 0.82);
+            DATA[DATA.currentUser + 'AppBg'] = base64;
+            saveData();
+            applyAppBg(base64);
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+};
+
+function applyAppBg(url){
+    var bg = document.body;
+    if(url){
+        bg.style.setProperty('--app-bg-url', 'url('+url+')');
+    } else {
+        bg.style.removeProperty('--app-bg-url');
+    }
+}
+
+window.clearAppBg = function(){
+    DATA[DATA.currentUser + 'AppBg'] = '';
+    saveData();
+    applyAppBg('');
+};
+
+// 资料卡弹窗
+var profileModalRole = null;
+var profileModalNewAvt = null;
+var profileModalGender = null;
+
+window.selectGender = function(g){
+    profileModalGender = g;
+    var btns = document.querySelectorAll('#profile-modal-gender .gender-btn');
+    btns.forEach(function(b){ b.classList.remove('active'); });
+    var target = document.querySelector('#profile-modal-gender .gender-btn[data-g="'+g+'"]');
+    if(target) target.classList.add('active');
+};
+
+window.openProfileCard = function(role){
+    profileModalRole = role;
+    profileModalNewAvt = null;
+    var avt = role === 'boy' ? DATA.boyAvatar : DATA.girlAvatar;
+    var nick = role === 'boy' ? DATA.boyNick : DATA.girlNick;
+    var gender = role === 'boy' ? (DATA.boyGender || 'male') : (DATA.girlGender || 'female');
+    var tag = role === 'boy' ? '他的账号' : '她的账号';
+    profileModalGender = gender;
+    var avtEl = $('profile-modal-avatar-img');
+    avtEl.innerHTML = avt ? '<img src="'+avt+'">' : (role==='boy'?'👦':'👧');
+    $('profile-modal-nick').textContent = nick;
+    $('profile-modal-role').textContent = tag;
+    var modal = $('profile-modal');
+    modal.style.display = 'flex';
+    var btns = document.querySelectorAll('#profile-modal-gender .gender-btn');
+    btns.forEach(function(b){ b.classList.remove('active'); });
+    var target = document.querySelector('#profile-modal-gender .gender-btn[data-g="'+gender+'"]');
+    if(target) target.classList.add('active');
+};
+
+window.closeProfileCard = function(){
+    $('profile-modal').style.display = 'none';
+    profileModalRole = null;
+    profileModalNewAvt = null;
+    profileModalGender = null;
+};
+
+window.setProfileAvatarFromModal = function(e){
+    var file = e.target.files[0];
+    if(!file || !profileModalRole) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+        var img = new Image();
+        img.onload = function(){
+            var canvas = document.createElement('canvas');
+            var size = 200;
+            canvas.width = size; canvas.height = size;
+            var ctx = canvas.getContext('2d');
+            var s = Math.min(img.width, img.height);
+            var sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+            profileModalNewAvt = canvas.toDataURL('image/jpeg', 0.85);
+            $('profile-modal-avatar-img').innerHTML = '<img src="'+profileModalNewAvt+'">';
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+};
+
+window.editProfileNick = function(){
+    var el = $('profile-modal-nick');
+    var old = el.textContent;
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.value = old;
+    input.maxLength = 8;
+    input.style.cssText = 'font-size:1.1rem;font-weight:600;text-align:center;border:1px solid #ddd;border-radius:6px;padding:4px 8px;outline:none;width:120px;';
+    input.onblur = function(){
+        el.textContent = this.value.trim() || old;
+        this.replaceWith(el);
+    };
+    input.onkeydown = function(ev){ if(ev.key === 'Enter') this.blur(); };
+    el.replaceWith(input);
+    input.focus();
+    input.select();
+};
+
+window.saveProfileFromModal = function(){
+    if(!profileModalRole) return;
+    if(profileModalNewAvt){
+        if(profileModalRole === 'boy') DATA.boyAvatar = profileModalNewAvt;
+        else DATA.girlAvatar = profileModalNewAvt;
+    }
+    var nickEl = $('profile-modal-nick');
+    var nick;
+    if(nickEl){
+        nick = nickEl.textContent.trim();
+    } else {
+        // 昵称还在输入中，从未 blur，直接读 input 值
+        var input = document.querySelector('#profile-modal input[type="text"]');
+        nick = input ? input.value.trim() : '';
+        if(input) input.blur(); // 触发 blur 恢复 span
+    }
+    if(!nick) return;
+    if(profileModalRole === 'boy') DATA.boyNick = nick;
+    else DATA.girlNick = nick;
+    if(profileModalGender){
+        if(profileModalRole === 'boy') DATA.boyGender = profileModalGender;
+        else DATA.girlGender = profileModalGender;
+    }
+    saveData();
+    renderAccountSwitcher();
+    renderConversationList();
+    renderChats();
+    updateProfileHeader();
+    closeProfileCard();
+};
+
+// 保留 setChatAvatar 供其他地方使用 (已废弃，但保持兼容)
+window.setChatAvatar = function(role, e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+        var img = new Image();
+        img.onload = function(){
+            var canvas = document.createElement('canvas');
+            var size = 200;
+            canvas.width = size; canvas.height = size;
+            var ctx = canvas.getContext('2d');
+            var s = Math.min(img.width, img.height);
+            var sx = (img.width - s) / 2, sy = (img.height - s) / 2;
+            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+            var base64 = canvas.toDataURL('image/jpeg', 0.85);
+            if(role === 'boy') DATA.boyAvatar = base64;
+            else DATA.girlAvatar = base64;
+            saveData();
+            renderAccountSwitcher();
+            renderChats();
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+};
+
+window.addChatMsg = function(){
+    var msg = $('chat-msg-input').value.trim();
+    if(!msg) return;
+    DATA.chats.push({role: DATA.currentUser, msg:msg, time:getTimeStr(), id:Date.now()});
+    saveData();
+    $('chat-msg-input').value = '';
+    autoResizeChatInput();
+    $('emoji-picker').style.display = 'none';
+    renderChats();
+    scrollChatBottom();
+};
+
+window.autoResizeChatInput = function(){
+    var el = $('chat-msg-input');
+    if(!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+};
+
+window.toggleEmojiPicker = function(){
+    var picker = $('emoji-picker');
+    if(picker.style.display === 'none' || !picker.style.display){
+        if(!picker.dataset.init){
+            initEmojiPicker();
+            picker.dataset.init = '1';
+        }
+        picker.style.display = 'flex';
+    } else {
+        picker.style.display = 'none';
+    }
+};
+
+window.insertEmoji = function(emoji){
+    var el = $('chat-msg-input');
+    if(!el) return;
+    var start = el.selectionStart;
+    var end = el.selectionEnd;
+    var before = el.value.substring(0, start);
+    var after = el.value.substring(end);
+    el.value = before + emoji + after;
+    el.selectionStart = el.selectionEnd = start + emoji.length;
+    el.focus();
+    autoResizeChatInput();
+};
+
+window.initEmojiPicker = function(){
+    var picker = $('emoji-picker');
+    if(!picker) return;
+    var emojis = [
+        '😀','😃','😄','😁','😆','😅','🤣','😂',
+        '😊','😇','🙂','😉','😌','😍','🥰','😘',
+        '😗','😙','😚','😋','😛','😜','🤪','😝',
+        '🤗','🤭','🤫','🤔','🤐','🤨','😐','😑',
+        '😶','😏','😒','🙄','😬','😮','🤥','😌',
+        '😪','😴','🥱','😷','🤒','🤕','🤢','🤮',
+        '🥵','🥶','😵','🤯','🤠','🥳','🥸','😎',
+        '🤓','🧐','😕','😟','🙁','😮','😯','😲',
+        '😳','🥺','😦','😧','😨','😰','😥','😢',
+        '😭','😱','😖','😣','😞','😓','😩','😫',
+        '🥴','😤','😡','😠','🤬','😈','👿','💀',
+        '💩','🤡','👹','👺','👻','👽','👾','🤖',
+        '😺','😸','😹','😻','😼','😽','🙀','😿',
+        '💋','💌','💘','💝','💖','💗','💓','💞',
+        '💕','💟','❣️','💔','❤️','🧡','💛','💚',
+        '💙','💜','🤎','🖤','🤍','💯','💢','💥',
+        '👍','👎','👏','🙌','🤝','🤜','🤛','✊',
+        '👊','🤚','👋','🖐','✋','🤟','🤘','✌️',
+        '🤞','🤙','👌','🤏','👈','👉','👆','👇',
+        '☝️','🙏','💪','🦵','🦶','👂','🦻','👃',
+        '🧠','🫀','🫁','👀','👁','👅','👄','🌹',
+        '🌸','💐','🌺','🌻','🌷','🥀','🍀','🌿',
+        '🎉','🎊','🎈','🎁','🏆','⭐','🌟','✨',
+        '🔥','💧','🌈','☀️','🌙','⚡','☁️','❄️',
+        '☕','🍵','🧋','🥤','🍺','🍻','🥂','🍷',
+        '🎂','🍰','🧁','🍫','🍬','🍭','🎵','🎶'
+    ];
+    var h = '';
+    for(var i=0; i<emojis.length; i++){
+        h += '<span onclick="insertEmoji(\''+emojis[i]+'\')">'+emojis[i]+'</span>';
+    }
+    picker.innerHTML = h;
+};
+
+function getTimeStr(){
+    var d = new Date();
+    return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+
+function renderChats(){
+    var el = $('chat-container');
+    if(!el) return;
+    var boyAvtSrc = DATA.boyAvatar ? '<img src="'+DATA.boyAvatar+'">' : '👦';
+    var girlAvtSrc = DATA.girlAvatar ? '<img src="'+DATA.girlAvatar+'">' : '👧';
+    if(DATA.chats.length === 0){ el.innerHTML = '<div style="width:100%;text-align:center;color:#bbb;font-size:0.85rem;padding:20px;">开始聊天吧~</div>'; }
+    else {
+        var h = '';
+        for(var i=0; i<DATA.chats.length; i++){
+            var c = DATA.chats[i];
+            var isMe = c.role === DATA.currentUser;
+            var avtRole = c.role;
+            var avtSrc = avtRole === 'boy' ? boyAvtSrc : girlAvtSrc;
+            var metaNick = c.role === 'boy' ? DATA.boyNick : DATA.girlNick;
+            if (isMe) {
+                h += '<div class="msg-row right-row">' +
+                    '<div class="chat-msg">' +
+                        '<div class="chat-body right-body">' +
+                            '<div class="bubble" data-id="'+c.id+'" onmousedown="startLongPress(event,'+c.id+')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event,'+c.id+')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+c.msg+'</div>' +
+                        '</div>' +
+                        '<div class="chat-avatar" onclick="event.stopPropagation();openProfileCard(\''+avtRole+'\')">'+avtSrc+'</div>' +
+                    '</div>' +
+                    '</div>';
+            } else {
+                h += '<div class="msg-row left-row">' +
+                    '<div class="chat-msg">' +
+                        '<div class="chat-avatar" onclick="event.stopPropagation();openProfileCard(\''+avtRole+'\')">'+avtSrc+'</div>' +
+                        '<div class="chat-body left-body">' +
+                            '<div class="chat-nick-name">'+metaNick+'</div>' +
+                            '<div class="bubble" data-id="'+c.id+'" onmousedown="startLongPress(event,'+c.id+')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event,'+c.id+')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+c.msg+'</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '</div>';
+            }
+        }
+        el.innerHTML = h;
+    }
+    applyChatBg(DATA[DATA.currentUser + 'ChatBg']);
+    applyAppBg(DATA[DATA.currentUser + 'AppBg']);
+}
+
+// 会话列表渲染（微信风格）
+window.renderConversationList = function(){
+    var el = $('conversation-list');
+    if(!el) return;
+    var partnerRole = DATA.currentUser === 'boy' ? 'girl' : 'boy';
+    var partnerNick = partnerRole === 'boy' ? DATA.boyNick : DATA.girlNick;
+    var partnerAvt = partnerRole === 'boy' ? DATA.boyAvatar : DATA.girlAvatar;
+    var partnerAvtSrc = partnerAvt ? '<img src="'+partnerAvt+'">' : (partnerRole==='boy'?'👦':'👧');
+    var lastMsg = '';
+    var lastTime = '';
+    for(var i=DATA.chats.length-1; i>=0; i--){
+        // 取最后一条消息做预览
+        lastMsg = DATA.chats[i].msg;
+        lastTime = DATA.chats[i].time;
+        break;
+    }
+    var preview = lastMsg || '暂无消息';
+    if(preview.length > 20) preview = preview.substring(0,20) + '...';
+    el.innerHTML =
+        '<div class="conversation-item" onclick="enterChat()">' +
+            '<div class="conversation-avatar">'+partnerAvtSrc+'</div>' +
+            '<div class="conversation-body">' +
+                '<div class="conversation-name">'+partnerNick+'</div>' +
+                '<div class="conversation-preview">'+preview+'</div>' +
+            '</div>' +
+            (lastTime ? '<div class="conversation-time">'+lastTime+'</div>' : '') +
+        '</div>';
+};
+
+window.enterChat = function(){
+    var partnerRole = DATA.currentUser === 'boy' ? 'girl' : 'boy';
+    var partnerNick = partnerRole === 'boy' ? DATA.boyNick : DATA.girlNick;
+    $('chat-partner-name').textContent = partnerNick;
+    $('msg-chat-view').style.display = '';
+    $('msg-chat-view').classList.add('active');
+    renderChats();
+    scrollChatBottom();
+    var input = $('chat-msg-input');
+    if(input) input.placeholder = '想对'+partnerNick+'说点什么...';
+};
+
+window.backToMsgList = function(){
+    $('msg-chat-view').classList.remove('active');
+    renderConversationList();
+};
+
+function scrollChatBottom(){
+    var el = $('chat-container');
+    if(el) setTimeout(function(){ el.scrollTop = el.scrollHeight; }, 100);
+}
+
+/* ===== 恋爱日历 ===== */
+function renderCalendar(){
+    var now = new Date();
+    if(typeof calendarYear === 'undefined'){ calendarYear = now.getFullYear(); calendarMonth = now.getMonth()+1; }
+    $('calendar-title').textContent = calendarYear + '年' + calendarMonth + '月';
+    var firstDay = new Date(calendarYear, calendarMonth-1, 1).getDay();
+    var daysInMonth = new Date(calendarYear, calendarMonth, 0).getDate();
+    var daysInPrevMonth = new Date(calendarYear, calendarMonth-1, 0).getDate();
+    var grid = $('calendar-grid');
+    var dayNames = ['日','一','二','三','四','五','六'];
+    var h = '';
+    for(var i=0; i<7; i++) h += '<div class="day-name">'+dayNames[i]+'</div>';
+
+    var todayStr = now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2)+'-'+('0'+now.getDate()).slice(-2);
+    for(var i=0; i<firstDay; i++){
+        var pd = daysInPrevMonth - firstDay + i + 1;
+        h += '<div class="day-cell other-month">'+pd+'</div>';
+    }
+    for(var d=1; d<=daysInMonth; d++){
+        var ds = calendarYear+'-'+('0'+calendarMonth).slice(-2)+'-'+('0'+d).slice(-2);
+        var cls = 'day-cell';
+        if(ds === todayStr) cls += ' today';
+
+        var marks = '';
+        var labels = [];
+        for(var j=0; j<DATA.anniversaries.length; j++){
+            var a = DATA.anniversaries[j];
+            if(a.month === calendarMonth && a.day === d){
+                marks += '<span class="mark-dot" title="'+a.name+'">'+a.category+'</span>';
+                labels.push(a.name);
+            }
+        }
+        var startParts = DATA.startDate ? DATA.startDate.split('-') : [];
+        if(startParts.length===3 && parseInt(startParts[1])===calendarMonth && parseInt(startParts[2])===d){
+            marks += '<span class="mark-dot" title="在一起纪念日">💕</span>';
+            labels.push('在一起');
+        }
+        var labelStr = '';
+        if(labels.length === 1) labelStr = '<div class="day-label">'+labels[0]+'</div>';
+        else if(labels.length > 1) labelStr = '<div class="day-label">'+labels[0]+'等'+labels.length+'个</div>';
+        h += '<div class="'+cls+'"><span>'+d+'</span>'+marks+labelStr+'</div>';
+    }
+    var total = firstDay + daysInMonth;
+    var remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+    for(var i=1; i<=remaining; i++){
+        h += '<div class="day-cell other-month">'+i+'</div>';
+    }
+    grid.innerHTML = h;
+}
+
+window.changeMonth = function(dir){
+    calendarMonth += dir;
+    if(calendarMonth > 12){ calendarMonth = 1; calendarYear++; }
+    if(calendarMonth < 1){ calendarMonth = 12; calendarYear--; }
+    renderCalendar();
+};
+
+/* ===== 主题 ===== */
+window.switchTheme = function(name, init){
+    if(!init && name === currentTheme) return;
+    document.body.className = 'theme-'+name;
+    currentTheme = name;
+    DATA.theme = name;
+    saveData();
+    updateThemeBtns();
+};
+
+function updateThemeBtns(){
+    var btns = document.querySelectorAll('#theme-selector .theme-btn');
+    btns.forEach(function(b){
+        b.classList.remove('active');
+        if(b.classList.contains('theme-'+currentTheme)) b.classList.add('active');
+    });
+}
+
+/* ===== 密码 ===== */
+window.updatePassword = function(){
+    DATA.password = $('set-password').value.trim();
+    saveData();
+};
+
+/* ===== 用户管理 ===== */
+function renderUserManager(){
+    var el = $('user-manager');
+    if(!el) return;
+    if(!DATA.users || !DATA.users.length) DATA.users = [];
+    var h = '';
+    for(var i=0; i<DATA.users.length; i++){
+        h += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">' +
+            '<span>'+DATA.users[i].emoji+'</span><span>'+DATA.users[i].name+'</span>' +
+            '<span style="color:var(--theme-sub);font-size:0.75rem;">('+DATA.users[i].role+')</span>' +
+            '<span onclick="delUser('+i+')" style="color:#d3545c;cursor:pointer;margin-left:auto;border:1px solid rgba(255,255,255,0.7);border-radius:50%;padding:5px 9px;font-size:0.8rem;line-height:1;background:linear-gradient(145deg,rgba(255,255,255,0.7),rgba(255,255,255,0.3));box-shadow:0 1px 4px rgba(0,0,0,0.1), inset 1px 1px 2px rgba(255,255,255,0.9);display:inline-flex;align-items:center;">删除</span></div>';
+    }
+    h += '<div class="input-row" style="margin-top:6px;">' +
+        '<input type="text" id="new-user-name" placeholder="名称（如：宝贝）" style="min-width:80px;">' +
+        '<select id="new-user-role" style="padding:6px;border-radius:8px;border:1px solid #ddd;background:var(--theme-bg);color:var(--theme-text);">' +
+        '<option value="👦">👦 我</option><option value="👧">👧 TA</option>' +
+        '<option value="🐱">🐱 宠物</option><option value="👶">👶 宝宝</option></select>' +
+        '<button onclick="addUser()">添加</button></div>';
+    el.innerHTML = h;
+}
+
+window.addUser = function(){
+    var name = $('new-user-name') ? $('new-user-name').value.trim() : '';
+    var role = $('new-user-role') ? $('new-user-role').value : '👦';
+    if(!name){ alert('请输入名称'); return; }
+    if(!DATA.users) DATA.users = [];
+    DATA.users.push({name:name, role:role, emoji:role});
+    saveData();
+    renderUserManager();
+};
+
+window.delUser = function(index){
+    DATA.users.splice(index, 1);
+    saveData();
+    renderUserManager();
+};
+
+/* ===== 导出/导入 ===== */
+window.exportData = function(){
+    var blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'couple_backup_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+};
+
+window.importData = function(input){
+    var file = input.files[0];
+    if(!file) return;
+    if(!confirm('确定导入备份数据？这会覆盖当前所有数据！')){ input.value=''; return; }
+    var reader = new FileReader();
+    reader.onload = function(e){
+        try {
+            var d = JSON.parse(e.target.result);
+            if(d.startDate !== undefined){ DATA = d; saveData(); alert('导入成功！页面将刷新~'); location.reload(); }
+            else alert('文件格式不对');
+        } catch(ex){ alert('文件解析失败'); }
+        input.value = '';
+    };
+    reader.readAsText(file);
+};
+
+window.generateShareLink = function(){
+    var base = location.origin + location.pathname;
+    var enc = btoa(encodeURIComponent(JSON.stringify(DATA)));
+    var link = base + '#data=' + enc;
+    $('share-link').value = link;
+    $('share-link').select();
+    try { navigator.clipboard.writeText(link); alert('链接已复制！'); } catch(e){ alert('长按链接复制即可'); }
+};
+
+(function parseShareLink(){
+    var hash = location.hash;
+    if(hash && hash.indexOf('#data=') === 0){
+        try {
+            var dec = JSON.parse(decodeURIComponent(atob(hash.substring(6))));
+            if(dec.startDate !== undefined && confirm('检测到分享数据，是否导入？这会覆盖当前数据')) {
+                DATA = dec; saveData(); location.hash = ''; location.reload();
+            }
+        } catch(e){}
+    }
+})();
+
+/* ===== Emoji 系统 ===== */
+var EMOJI_LIBRARY_KEY = 'couple_emoji_library';
+var EMOJI_OVERRIDES_KEY = 'couple_emoji_overrides';
+
+var DEFAULT_EMOJIS = [
+    '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😋','😛','😜','🤪','😝',
+    '😎','🤗','🤭','🤔','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','😴','😌','😛','😜','😝','🤤',
+    '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟',
+    '🎂','🎉','🎊','🎀','🎁','🏆','🌟','⭐','✨','💫','🔥','💧','🌸','🌺','🌻','🌹','🍀','🌈','❄️','☀️','🌙','⚡',
+    '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦄','🐝','🐛','🦋',
+    '🍎','🍊','🍋','🍉','🍇','🍓','🍒','🍑','🥭','🍍','🍌','🥑','🍔','🍕','🍰','🧁','🍩','🍪','🍿','🍫','🍭','🍬',
+    '🏠','✈️','🚗','🚀','⛵','🎵','🎶','📷','📱','💻','⌚','📚','✏️','💡','🔑','🔒','💰','🎯','🏀','⚽','🎮','🎲',
+    '💌','📌','✂️','📍','📎','🔗','💊','🩹','🧸','👑','💍','👗','👠','👜','🎒','🧣','🧤','☂️','🍼',
+    '💯','✅','❌','©️','®️','™️','🚩','🎌','🏁','🏳️','🏳️‍🌈','⚧️'
+];
+
+var emojiLibrary = LS(EMOJI_LIBRARY_KEY, DEFAULT_EMOJIS.slice());
+var emojiOverrides = LS(EMOJI_OVERRIDES_KEY, {});
+
+function saveEmojis(){
+    LSS(EMOJI_LIBRARY_KEY, emojiLibrary);
+    LSS(EMOJI_OVERRIDES_KEY, emojiOverrides);
+}
+
+function showEmojiPopover(el, e){
+    e.preventDefault();
+    e.stopPropagation();
+    closeAllPopovers();
+    var key = el.getAttribute('data-key');
+    if(!key) return;
+    var pop = document.createElement('div');
+    pop.className = 'emoji-popover';
+    pop.setAttribute('data-popover-key', key);
+    var h = '<div class="popover-title">选择表情 · 表情列表</div><div class="emoji-grid">';
+    for(var i=0; i<emojiLibrary.length; i++){
+        h += '<span class="emoji-item" data-emoji="'+emojiLibrary[i]+'">'+emojiLibrary[i]+'</span>';
+    }
+    h += '</div>' +
+        '<div class="emoji-add-row">' +
+        '<input type="text" placeholder="粘贴新表情" id="emoji-add-input-'+key+'">' +
+        '<button id="emoji-add-btn-'+key+'">+ 添加</button>' +
+        '</div>';
+    h += '<div style="margin-top:4px;text-align:center;"><button style="background:none;border:1px solid #ddd;border-radius:12px;padding:3px 14px;font-size:12px;color:#999;cursor:pointer;" onclick="resetAllEmojis()">重置所有位置的表情</button></div>';
+    pop.innerHTML = h;
+    document.body.appendChild(pop);
+
+    var rect = el.getBoundingClientRect();
+    var top = rect.bottom + 4;
+    var left = rect.left + rect.width/2 - 140;
+    if(top + 360 > window.innerHeight) top = rect.top - 360;
+    if(left < 8) left = 8;
+    if(left + 280 > window.innerWidth - 8) left = window.innerWidth - 288;
+    pop.style.top = top + 'px';
+    pop.style.left = left + 'px';
+
+    pop.querySelectorAll('.emoji-item').forEach(function(item){
+        item.addEventListener('click', function(){
+            var emj = this.getAttribute('data-emoji');
+            el.textContent = emj;
+            emojiOverrides[key] = emj;
+            saveEmojis();
+            document.body.removeChild(pop);
+        });
+    });
+
+    var addBtn = pop.querySelector('#emoji-add-btn-'+key);
+    var addInput = pop.querySelector('#emoji-add-input-'+key);
+    addBtn.addEventListener('click', function(){
+        var newEmoji = addInput.value.trim();
+        if(!newEmoji) return;
+        if(emojiLibrary.indexOf(newEmoji) === -1) emojiLibrary.push(newEmoji);
+        el.textContent = newEmoji;
+        emojiOverrides[key] = newEmoji;
+        saveEmojis();
+        document.body.removeChild(pop);
+    });
+    addInput.addEventListener('keydown', function(ev){ if(ev.key === 'Enter') addBtn.click(); });
+}
+
+function applySavedEmojis(){
+    document.querySelectorAll('.emoji-editable').forEach(function(el){
+        var key = el.getAttribute('data-key');
+        if(key && emojiOverrides[key]) el.textContent = emojiOverrides[key];
+    });
+    // 所有位置的 emoji 均已固定，暂无可编辑项
+    var editableKeys = [];
+    document.querySelectorAll('.emoji-editable').forEach(function(el){
+        el.removeEventListener('click', el._emojiClickHandler);
+        el._emojiClickHandler = null;
+        var key = el.getAttribute('data-key');
+        if(editableKeys.indexOf(key) !== -1){
+            el._emojiClickHandler = function(e){ showEmojiPopover(el, e); };
+            el.addEventListener('click', el._emojiClickHandler);
+        }
+    });
+}
+
+window.resetAllEmojis = function(){
+    if(!confirm('确定把所有位置的 emoji 恢复到默认吗？')) return;
+    emojiOverrides = {};
+    saveEmojis();
+    closeAllPopovers();
+    document.querySelectorAll('.emoji-editable').forEach(function(el){
+        var key = el.getAttribute('data-key');
+        if(key){
+            var defaults = {
+                cover_enter_l:'✨',cover_enter_r:'✨',pwd_lock:'🔒',btn_edit_date:'📅',
+                card_recent:'📌',card_anni:'🎂',card_daily:'📝',card_photos:'📷',card_msgs:'💌',card_calendar:'📅',card_settings:'⚙️',
+                btn_upload:'📁',tip_bulb:'💡',label_couple:'💕',btn_export:'📥',btn_import:'📤',btn_share:'🔗',
+                theme_pink:'💗',theme_blue:'💙',theme_purple:'💜',theme_orange:'🧡'
+            };
+            el.textContent = defaults[key] || el.textContent;
+        }
+    });
+};
+
+function closeAllPopovers(){
+    document.querySelectorAll('.emoji-popover').forEach(function(p){ if(p.parentNode) p.parentNode.removeChild(p); });
+}
+
+function closeCustomSelectMenus(){
+    document.querySelectorAll('.custom-select-menu').forEach(function(m){ if(m.parentNode) m.parentNode.removeChild(m); });
+}
+
+document.addEventListener('click', function(e){
+    var inPopover = e.target.closest('.emoji-popover');
+    var inEditable = e.target.closest('.emoji-editable');
+    if(!inPopover && !inEditable) closeAllPopovers();
+    var inMenu = e.target.closest('.custom-select-menu');
+    var inWrap = e.target.closest('.custom-select-wrap');
+    if(!inMenu && !inWrap) closeCustomSelectMenus();
+});
+
+/* ===== 自定义下拉 ===== */
+window.initCustomSelect = function(wrapId, storageKey, defaultOpts, hiddenSelectId){
+    var saved = LS(storageKey, null);
+    var opts = saved || defaultOpts;
+    var selected = saved && saved.length > 0 ? saved[0] : defaultOpts[0];
+    var wrap = document.getElementById(wrapId);
+    if(!wrap) return;
+
+    function syncHidden(emoji){
+        var hidden = document.getElementById(hiddenSelectId);
+        if(!hidden) return;
+        var opt = opts.find(function(o){ return o.emoji === emoji; });
+        hidden.value = opt ? opt.value : emoji;
+    }
+
+    function updateSelectEmoji(wrapEl, newEmoji){
+        var displayEl = wrapEl.querySelector('.custom-select');
+        if(displayEl){
+            var span = displayEl.querySelector('span');
+            if(span) span.textContent = newEmoji;
+        }
+        var sel = opts.find(function(o){ return o.emoji === newEmoji; }) || opts[0];
+        if(sel) selected = sel;
+        syncHidden(newEmoji);
+    }
+
+    wrap.getSelected = function(){ return selected; };
+    wrap.updateSelected = function(emoji){ updateSelectEmoji(wrap, emoji); };
+
+    var display = wrap.querySelector('.custom-select');
+    display.addEventListener('click', function(e){
+        e.stopPropagation();
+        closeAllPopovers();
+        closeCustomSelectMenus();
+        var existing = wrap.querySelector('.custom-select-menu');
+        if(existing){ existing.parentNode.removeChild(existing); return; }
+        // 直接打开emoji面板选表情
+        window.__tempEmojiHandler = function(emoji){
+            var exist = null;
+            for(var j=0; j<opts.length; j++){
+                if(opts[j].emoji === emoji){ exist = opts[j]; break; }
+            }
+            if(exist){ selected = exist; }
+            else {
+                var n = {emoji:emoji, label:emoji, value:emoji};
+                opts.push(n); selected = n;
+            }
+            LSS(storageKey, opts);
+            updateDisplay(wrap, selected);
+            syncHidden(emoji);
+        };
+        showEmojiPopover(display.querySelector('span') || display, e);
+    });
+
+    function updateDisplay(wrapEl, sel){
+        var d = wrapEl.querySelector('.custom-select');
+        if(d && sel){
+            var span = d.querySelector('span');
+            if(span) span.textContent = sel.emoji;
+            // 找到span后面的文本节点来更新标签文字
+            var textNode = null;
+            for(var i = 0; i < d.childNodes.length; i++){
+                if(d.childNodes[i].nodeType === 3 && d.childNodes[i] !== span){
+                    textNode = d.childNodes[i]; break;
+                }
+            }
+            if(textNode) textNode.textContent = ' ' + sel.label;
+            else d.appendChild(document.createTextNode(' ' + sel.label));
+        }
+    }
+
+    updateDisplay(wrap, selected);
+    syncHidden(selected.emoji);
+};
+
+/* 修复自定义下拉选项里的emoji点击 */
+(function patchEmojiInCustomSelects(){
+    var orig = window.showEmojiPopover || showEmojiPopover;
+    window.showEmojiPopover = function(el, e){
+        var tempHandler = window.__tempEmojiHandler;
+        if(tempHandler && (el.closest('.custom-select-menu') || el.closest('.custom-select-wrap'))){
+            var old = el.textContent;
+            var pop = document.createElement('div');
+            pop.className = 'emoji-popover';
+            var key = el.getAttribute('data-key') || Date.now();
+            pop.setAttribute('data-popover-key', key);
+            var h = '<div class="popover-title">选择表情</div><div class="emoji-grid">';
+            for(var i=0; i<emojiLibrary.length; i++){
+                h += '<span class="emoji-item" data-emoji="'+emojiLibrary[i]+'">'+emojiLibrary[i]+'</span>';
+            }
+            h += '</div><div class="emoji-add-row"><input type="text" placeholder="粘贴新表情" id="emoji-add-input-'+key+'"><button id="emoji-add-btn-'+key+'">+ 添加</button></div>';
+            pop.innerHTML = h;
+            document.body.appendChild(pop);
+            var rect = el.getBoundingClientRect();
+            pop.style.top = Math.min(rect.bottom + 4, window.innerHeight-340) + 'px';
+            pop.style.left = Math.max(8, Math.min(rect.left + rect.width/2 - 140, window.innerWidth-288)) + 'px';
+            pop.querySelectorAll('.emoji-item').forEach(function(item){
+                item.addEventListener('click', function(){
+                    var emoji = this.getAttribute('data-emoji');
+                    el.textContent = emoji;
+                    tempHandler(emoji);
+                    window.__tempEmojiHandler = null;
+                    if(pop.parentNode) pop.parentNode.removeChild(pop);
+                });
+            });
+            var addBtn = pop.querySelector('#emoji-add-btn-'+key);
+            addBtn.addEventListener('click', function(){
+                var nem = pop.querySelector('#emoji-add-input-'+key).value.trim();
+                if(!nem) return;
+                if(emojiLibrary.indexOf(nem) === -1) emojiLibrary.push(nem);
+                saveEmojis();
+                el.textContent = nem;
+                tempHandler(nem);
+                window.__tempEmojiHandler = null;
+                if(pop.parentNode) pop.parentNode.removeChild(pop);
+            });
+            return;
+        }
+        return orig.call(window, el, e);
+    };
+})();
+
+showEmojiPopover = window.showEmojiPopover;
+
+})();
+</script>
+
+<!-- 资料卡弹窗 -->
+<div class="profile-modal-bg" id="profile-modal" style="display:none;" onclick="closeProfileCard()">
+    <div class="profile-modal" onclick="event.stopPropagation()">
+        <div class="profile-modal-close" onclick="closeProfileCard()">✕</div>
+        <div class="profile-modal-avatar" onclick="document.getElementById('profile-modal-avatar-input').click()">
+            <span id="profile-modal-avatar-img">👦</span>
+            <input type="file" id="profile-modal-avatar-input" accept="image/*" style="display:none" onchange="setProfileAvatarFromModal(event)">
+        </div>
+        <div class="profile-modal-nick" id="profile-modal-nick" onclick="editProfileNick()">昵称</div>
+        <div class="profile-modal-role" id="profile-modal-role"></div>
+        <div class="profile-modal-role-gender" id="profile-modal-gender">
+            <span class="gender-btn" data-g="male" onclick="selectGender('male')">👦 男</span>
+            <span class="gender-btn" data-g="female" onclick="selectGender('female')">👧 女</span>
+        </div>
+        <button class="profile-modal-save" id="profile-modal-save" onclick="saveProfileFromModal()">保存</button>
+    </div>
+</div>
+</body>
+</html>
