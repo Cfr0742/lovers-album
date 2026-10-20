@@ -205,6 +205,23 @@ body::after {
     margin-top: 6px;
 }
 .auth-link { color: var(--theme-sub); font-size: 0.8rem; text-decoration: none; }
+.password-box .danger-btn {
+    background: #e5484d;
+    box-shadow: none;
+    margin-top: 12px;
+}
+
+/* 断开关联 · 红色着重确认弹窗 */
+.confirm-mask { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1600; display:none; align-items:center; justify-content:center; }
+.confirm-box { background:#fff; width:86%; max-width:340px; border-radius:18px; padding:26px 20px 20px; text-align:center; box-shadow:0 14px 44px rgba(0,0,0,0.32); }
+.confirm-icon { font-size:2.6rem; line-height:1; }
+.confirm-title { font-size:1.15rem; font-weight:700; color:#e5484d; margin:10px 0 6px; }
+.confirm-text { font-size:0.84rem; color:#666; line-height:1.75; margin:0 0 18px; text-align:left; }
+.confirm-text b { color:#e5484d; }
+.confirm-btn { display:inline-block; padding:10px 24px; border-radius:22px; border:none; cursor:pointer; font-size:0.95rem; margin:0 5px; }
+.confirm-btn:active { transform:scale(0.95); }
+.confirm-cancel { background:#f0f0f0; color:#333; }
+.confirm-danger { background:#e5484d; color:#fff; }
 
 /* ===== 主页面 ===== */
 #main-screen { max-width:500px; margin:0 auto; left:50%; transform:translateX(-50%); width:100%; }
@@ -1427,9 +1444,12 @@ body::after {
         <h2>💞 配对 / 关联</h2>
         <p class="hint" style="margin-bottom:14px;">把配对 ID 分享给对方，或输入对方的配对 ID</p>
         <div id="my-pair-id-box" style="font-size:1.05rem;font-weight:600;margin-bottom:10px;min-height:1.5em;color:var(--theme-text);"></div>
-        <button onclick="cloudGeneratePairId()">生成 / 复制我的配对 ID</button>
-        <input type="text" id="pair-code" placeholder="输入对方的配对 ID 加入" onkeydown="if(event.key==='Enter')doPairSubmit()">
-        <button onclick="doPairSubmit()">加入配对</button>
+        <div id="pair-actions">
+            <button onclick="cloudGeneratePairId()">生成 / 复制我的配对 ID</button>
+            <input type="text" id="pair-code" placeholder="输入对方的配对 ID 加入" onkeydown="if(event.key==='Enter')doPairSubmit()">
+            <button onclick="doPairSubmit()">加入配对</button>
+        </div>
+        <button id="unpair-btn" class="danger-btn" style="display:none;" onclick="doUnpair()">断开关联</button>
         <div id="pair-status" class="hint" style="margin-top:12px;min-height:1.2em;"></div>
         <p class="hint" style="margin-top:6px;"><a class="auth-link" href="javascript:void(0)" onclick="showScreen('main-screen')">返回主页</a></p>
     </div>
@@ -2011,6 +2031,28 @@ function cloudJoinById(pairCode, cb){
             if(res.error){ cb(false, res.error.message || '查询失败'); return; }
             var c = res.data && res.data[0];
             if(!c){ cb(false, '没有找到这个配对 ID，请确认后再试'); return; }
+            // 软删除处理：7 天内可恢复，超 7 天清理
+            if(c.deleted_at){
+                var age = Date.now() - new Date(c.deleted_at).getTime();
+                if(age > 7 * 24 * 3600 * 1000){
+                    return sb.from('couples').delete().eq('id', c.id).then(function(){
+                        cb(false, '这个配对 ID 已超过 7 天失效，请用新的配对 ID');
+                    });
+                }
+                if(c.user1_id !== user.id && c.user2_id !== user.id){
+                    cb(false, '这个配对 ID 正在 7 天恢复期内，仅供原账号重新关联');
+                    return;
+                }
+                return sb.from('couples').update({ deleted_at: null }).eq('id', c.id).then(function(u){
+                    if(u.error){ cb(false, u.error.message || '恢复失败'); return; }
+                    cloudSpace = { couple_id: c.id, pair_code: c.pair_code, my_side: c.user1_id === user.id ? 1 : 2 };
+                    saveCloudSession();
+                    startCloudPoll();
+                    pullPartnerProfile();
+                    renderProfilePairStatus();
+                    cb(true, '已恢复关联，之前的数据都回来了');
+                });
+            }
             if(c.user1_id === user.id || c.user2_id === user.id){
                 cloudSpace = { couple_id: c.id, pair_code: c.pair_code, my_side: c.user1_id === user.id ? 1 : 2 };
                 saveCloudSession();
@@ -2139,10 +2181,56 @@ window.openPairPanel = function(){
     togglePlusMenu();
     showScreen('pair-screen');
     var box = $('my-pair-id-box');
-    if(box){
-        if(cloudSpace){ box.innerHTML = '我的配对 ID：<b>' + (cloudSpace.pair_code || '') + '</b>'; }
-        else { box.innerHTML = '还未配对，点击下方按钮生成配对 ID'; }
+    var actions = $('pair-actions');
+    var unpair = $('unpair-btn');
+    if(cloudSpace){
+        if(box) box.innerHTML = '我的配对 ID：<b>' + (cloudSpace.pair_code || '') + '</b>';
+        if(actions) actions.style.display = 'none';
+        if(unpair) unpair.style.display = 'block';
+    } else {
+        if(box) box.innerHTML = '还未配对，点击下方按钮生成配对 ID';
+        if(actions) actions.style.display = 'block';
+        if(unpair) unpair.style.display = 'none';
     }
+};
+
+/* ---------- 断开关联（软删除 + 7 天保留） ---------- */
+// 清空本机"两人共有内容"，重新配对就是全新空白空间
+function resetCoupleData(){
+    DATA.startDate = '';
+    DATA.anniversaries = [];
+    DATA.chats = [];
+    DATA.periodRecords = [];
+    DATA.periodSettings = { cycleDays: 28, periodDays: 5 };
+    DATA.partnerNick = 'TA';
+    DATA.partnerAvatar = '';
+    DATA.partnerGender = '';
+    LSS('couple_data', DATA);
+}
+
+window.doUnpair = function(){
+    if(!sb || !cloudSpace){ alert('当前未关联'); return; }
+    var mask = $('unpair-confirm');
+    if(mask) mask.style.display = 'flex';
+};
+window.closeUnpairConfirm = function(){
+    var mask = $('unpair-confirm');
+    if(mask) mask.style.display = 'none';
+};
+window.confirmUnpair = function(){
+    closeUnpairConfirm();
+    var cid = cloudSpace.couple_id;
+    sb.from('couples').update({ deleted_at: new Date().toISOString() }).eq('id', cid)
+        .then(function(r){
+            if(r.error){ alert('断开失败：' + (r.error.message || '请重试')); return; }
+            stopCloudPoll();
+            cloudSpace = null;
+            resetCoupleData();
+            saveCloudSession();
+            showScreen('main-screen');
+            alert('已断开关联，云端数据将保留 7 天');
+        })
+        .catch(function(){ alert('网络错误，请稍后重试'); });
 };
 
 // 本地对象序列化 -> Supabase 行
@@ -2223,6 +2311,16 @@ function cloudSyncNow(){
         var msgRows = resArr[1].data || [];
         var coupleRow = resArr[2].data;
         var periodRows = resArr[3].data || [];
+
+        // 空间已被断开（软删除）：本机自动退出关联
+        if(coupleRow && coupleRow.deleted_at){
+            stopCloudPoll();
+            cloudSpace = null;
+            resetCoupleData();
+            saveCloudSession();
+            renderProfilePairStatus();
+            return;
+        }
 
         // 云端快照指纹（回写前用来判断是否真有变化）
         var cloudAnns = memRows.map(rowToAnniversary).filter(function(a){ return a; });
@@ -4588,6 +4686,21 @@ showEmojiPopover = window.showEmojiPopover;
 <div class="plus-menu" id="plus-menu">
     <div class="plus-menu-item" onclick="openPairPanel()"><span class="pm-icon">💞</span> 配对 / 关联</div>
     <div class="plus-menu-item" onclick="openMyProfile()"><span class="pm-icon">👤</span> 我的资料</div>
+</div>
+
+<!-- 断开关联 · 红色着重确认弹窗 -->
+<div class="confirm-mask" id="unpair-confirm">
+    <div class="confirm-box">
+        <div class="confirm-icon">⚠️</div>
+        <div class="confirm-title">确定要断开关联吗？</div>
+        <p class="confirm-text">
+            断开后，你们云端同步的内容会<b>保留 7 天</b>，7 天内用原配对 ID 重新关联即可恢复。<br>
+            <b>7 天后数据将永久删除，无法找回。</b><br><br>
+            断开后本机将清空两人共有内容（起始日期 / 纪念日 / 留言 / 经期记录），重新配对是全新的空白空间。
+        </p>
+        <button class="confirm-btn confirm-cancel" onclick="closeUnpairConfirm()">再想想</button>
+        <button class="confirm-btn confirm-danger" onclick="confirmUnpair()">确定断开</button>
+    </div>
 </div>
 </body>
 </html>
