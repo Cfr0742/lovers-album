@@ -1873,6 +1873,8 @@ var cloudUser = null;        // 登录用户 { id, email }
 var cloudSpace = null;       // { couple_id }
 var cloudTimeout = null;
 var cloudPollTimer = null;
+var cloudRealtime = null;    // Realtime 频道引用
+var cloudPullTimer = null;   // Realtime 触发的拉取去抖
 var cloudSyncLock = false;   // 防止同步重入
 
 // 需要保留在本地、不参与云端同步互换的字段（设备状态 / 当前角色）
@@ -2007,6 +2009,25 @@ function rowToChat(row){
     try { return JSON.parse(row.content); } catch(e){ return null; }
 }
 
+// 数据指纹：把已解析的纪念日/留言规范化成字符串，用于判断云端与本地是否真的不同
+// （避免“每次同步都回写”触发 Realtime 自循环）。
+function cloudFingerprint(anns, chats){
+    function clean(a){
+        if(!a) return null;
+        var o = {};
+        for(var k in a){ if(k !== '_cloud' && a[k] !== undefined){ o[k] = a[k]; } }
+        return o;
+    }
+    function byId(list){
+        return (list || []).map(clean).filter(function(x){ return x; }).sort(function(x, y){
+            var A = String(x.id == null ? '' : x.id);
+            var B = String(y.id == null ? '' : y.id);
+            return A < B ? -1 : (A > B ? 1 : 0);
+        });
+    }
+    return JSON.stringify({ a: byId(anns), c: byId(chats) });
+}
+
 // 完整同步：把本地纪念日/留言/起始日与云端做一次“双向合并”
 // 保证双方各自新增的内容都保留，实现两人实时可见。
 function cloudSyncNow(){
@@ -2026,13 +2047,14 @@ function cloudSyncNow(){
         var msgRows = resArr[1].data || [];
         var coupleRow = resArr[2].data;
 
+        // 云端快照指纹（回写前用来判断是否真有变化）
+        var cloudAnns = memRows.map(rowToAnniversary).filter(function(a){ return a; });
+        var cloudChats = msgRows.map(rowToChat).filter(function(c){ return c; });
+        var cloudFp = cloudFingerprint(cloudAnns, cloudChats);
+
         // = 合并纪念日（云端 ∪ 本地，按唯一键 id 去重） =
         var memMap = {};
-        var mv = 0;
-        memRows.forEach(function(r){
-            var a = rowToAnniversary(r);
-            if(a){ a._cloud=1; memMap[a.id] = a; }
-        });
+        cloudAnns.forEach(function(a){ a._cloud = 1; memMap[a.id] = a; });
         (DATA.anniversaries || []).forEach(function(a){
             if(a && a.id != null){ memMap[a.id] = a; }
         });
@@ -2040,44 +2062,46 @@ function cloudSyncNow(){
 
         // = 合并留言（云端 ∪ 本地，按唯一键 id 去重） =
         var msgMap = {};
-        msgRows.forEach(function(r){
-            var c = rowToChat(r);
-            if(c){ c._cloud=1; msgMap[c.id] = c; }
-        });
+        cloudChats.forEach(function(c){ c._cloud = 1; msgMap[c.id] = c; });
         (DATA.chats || []).forEach(function(c){
             if(c && c.id != null){ msgMap[c.id] = c; }
         });
         DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
 
-        // = 恋爱起始日期：本地有则用本地，否则取云端 =
-        if(DATA.startDate && (!coupleRow || !coupleRow.start_date)){
-            return sb.from('couples').update({ start_date: DATA.startDate }).eq('id', coupleId)
-                .then(function(){ return coupleRow; });
-        }
+        // = 恋爱起始日期：本地有则回写云端，云端有而本地无则取云端 =
+        var startChanged = !!(DATA.startDate && (!coupleRow || !coupleRow.start_date));
         if(!DATA.startDate && coupleRow && coupleRow.start_date){
             DATA.startDate = coupleRow.start_date;
         }
-        return coupleRow;
-    }).then(function(coupleRow){
+
         // 写回本地
         DATA.anniversaries.forEach(function(a){ delete a._cloud; });
         DATA.chats.forEach(function(c){ delete c._cloud; });
         LSS('couple_data', DATA);
         refreshAll();
 
-        // 把合并后的完整数据覆盖同步到云端（覆盖式，保证一致）
-        var user = sbUser();
-        var coupleId = cloudSpace.couple_id;
+        // 合并后与云端一致且起始日期无变化 → 无需回写
+        var writeFp = cloudFingerprint(DATA.anniversaries, DATA.chats);
+        if(writeFp === cloudFp && !startChanged){ return null; }
 
-        var del1 = sb.from('memorials').delete().eq('couple_id', coupleId);
-        var del2 = sb.from('messages').delete().eq('couple_id', coupleId);
-        return Promise.all([del1, del2]).then(function(){
-            var insMem = (DATA.anniversaries||[]).map(function(a){ return anniversaryToRow(a, coupleId); });
-            var insMsg = (DATA.chats||[]).map(function(c){ return chatToRow(c, coupleId, user.id); });
-            var tasks = [];
-            if(insMem.length) tasks.push(sb.from('memorials').insert(insMem));
-            if(insMsg.length) tasks.push(sb.from('messages').insert(insMsg));
-            return Promise.all(tasks);
+        // 回写：起始日期变了则先更新 couples
+        var startTask = Promise.resolve();
+        if(startChanged){
+            startTask = sb.from('couples').update({ start_date: DATA.startDate }).eq('id', coupleId);
+        }
+
+        return startTask.then(function(){
+            if(writeFp === cloudFp){ return null; }  // 仅起始日期变化，无需重写纪念日/留言
+            var del1 = sb.from('memorials').delete().eq('couple_id', coupleId);
+            var del2 = sb.from('messages').delete().eq('couple_id', coupleId);
+            return Promise.all([del1, del2]).then(function(){
+                var insMem = (DATA.anniversaries||[]).map(function(a){ return anniversaryToRow(a, coupleId); });
+                var insMsg = (DATA.chats||[]).map(function(c){ return chatToRow(c, coupleId, user.id); });
+                var tasks = [];
+                if(insMem.length) tasks.push(sb.from('memorials').insert(insMem));
+                if(insMsg.length) tasks.push(sb.from('messages').insert(insMsg));
+                return Promise.all(tasks);
+            });
         });
     }).then(function(){
         cloudSyncLock = false;
@@ -2137,13 +2161,55 @@ function initAuthFlow(){
         });
 }
 
-// 定时轮询：每 20 秒同步一次，实现“两人互相实时可见”
+// —— 实时同步（WebSocket 推送，~1s 送达）——
+// 订阅当前 couple 的纪念日/留言/起始日期变更；收到变更后去抖拉取一次。
+function realtimeSchedulePull(){
+    if(cloudPullTimer) clearTimeout(cloudPullTimer);
+    cloudPullTimer = setTimeout(function(){ cloudPullTimer = null; cloudSyncNow(); }, 300);
+}
+
+function startRealtime(){
+    if(!sb || !cloudSpace || cloudRealtime) return;
+    var coupleId = cloudSpace.couple_id;
+    try {
+        var ch = sb.channel('couple-sync-' + coupleId);
+        ch.on('postgres_changes', { event: '*', schema: 'public', table: 'memorials', filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
+        ch.on('postgres_changes', { event: '*', schema: 'public', table: 'messages',  filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
+        ch.on('postgres_changes', { event: '*', schema: 'public', table: 'couples',   filter: 'id=eq.' + coupleId },       realtimeSchedulePull);
+        cloudRealtime = ch;
+        ch.subscribe(function(status){
+            if(status === 'SUBSCRIBED') return;
+            if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+                if(cloudRealtime === ch) cloudRealtime = null;  // 断线后允许下次重连
+            }
+        });
+    } catch(e){
+        cloudRealtime = null;
+        console.warn('实时订阅失败，退回轮询', e);
+    }
+}
+
+function stopRealtime(){
+    if(cloudPullTimer){ clearTimeout(cloudPullTimer); cloudPullTimer = null; }
+    if(cloudRealtime){
+        var ch = cloudRealtime;
+        cloudRealtime = null;
+        try { if(sb) sb.removeChannel(ch); } catch(e){}
+    }
+}
+
+// 定时轮询：每 60 秒兜底同步一次（正常情况走 Realtime 实时推送）
 function startCloudPoll(){
-    if(cloudPollTimer || !cloudSpace || !cloudUser) return;
-    cloudPollTimer = setInterval(function(){ cloudSyncNow(); }, 20000);
+    if(!cloudSpace || !cloudUser) return;
+    startRealtime();
+    cloudSyncNow();   // 进入空间立即拉取一次
+    if(!cloudPollTimer){
+        cloudPollTimer = setInterval(function(){ startRealtime(); cloudSyncNow(); }, 60000);
+    }
 }
 function stopCloudPoll(){
     if(cloudPollTimer){ clearInterval(cloudPollTimer); cloudPollTimer = null; }
+    stopRealtime();
 }
 
 window.cloudLogout = async function(){
