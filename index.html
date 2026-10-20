@@ -2200,6 +2200,8 @@ function resetCoupleData(){
     DATA.startDate = '';
     DATA.anniversaries = [];
     DATA.chats = [];
+    DATA.dailies = [];
+    DATA.photos = [];
     DATA.periodRecords = [];
     DATA.periodSettings = { cycleDays: 28, periodDays: 5 };
     DATA.partnerNick = 'TA';
@@ -2276,11 +2278,40 @@ function cloudFingerprint(anns, chats){
     return JSON.stringify({ a: byId(anns), c: byId(chats) });
 }
 
+// 通用列表指纹（按 id 排序），用于日常/相册等单表列表的去重比较
+function fingerprintList(list){
+    function clean(x){
+        if(!x) return null;
+        var o = {};
+        for(var k in x){ if(k !== '_cloud' && x[k] !== undefined){ o[k] = x[k]; } }
+        return o;
+    }
+    return JSON.stringify((list || []).map(clean).filter(function(x){ return x; }).sort(function(x, y){
+        var A = String(x.id == null ? '' : x.id);
+        var B = String(y.id == null ? '' : y.id);
+        return A < B ? -1 : (A > B ? 1 : 0);
+    }));
+}
+
 // 经期记录 序列化 <-> Supabase 行
 function periodToRow(p, coupleId){
     return { couple_id: coupleId, start: p.start, remark: JSON.stringify(p) };
 }
 function rowToPeriod(row){
+    try { return JSON.parse(row.remark); } catch(e){ return null; }
+}
+// 情侣日常 序列化 <-> Supabase 行
+function dailyToRow(d, coupleId){
+    return { couple_id: coupleId, remark: JSON.stringify(d) };
+}
+function rowToDaily(row){
+    try { return JSON.parse(row.remark); } catch(e){ return null; }
+}
+// 相册 序列化 <-> Supabase 行
+function photoToRow(p, coupleId){
+    return { couple_id: coupleId, remark: JSON.stringify(p) };
+}
+function rowToPhoto(row){
     try { return JSON.parse(row.remark); } catch(e){ return null; }
 }
 // 经期记录指纹（按 start 排序）
@@ -2305,12 +2336,16 @@ function cloudSyncNow(){
         sb.from('memorials').select('*').eq('couple_id', coupleId),
         sb.from('messages').select('*').eq('couple_id', coupleId),
         sb.from('couples').select('*').eq('id', coupleId).single(),
-        sb.from('period_records').select('*').eq('couple_id', coupleId)
+        sb.from('period_records').select('*').eq('couple_id', coupleId),
+        sb.from('dailies').select('*').eq('couple_id', coupleId),
+        sb.from('photos').select('*').eq('couple_id', coupleId)
     ]).then(function(resArr){
         var memRows = resArr[0].data || [];
         var msgRows = resArr[1].data || [];
         var coupleRow = resArr[2].data;
         var periodRows = resArr[3].data || [];
+        var dailyRows = resArr[4].data || [];
+        var photoRows = resArr[5].data || [];
 
         // 空间已被断开（软删除）：本机自动退出关联
         if(coupleRow && coupleRow.deleted_at){
@@ -2328,6 +2363,10 @@ function cloudSyncNow(){
         var cloudFp = cloudFingerprint(cloudAnns, cloudChats);
         var cloudPeriods = periodRows.map(rowToPeriod).filter(function(p){ return p; });
         var cloudPeriodFp = cloudFingerprintPeriods(listToMap(cloudPeriods, 'start'));
+        var cloudDailies = dailyRows.map(rowToDaily).filter(function(d){ return d; });
+        var cloudDailyFp = fingerprintList(cloudDailies);
+        var cloudPhotos = photoRows.map(rowToPhoto).filter(function(p){ return p; });
+        var cloudPhotoFp = fingerprintList(cloudPhotos);
 
         // = 合并纪念日（云端 ∪ 本地，按唯一键 id 去重） =
         var memMap = {};
@@ -2353,6 +2392,18 @@ function cloudSyncNow(){
         });
         DATA.periodRecords = Object.keys(periodMap).map(function(k){ return periodMap[k]; });
 
+        // = 合并情侣日常（云端 ∪ 本地，按 id 去重） =
+        var dailyMap = {};
+        cloudDailies.forEach(function(d){ if(d && d.id != null){ d._cloud = 1; dailyMap[d.id] = d; } });
+        (DATA.dailies || []).forEach(function(d){ if(d && d.id != null){ dailyMap[d.id] = d; } });
+        DATA.dailies = Object.keys(dailyMap).map(function(k){ return dailyMap[k]; }).filter(function(d){ return d; });
+
+        // = 合并相册（云端 ∪ 本地，按 id 去重） =
+        var photoMap = {};
+        cloudPhotos.forEach(function(p){ if(p && p.id != null){ p._cloud = 1; photoMap[p.id] = p; } });
+        (DATA.photos || []).forEach(function(p){ if(p && p.id != null){ photoMap[p.id] = p; } });
+        DATA.photos = Object.keys(photoMap).map(function(k){ return photoMap[k]; }).filter(function(p){ return p; });
+
         // = 经期设置：本地默认值首次推上云端；云端有而本地未改动则取云端 =
         var cloudSettings = null;
         try { if(coupleRow && coupleRow.period_settings){ cloudSettings = JSON.parse(coupleRow.period_settings); } } catch(e){}
@@ -2373,15 +2424,21 @@ function cloudSyncNow(){
         // 写回本地
         DATA.anniversaries.forEach(function(a){ delete a._cloud; });
         DATA.chats.forEach(function(c){ delete c._cloud; });
+        DATA.dailies.forEach(function(d){ delete d._cloud; });
+        DATA.photos.forEach(function(p){ delete p._cloud; });
         LSS('couple_data', DATA);
         refreshAll();
 
         // 合并后与云端一致且起始日期/经期均无变化 → 无需回写
         var writeFp = cloudFingerprint(DATA.anniversaries, DATA.chats);
         var writePeriodFp = cloudFingerprintPeriods(listToMap(DATA.periodRecords, 'start'));
+        var writeDailyFp = fingerprintList(DATA.dailies);
+        var writePhotoFp = fingerprintList(DATA.photos);
         var memSame = (writeFp === cloudFp);
         var periodSame = (writePeriodFp === cloudPeriodFp);
-        if(memSame && periodSame && !startChanged && !settingsChanged){ return null; }
+        var dailySame = (writeDailyFp === cloudDailyFp);
+        var photoSame = (writePhotoFp === cloudPhotoFp);
+        if(memSame && periodSame && dailySame && photoSame && !startChanged && !settingsChanged){ return null; }
 
         // 回写：起始日期/经期设置变了则先更新 couples
         var coupleUpdate = {};
@@ -2411,6 +2468,22 @@ function cloudSyncNow(){
                 tasks.push(delP.then(function(){
                     var insP = (DATA.periodRecords||[]).map(function(p){ return periodToRow(p, coupleId); });
                     if(insP.length){ return sb.from('period_records').insert(insP); }
+                    return null;
+                }));
+            }
+            if(!dailySame){
+                var delD = sb.from('dailies').delete().eq('couple_id', coupleId);
+                tasks.push(delD.then(function(){
+                    var insD = (DATA.dailies||[]).map(function(d){ return dailyToRow(d, coupleId); });
+                    if(insD.length){ return sb.from('dailies').insert(insD); }
+                    return null;
+                }));
+            }
+            if(!photoSame){
+                var delPh = sb.from('photos').delete().eq('couple_id', coupleId);
+                tasks.push(delPh.then(function(){
+                    var insPh = (DATA.photos||[]).map(function(p){ return photoToRow(p, coupleId); });
+                    if(insPh.length){ return sb.from('photos').insert(insPh); }
                     return null;
                 }));
             }
@@ -2492,6 +2565,8 @@ function startRealtime(){
         ch.on('postgres_changes', { event: '*', schema: 'public', table: 'messages',  filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
         ch.on('postgres_changes', { event: '*', schema: 'public', table: 'couples',   filter: 'id=eq.' + coupleId },       realtimeSchedulePull);
         ch.on('postgres_changes', { event: '*', schema: 'public', table: 'period_records', filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
+        ch.on('postgres_changes', { event: '*', schema: 'public', table: 'dailies',  filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
+        ch.on('postgres_changes', { event: '*', schema: 'public', table: 'photos',   filter: 'couple_id=eq.' + coupleId }, realtimeSchedulePull);
         cloudRealtime = ch;
         ch.subscribe(function(status){
             if(status === 'SUBSCRIBED') return;
@@ -3537,11 +3612,17 @@ window.uploadPhotos = function(input){
         reader.onload = function(e){
             var img = new Image();
             img.onload = function(){
-                var src = compressPhoto(img);
-                DATA.photos.push({src:src, date:new Date().toISOString().slice(0,10), id:Date.now() + done});
-                done++;
-                saveData();
-                if(done >= limit){ renderPhotos(); input.value = ''; }
+                var base64 = compressPhoto(img);
+                var date = new Date().toISOString().slice(0,10);
+                var id = Date.now() + done;
+                // 优先传 Supabase Storage（云端同步用链接）；失败则回退本地 base64（本机仍可见）
+                uploadPhotoToStorage(base64, function(ok, url){
+                    if(ok){ DATA.photos.push({src:url, date:date, id:id}); }
+                    else  { DATA.photos.push({src:base64, date:date, id:id}); }
+                    done++;
+                    saveData();
+                    if(done >= limit){ renderPhotos(); input.value = ''; }
+                });
             };
             img.src = e.target.result;
         };
@@ -3549,6 +3630,36 @@ window.uploadPhotos = function(input){
     }
     for(var i = 0; i < limit; i++){ processOne(files[i]); }
 };
+
+// base64 -> Supabase Storage，返回 public URL
+function uploadPhotoToStorage(base64, cb){
+    if(!sb || !cloudSpace){ cb(false); return; }
+    try {
+        var parts = base64.split(',');
+        var mime = (parts[0].match(/:(.*?);/) || [null, 'image/jpeg'])[1];
+        var bstr = atob(parts[1]);
+        var n = bstr.length;
+        var u8 = new Uint8Array(n);
+        for(var i=0;i<n;i++){ u8[i] = bstr.charCodeAt(i); }
+        var blob = new Blob([u8], {type: mime});
+        var path = cloudSpace.couple_id + '/' + Date.now() + '-' + Math.floor(Math.random()*100000) + '.jpg';
+        sb.storage.from('photos').upload(path, blob, { contentType: mime, upsert: true })
+            .then(function(res){
+                if(res.error){ cb(false); return; }
+                var url = sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
+                cb(true, url);
+            })
+            .catch(function(){ cb(false); });
+    } catch(e){ cb(false); }
+}
+
+// 从 Storage public URL 反解出对象路径（用于删除时同步删文件）
+function storagePathFromUrl(url){
+    if(!url) return null;
+    var idx = url.indexOf('/object/public/photos/');
+    if(idx >= 0){ return url.slice(idx + '/object/public/photos/'.length); }
+    return null;
+}
 
 function compressPhoto(img){
     var maxW = 1200, maxH = 1200;
@@ -3602,6 +3713,11 @@ window.onPhotoClick = function(e, idx, pid){
 };
 
 window.delPhoto = function(id){
+    var p = DATA.photos.find(function(ph){ return ph.id === id; });
+    if(p){
+        var path = storagePathFromUrl(p.src);
+        if(path && sb){ try { sb.storage.from('photos').remove([path]).catch(function(){}); } catch(e){} }
+    }
     DATA.photos = DATA.photos.filter(function(p){ return p.id !== id; });
     saveData();
     renderPhotos();
@@ -3709,6 +3825,14 @@ window.deleteSelectedPhotos = function(){
     if(!confirm('确定删除选中的 ' + ids.length + ' 张照片吗？')) return;
     var idSet = {};
     for(var i=0; i<ids.length; i++){ idSet[ids[i]] = true; }
+    var paths = [];
+    DATA.photos.forEach(function(p){
+        if(idSet[p.id]){
+            var path = storagePathFromUrl(p.src);
+            if(path) paths.push(path);
+        }
+    });
+    if(paths.length && sb){ try { sb.storage.from('photos').remove(paths).catch(function(){}); } catch(e){} }
     DATA.photos = DATA.photos.filter(function(p){ return !idSet[p.id]; });
     saveData();
     selectedPhotoIds = {};
