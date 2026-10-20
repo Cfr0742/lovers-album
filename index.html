@@ -1862,6 +1862,7 @@ var calendarYear, calendarMonth;
 var heartbeatInterval;
 
 function $(id){ return document.getElementById(id); }
+window.$ = $;  // 供 onclick="$('emoji-picker')..." 等内联调用
 
 function LS(key, def){
     try { var v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : def; }
@@ -2541,6 +2542,7 @@ function showScreen(id){
     $(id).classList.add('active');
     if(id === 'main-screen'){ renderEverything(); renderProfilePairStatus(); }
 }
+window.showScreen = showScreen;  // 供 onclick="showScreen(...)" 全局调用
 
 function renderEverything(){
     updateTogetherDays();
