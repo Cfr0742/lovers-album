@@ -812,11 +812,12 @@ body::after {
 .msg-row.right-row { justify-content: flex-end; }
 .chat-msg {
     display: flex;
+    max-width: 100%;
     animation: msgIn 0.28s ease-out;
     gap: 8px;
 }
 @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-.chat-body { display:flex; flex-direction:column; max-width:75%; }
+.chat-body { display:flex; flex-direction:column; max-width:75%; min-width:0; }
 .chat-body.left-body { align-items:flex-start; }
 .chat-body.right-body { align-items:flex-end; }
 .chat-nick-name {
@@ -859,7 +860,8 @@ body::after {
 .conversation-body { flex:1; min-width:0; }
 .conversation-name { font-size:0.95rem; font-weight:500; color:var(--theme-text); }
 .conversation-preview { font-size:0.78rem; color:var(--theme-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; margin-top:2px; }
-.conversation-time { font-size:0.7rem; color:#bbb; flex-shrink:0; align-self:flex-start; margin-top:3px; }
+.conversation-time { font-size:0.7rem; color:#bbb; flex-shrink:0; }
+.conversation-side { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
 
 .chat-input-row textarea {
     flex:1;
@@ -1321,6 +1323,7 @@ body::after {
 }
 .tab-item {
     flex:1;
+    position:relative;
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -1334,6 +1337,38 @@ body::after {
 .tab-item .tab-icon { font-size:1.5rem; line-height:1; }
 .tab-item.active { color: var(--tab-active); font-weight:600; }
 .tab-item:active { transform:scale(0.92); }
+.tab-badge {
+    position:absolute;
+    top:1px;
+    left:calc(50% + 11px);
+    min-width:16px;
+    height:16px;
+    padding:0 5px;
+    border-radius:9px;
+    background:#fa3e3e;
+    color:#fff;
+    font-size:11px;
+    font-weight:600;
+    line-height:16px;
+    text-align:center;
+    box-sizing:border-box;
+    box-shadow:0 1px 3px rgba(0,0,0,0.25);
+}
+.conversation-badge {
+    min-width:18px;
+    height:18px;
+    padding:0 6px;
+    border-radius:9px;
+    background:#fa3e3e;
+    color:#fff;
+    font-size:11px;
+    font-weight:600;
+    line-height:18px;
+    text-align:center;
+    box-sizing:border-box;
+    flex-shrink:0;
+    align-self:center;
+}
 
 /* Custom Select & Emoji */
 .emoji-editable { display:inline-block; padding:1px 2px; border-radius:3px; cursor:default; }
@@ -1854,7 +1889,7 @@ body::after {
     <!-- 底部 Tab -->
     <nav class="bottom-tab-bar">
         <div class="tab-item" onclick="switchTab('home', this)"><span class="tab-icon">🏠</span><span class="tab-text">首页</span></div>
-        <div class="tab-item" onclick="switchTab('messages', this)"><span class="tab-icon">💌</span><span class="tab-text">留言</span></div>
+        <div class="tab-item" onclick="switchTab('messages', this)"><span class="tab-icon">💌</span><span class="tab-text">留言</span><span class="tab-badge" id="msg-tab-badge" style="display:none"></span></div>
         <div class="tab-item" onclick="switchTab('period', this)"><span class="tab-icon">🌸</span><span class="tab-text">贴心</span></div>
         <div class="tab-item" onclick="switchTab('profile', this)"><span class="tab-icon">👤</span><span class="tab-text">我的</span></div>
     </nav>
@@ -1911,8 +1946,14 @@ var DATA = LS('couple_data', {
     partnerAvatar: '',
     partnerGender: '',
     periodRecords: [],
-    periodSettings: { cycleDays: 28, periodDays: 5 }
+    periodSettings: { cycleDays: 28, periodDays: 5 },
+    _tombstones: {},     // 本机"已删除"墓碑：{anniversaries:{id:1},chats:{},dailies:{},photos:{},periodRecords:{start:1}}
+    lastReadChatId: 0    // 本机"最后已读"的留言 id（未读数 = 对方发的且 id 更大的条数）
 });
+
+// 兼容旧数据：确保墓碑对象 / 已读标记存在
+DATA._tombstones = DATA._tombstones || {};
+if(DATA.lastReadChatId == null){ DATA.lastReadChatId = 0; }
 
 function saveData(){ LSS('couple_data', DATA); cloudPush(); }
 
@@ -2207,6 +2248,8 @@ function resetCoupleData(){
     DATA.partnerNick = 'TA';
     DATA.partnerAvatar = '';
     DATA.partnerGender = '';
+    DATA._tombstones = {};
+    DATA.lastReadChatId = 0;
     LSS('couple_data', DATA);
 }
 
@@ -2376,9 +2419,17 @@ function cloudSyncNow(){
         var cloudPhotos = photoRows.map(rowToPhoto).filter(function(p){ return p; });
         var cloudPhotoFp = fingerprintList(cloudPhotos);
 
+        // 墓碑：本机已删除的内容 id，合并时排除（防止删除被"云端∪本地"并集复活）
+        var tomb = DATA._tombstones || {};
+        var tombAnns = tomb.anniversaries || {};
+        var tombChats = tomb.chats || {};
+        var tombPeriods = tomb.periodRecords || {};
+        var tombDailies = tomb.dailies || {};
+        var tombPhotos = tomb.photos || {};
+
         // = 合并纪念日（云端 ∪ 本地，按唯一键 id 去重） =
         var memMap = {};
-        cloudAnns.forEach(function(a){ a._cloud = 1; memMap[a.id] = a; });
+        cloudAnns.forEach(function(a){ if(a && a.id != null && !tombAnns[a.id]){ a._cloud = 1; memMap[a.id] = a; } });
         (DATA.anniversaries || []).forEach(function(a){
             if(a && a.id != null){ memMap[a.id] = a; }
         });
@@ -2386,7 +2437,7 @@ function cloudSyncNow(){
 
         // = 合并留言（云端 ∪ 本地，按唯一键 id 去重） =
         var msgMap = {};
-        cloudChats.forEach(function(c){ c._cloud = 1; msgMap[c.id] = c; });
+        cloudChats.forEach(function(c){ if(c && c.id != null && !tombChats[c.id]){ c._cloud = 1; msgMap[c.id] = c; } });
         (DATA.chats || []).forEach(function(c){
             if(c && c.id != null){ msgMap[c.id] = c; }
         });
@@ -2394,7 +2445,7 @@ function cloudSyncNow(){
 
         // = 合并经期记录（云端 ∪ 本地，按 start 去重） =
         var periodMap = {};
-        cloudPeriods.forEach(function(p){ if(p && p.start){ periodMap[p.start] = p; } });
+        cloudPeriods.forEach(function(p){ if(p && p.start && !tombPeriods[p.start]){ periodMap[p.start] = p; } });
         (DATA.periodRecords || []).forEach(function(p){
             if(p && p.start){ periodMap[p.start] = p; }
         });
@@ -2402,13 +2453,13 @@ function cloudSyncNow(){
 
         // = 合并情侣日常（云端 ∪ 本地，按 id 去重） =
         var dailyMap = {};
-        cloudDailies.forEach(function(d){ if(d && d.id != null){ d._cloud = 1; dailyMap[d.id] = d; } });
+        cloudDailies.forEach(function(d){ if(d && d.id != null && !tombDailies[d.id]){ d._cloud = 1; dailyMap[d.id] = d; } });
         (DATA.dailies || []).forEach(function(d){ if(d && d.id != null){ dailyMap[d.id] = d; } });
         DATA.dailies = Object.keys(dailyMap).map(function(k){ return dailyMap[k]; }).filter(function(d){ return d; });
 
         // = 合并相册（云端 ∪ 本地，按 id 去重） =
         var photoMap = {};
-        cloudPhotos.forEach(function(p){ if(p && p.id != null){ p._cloud = 1; photoMap[p.id] = p; } });
+        cloudPhotos.forEach(function(p){ if(p && p.id != null && !tombPhotos[p.id]){ p._cloud = 1; photoMap[p.id] = p; } });
         (DATA.photos || []).forEach(function(p){ if(p && p.id != null){ photoMap[p.id] = p; } });
         DATA.photos = Object.keys(photoMap).map(function(k){ return photoMap[k]; }).filter(function(p){ return p; });
 
@@ -2545,6 +2596,13 @@ function trackCloudDelete(builder){
 function cloudDeleteByLocalId(table, jsonCol, localId){
     if(!sb || !cloudSpace) return Promise.resolve();
     return trackCloudDelete(sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%'));
+}
+
+// 记录"已删除"墓碑：合并时据此排除云端同名 id，防止删除被"云端∪本地"并集复活。
+function tombstoneMark(kind, key){
+    DATA._tombstones = DATA._tombstones || {};
+    DATA._tombstones[kind] = DATA._tombstones[kind] || {};
+    DATA._tombstones[kind][key] = true;
 }
 
 // 从云端覆盖拉取（进入空间后立即同步一次）
@@ -2761,6 +2819,7 @@ function renderEverything(){
     renderPhotos();
     renderChats();
     renderCalendar();
+    updateChatUnreadBadges();
 }
 
 /* ===== 封面 → 进入 ===== */
@@ -3336,6 +3395,7 @@ window.deletePeriodRecord = function(index){
             break;
         }
     }
+    tombstoneMark('periodRecords', target.start);
     saveData();
     if(sb && cloudSpace){ trackCloudDelete(sb.from('period_records').delete().eq('start', target.start)); }
     periodCalendarYear = null; periodCalendarMonth = null;
@@ -3584,6 +3644,7 @@ function renderAnniversaries(){
 
 window.delAnni = function(id){
     if(!confirm('确定删除吗？')) return;
+    tombstoneMark('anniversaries', id);
     DATA.anniversaries = DATA.anniversaries.filter(function(a){ return a.id !== id; });
     saveData();
     cloudDeleteByLocalId('memorials', 'remark', id);
@@ -3633,6 +3694,7 @@ function renderDailies(){
 
 window.delDaily = function(id){
     if(!confirm('确定删除吗？')) return;
+    tombstoneMark('dailies', id);
     DATA.dailies = DATA.dailies.filter(function(d){ return d.id !== id; });
     saveData();
     cloudDeleteByLocalId('dailies', 'remark', id);
@@ -3757,6 +3819,7 @@ window.delPhoto = function(id){
         var path = storagePathFromUrl(p.src);
         if(path && sb){ try { sb.storage.from('photos').remove([path]).catch(function(){}); } catch(e){} }
     }
+    tombstoneMark('photos', id);
     DATA.photos = DATA.photos.filter(function(p){ return p.id !== id; });
     saveData();
     cloudDeleteByLocalId('photos', 'remark', id);
@@ -3875,7 +3938,7 @@ window.deleteSelectedPhotos = function(){
     if(paths.length && sb){ try { sb.storage.from('photos').remove(paths).catch(function(){}); } catch(e){} }
     DATA.photos = DATA.photos.filter(function(p){ return !idSet[p.id]; });
     saveData();
-    if(ids.length){ ids.forEach(function(pid){ cloudDeleteByLocalId('photos', 'remark', pid); }); }
+    if(ids.length){ ids.forEach(function(pid){ tombstoneMark('photos', pid); cloudDeleteByLocalId('photos', 'remark', pid); }); }
     selectedPhotoIds = {};
     photoSelectMode = false;
     renderPhotos();
@@ -3937,6 +4000,7 @@ window.renderAccountSwitcher = function(){
 };
 
 window.deleteChatMsg = function(id){
+    tombstoneMark('chats', id);
     DATA.chats = DATA.chats.filter(function(c){ return c.id !== id; });
     saveData();
     cloudDeleteByLocalId('messages', 'content', id);
@@ -4353,16 +4417,55 @@ function renderChats(){
     applyAppBg(DATA.myAppBg);
 }
 
+// 计算未读留言数（对方发的、id 大于最后已读 id 的条数）
+function computeChatUnread(){
+    if(!isPaired()) return 0;
+    var myId = (cloudUser && cloudUser.id) || 'me';
+    var lastId = DATA.lastReadChatId || 0;
+    var n = 0;
+    (DATA.chats || []).forEach(function(c){
+        if(c && c.senderId !== myId && (c.id || 0) > lastId){ n++; }
+    });
+    return n;
+}
+
+// 刷新两处未读角标（底部 tab + 会话列表里的角标）
+function updateChatUnreadBadges(){
+    var chatView = $('msg-chat-view');
+    var inChat = chatView && chatView.classList.contains('active');
+    if(inChat){
+        // 正在聊天页：收到的新消息直接视为已读（不累计未读）
+        var lastId = DATA.lastReadChatId || 0;
+        (DATA.chats||[]).forEach(function(c){ if((c.id||0) > lastId) lastId = c.id; });
+        if(lastId > (DATA.lastReadChatId || 0)){
+            DATA.lastReadChatId = lastId;
+            LSS('couple_data', DATA);
+        }
+    }
+    var n = inChat ? 0 : computeChatUnread();
+    var tabBadge = $('msg-tab-badge');
+    if(tabBadge){
+        if(n > 0){
+            tabBadge.textContent = (n > 99) ? '99+' : String(n);
+            tabBadge.style.display = 'inline-block';
+        } else {
+            tabBadge.style.display = 'none';
+        }
+    }
+}
+
 // 会话列表渲染（微信风格）
 window.renderConversationList = function(){
     var el = $('conversation-list');
     if(!el) return;
+    updateChatUnreadBadges();
     if(!isPaired()){
         el.innerHTML = '<div style="color:#999;text-align:center;padding:22px;font-size:0.9rem;">🔒 配对后开启聊天</div>';
         return;
     }
     var partnerNick = DATA.partnerNick || 'TA';
     var partnerAvtSrc = DATA.partnerAvatar ? '<img src="'+DATA.partnerAvatar+'">' : (DATA.partnerGender==='female'?'👧':'👦');
+    var unread = computeChatUnread();
     var lastMsg = '';
     var lastTime = '';
     for(var i=DATA.chats.length-1; i>=0; i--){
@@ -4373,6 +4476,7 @@ window.renderConversationList = function(){
     }
     var preview = lastMsg || '暂无消息';
     if(preview.length > 20) preview = preview.substring(0,20) + '...';
+    var badge = unread > 0 ? '<div class="conversation-badge">' + (unread > 99 ? '99+' : unread) + '</div>' : '';
     el.innerHTML =
         '<div class="conversation-item" onclick="enterChat()">' +
             '<div class="conversation-avatar">'+partnerAvtSrc+'</div>' +
@@ -4380,12 +4484,21 @@ window.renderConversationList = function(){
                 '<div class="conversation-name">'+partnerNick+'</div>' +
                 '<div class="conversation-preview">'+preview+'</div>' +
             '</div>' +
-            (lastTime ? '<div class="conversation-time">'+lastTime+'</div>' : '') +
+            '<div class="conversation-side">' +
+                (lastTime ? '<div class="conversation-time">'+lastTime+'</div>' : '') +
+                badge +
+            '</div>' +
         '</div>';
 };
 
 window.enterChat = function(){
     var partnerNick = DATA.partnerNick || 'TA';
+    // 进入聊天即视为已读：把"最后已读"推进到最新一条消息，未读角标清零
+    var lastId = 0;
+    (DATA.chats||[]).forEach(function(c){ if((c.id||0) > lastId) lastId = c.id; });
+    DATA.lastReadChatId = lastId;
+    LSS('couple_data', DATA);
+    updateChatUnreadBadges();
     $('chat-partner-name').textContent = partnerNick;
     $('msg-chat-view').style.display = '';
     $('msg-chat-view').classList.add('active');
