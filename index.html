@@ -750,6 +750,12 @@ body::after {
 .account-edit:hover { transform:scale(1.1); }
 .account-edit:active { transform:scale(0.9); }
 
+/* ===== 账号左滑删除（微信式） ===== */
+.acc-swipe { position:relative; overflow:hidden; border-radius:12px; margin-bottom:6px; }
+.acc-swipe-bg { position:absolute; top:0; right:0; bottom:0; width:80px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#ff6b6b,#ff4f4f); color:#fff; font-size:0.85rem; font-weight:600; cursor:pointer; }
+.acc-swipe-body { position:relative; z-index:1; margin-bottom:0 !important; touch-action:pan-y; user-select:none; -webkit-user-select:none; }
+.acc-swipe-body .account-avatar, .acc-swipe-body .account-info { pointer-events:none; }
+
 /* ===== 资料卡弹窗 ===== */
 .profile-modal-bg { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:2000; display:flex; align-items:center; justify-content:center; animation:fadeIn 0.2s; }
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -4076,25 +4082,64 @@ function account_noteLogin(){
     }).catch(function(){});
 }
 
-// 账号项点击：长按(>=600ms)删除该账号；短点切换
-function accItemTap(el){
-    var longPress = false;
-    if(window.__accT){
-        longPress = (Date.now() - window.__accT >= 600);
+/* ===== 账号项左滑删除（微信式） ===== */
+var __accStartX = 0, __accMoved = false, __accOpen = null;   // 当前展开删除的项
+function accSwipeStart(ev){
+    var t = ev.touches ? ev.touches[0] : ev;
+    __accStartX = t.clientX;
+    __accMoved = false;
+    // 关闭其他已展开的删除项
+    accSwipeCloseOthers(ev.currentTarget);
+}
+function accSwipeMove(ev){
+    var t = ev.touches ? ev.touches[0] : ev;
+    var dx = t.clientX - __accStartX;
+    var body = ev.currentTarget;
+    if(Math.abs(dx) > 6) __accMoved = true;
+    var offset = __accOpen === body ? -72 + dx : dx;
+    if(offset > 0) offset = 0;
+    if(offset < -80) offset = -80;
+    body.style.transition = 'none';
+    body.style.transform = 'translateX(' + offset + 'px)';
+}
+function accSwipeEnd(ev){
+    var body = ev.currentTarget;
+    var style = window.getComputedStyle ? parseInt(window.getComputedStyle(body).transform.split(',')[4] || '0', 10) : 0;
+    var cur = style;
+    if(cur < -40){ openSwipe(body); }
+    else { closeSwipe(body); }
+}
+function accSwipeTap(body){
+    if(!__accMoved){
+        // 未滑动：若已展开则收回，否则切换
+        if(__accOpen === body){ closeSwipe(body); }
+        else { switchToAccount(body.parentNode.getAttribute('data-swipe-id')); }
     }
-    var id = el.getAttribute('data-acc-id');
-    var mail = el.getAttribute('data-acc-mail') || '该账号';
-    if(longPress && !__accMoved){
-        event && event.stopPropagation && event.stopPropagation();
-        accRemoveAccount(id, mail);
-        return;
+}
+function openSwipe(body){
+    body.style.transition = 'transform .2s';
+    body.style.transform = 'translateX(-80px)';
+    __accOpen = body;
+}
+function closeSwipe(body){
+    if(!body) return;
+    body.style.transition = 'transform .2s';
+    body.style.transform = 'translateX(0)';
+    if(__accOpen === body) __accOpen = null;
+}
+function accSwipeCloseOthers(currentBody){
+    if(__accOpen && __accOpen !== currentBody){
+        closeSwipe(__accOpen);
     }
-    switchToAccount(id);
+}
+function accSwipeCloseAll(){
+    if(__accOpen) closeSwipe(__accOpen);
 }
 
-// 长按：删除本机记录的账号（不影响云端账号本身）
+// 左滑删除：本机记录的账号（不影响云端账号本身）
 function accRemoveAccount(id, mail){
     if(!confirm('确定从本机删除账号「' + mail + '」吗？\n（只是移除本机记录，不影响该账号及云端数据）')){
+        accSwipeCloseAll();
         return;
     }
     var list = account_list().filter(function(a){ return a && a.id !== id; });
@@ -4202,16 +4247,19 @@ window.renderAccountSwitcher = function(){
         for(var i=0;i<others.length;i++){
             var o = others[i];
             var oName = o.email || '账号';
-            html += '<div class="account-item" data-acc-id="'+o.id+'" data-acc-mail="'+oName+'" ' +
-                        'ontouchstart="window.__accT=Date.now();__accMoved=false;" ontouchmove="__accMoved=true;" ' +
-                        'onmousedown="window.__accT=Date.now();__accMoved=false;" onmousemove="__accMoved=true;" ' +
-                        'onclick="accItemTap(this)">' +
-                        '<div class="account-avatar">👤</div>' +
-                        '<div class="account-info">' +
-                            '<div class="account-nick">' + oName + '</div>' +
-                            '<div class="account-tag">点击切换 · 长按删除</div>' +
+            html += '<div class="acc-swipe" data-swipe-id="'+o.id+'">' +
+                        '<div class="acc-swipe-bg" onclick="accRemoveAccount(\''+o.id+'\',\''+oName.replace(/'/g,"\\'")+'\')">删除</div>' +
+                        '<div class="acc-swipe-body account-item" ' +
+                            'ontouchstart="accSwipeStart(event)" ontouchmove="accSwipeMove(event)" ontouchend="accSwipeEnd()" ' +
+                            'onmousedown="accSwipeStart(event)" onmousemove="accSwipeMove(event)" onmouseup="accSwipeEnd()" onmouseleave="accSwipeEnd()" ' +
+                            'onclick="accSwipeTap(this)">' +
+                            '<div class="account-avatar">👤</div>' +
+                            '<div class="account-info">' +
+                                '<div class="account-nick">' + oName + '</div>' +
+                                '<div class="account-tag">左滑删除</div>' +
+                            '</div>' +
+                            '<span style="color:var(--theme-sub);font-size:0.8rem;">〉</span>' +
                         '</div>' +
-                        '<span style="color:var(--theme-sub);font-size:0.8rem;">〉</span>' +
                     '</div>';
         }
     }
