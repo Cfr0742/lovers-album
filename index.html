@@ -4076,7 +4076,7 @@ function account_noteLogin(){
     }).catch(function(){});
 }
 
-// 切换到指定账号（B-1 真切换：复原其 session → 重进主页 → 自动恢复其配对）
+// 切换到指定账号（内联密码表单：手机端可用的稳定切换）
 window.switchToAccount = function(id){
     if(!sb) return;
     var list = account_list();
@@ -4084,26 +4084,69 @@ window.switchToAccount = function(id){
     for(var i=0;i<list.length;i++){
         if(list[i] && list[i].id === id){ target = list[i]; break; }
     }
-    if(!target || !target.session || !target.session.access_token){
-        alert('该账号的登录状态已过期，请重新登录后切换');
-        return;
+    if(!target){ alert('未找到该账号'); return; }
+    // 先把当前账号记入列表（保证切走后还能切回）
+    if(cloudUser){
+        sb.auth.getSession().then(function(res){
+            var sess = res.data && res.data.session;
+            if(sess && sess.user) account_remember(sess);
+            window.__switchTarget = target;
+            renderSwitchForm(target);
+        }).catch(function(){ window.__switchTarget = target; renderSwitchForm(target); });
+    } else {
+        window.__switchTarget = target;
+        renderSwitchForm(target);
     }
-    // 复原目标账号 session
-    sb.auth.setSession({
-        access_token: target.session.access_token,
-        refresh_token: target.session.refresh_token
-    }).then(function(res){
-        if(res.error || !res.data.session){
-            alert('切换失败：' + ((res.error && res.error.message) || '会话已失效'));
+};
+
+// 在账号管理页内联渲染「密码输入 → 确认切换」表单
+function renderSwitchForm(target){
+    var el = $('account-switcher');
+    if(!el) return;
+    var mail = target.email || '';
+    renderAccountSwitcher();
+    var box = document.createElement('div');
+    box.id = 'switch-form';
+    box.style.cssText = 'margin-top:14px;padding:14px;border-radius:14px;background:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.6);';
+    box.innerHTML =
+        '<div style="font-size:0.85rem;color:var(--theme-text);font-weight:600;margin-bottom:8px;">切换账号</div>' +
+        '<div style="font-size:0.8rem;color:var(--theme-sub);margin-bottom:10px;">请输入密码，登录「' + (mail || '该账号') + '」后完成切换</div>' +
+        '<input type="password" id="switch-pwd" placeholder="密码" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.6);box-sizing:border-box;margin-bottom:10px;" />' +
+        '<div style="display:flex;gap:8px;">' +
+            '<button class="share-btn" style="flex:1;" onclick="doSwitchLoginFromForm()">✅ 确认切换</button>' +
+            '<button class="share-btn" style="flex:1;background:#e0e0e0;color:#555;" onclick="cancelSwitchForm()">取消</button>' +
+        '</div>';
+    // 插入到退出/添加按钮之前（即 find switch-form before buttons）
+    var btns = el.querySelectorAll('.share-btn');
+    if(btns && btns.length){ el.insertBefore(box, btns[0]); }
+    else { el.appendChild(box); }
+}
+
+// 从内联表单执行切换登录
+window.doSwitchLoginFromForm = function(){
+    var pwd = $('switch-pwd') ? $('switch-pwd').value : '';
+    var target = window.__switchTarget;
+    if(!target){ alert('请重新选择要切换的账号'); return; }
+    if(!pwd){ alert('请输入密码'); return; }
+    cloudLogin(target.email || '', pwd, function(ok, msg){
+        if(!ok){
+            alert('切换失败：' + (msg || '密码错误'));
             return;
         }
-        cloudUser = res.data.session.user;
-        cloudSpace = null;   // 清掉旧 space，交给 autoRestoreSpace 按新账号恢复
+        cloudUser = sbUser();
+        cloudSpace = null;   // 交给 autoRestoreSpace 按新账号恢复
         saveCloudSession();
         enterMainAfterAuth();
+        showScreen('main-screen');
+        openProfileSub('account');
         renderAccountSwitcher();
-    }).catch(function(){ alert('切换失败，请重试'); });
+    });
 };
+
+function cancelSwitchForm(){
+    var f = document.getElementById('switch-form');
+    if(f) f.remove();
+}
 
 // 渲染账号管理（微信同款）：当前账号高亮 + 其余账号可点 + 退出按钮
 window.renderAccountSwitcher = function(){
