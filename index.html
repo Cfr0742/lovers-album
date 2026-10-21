@@ -4122,11 +4122,21 @@ function accSwipeEnd(el){
     else { closeSwipe(body); }
 }
 function accSwipeTap(body){
-    if(!__accMoved){
-        // 未滑动：若已展开则收回，否则切换
-        if(__accOpen === body){ closeSwipe(body); }
-        else { switchToAccount(body.parentNode.getAttribute('data-swipe-id')); }
+    if(!body) return;
+    var opened = false;
+    try {
+        var m = window.getComputedStyle(body).transform.split(',');
+        var x = parseInt(m && m[4] ? m[4] : '0', 10);
+        opened = (Math.abs(x) > 40);
+    } catch(e) { opened = (__accOpen === body); }
+    if(opened){
+        closeSwipe(body);
+        return;
     }
+    // 未展开：切换账号
+    var el = body.parentNode;
+    var id = el ? el.getAttribute('data-swipe-id') : null;
+    if(id){ switchToAccount(id); }
 }
 function openSwipe(body){
     body.style.transition = 'transform .2s';
@@ -4148,20 +4158,51 @@ function accSwipeCloseAll(){
     if(__accOpen) closeSwipe(__accOpen);
 }
 
+// 通用二次确认弹窗（避免微信原生 confirm 失效）
+var __gcCb = null;
+window.showGenericConfirm = function(opts){
+    opts = opts || {};
+    var mask = document.getElementById('generic-confirm');
+    if(!mask) return false;
+    $('gc-icon').textContent = opts.icon || '🗑️';
+    $('gc-title').textContent = opts.title || '确认操作';
+    $('gc-text').innerHTML = opts.text || '';
+    $('gc-ok').textContent = opts.okText || '确定';
+    __gcCb = opts.onOk || null;
+    mask.style.display = 'flex';
+    return false;   // 替换 confirm() 的用法：直接调用，不依赖返回值
+};
+window.closeGenericConfirm = function(){
+    var mask = document.getElementById('generic-confirm');
+    if(mask) mask.style.display = 'none';
+    __gcCb = null;
+};
+window.doGenericConfirm = function(){
+    var cb = __gcCb;
+    closeGenericConfirm();
+    if(typeof cb === 'function') cb();
+};
+
 // 左滑删除：本机记录的账号（不影响云端账号本身）
 function accRemoveAccount(id, mail){
-    if(!confirm('确定从本机删除账号「' + mail + '」吗？\n（只是移除本机记录，不影响该账号及云端数据）')){
-        accSwipeCloseAll();
-        return;
-    }
-    var list = account_list().filter(function(a){ return a && a.id !== id; });
-    LSS('account_sessions', list);
-    renderAccountSwitcher();
+    var delFn = function(){
+        var list = account_list().filter(function(a){ return a && a.id !== id; });
+        LSS('account_sessions', list);
+        if(__accOpen){ accSwipeCloseAll(); __accOpen = null; }
+        renderAccountSwitcher();
+    };
+    showGenericConfirm({
+        icon: '🗑️',
+        title: '删除该账号',
+        text: '确定从本机删除账号「<b>' + (mail || '该账号') + '</b>」吗？<br>只是移除本机记录，不影响该账号及云端数据。',
+        okText: '删除',
+        onOk: delFn
+    });
 }
 
 // 切换到指定账号（内联密码表单：手机端可用的稳定切换）
 window.switchToAccount = function(id){
-    if(!sb) return;
+    if(!sb){ alert('登录服务未就绪，请稍候再试'); return; }
     var list = account_list();
     var target = null;
     for(var i=0;i<list.length;i++){
@@ -5281,6 +5322,17 @@ showEmojiPopover = window.showEmojiPopover;
         </p>
         <button class="confirm-btn confirm-cancel" onclick="closeUnpairConfirm()">再想想</button>
         <button class="confirm-btn confirm-danger" onclick="confirmUnpair()">确定断开</button>
+    </div>
+</div>
+
+<!-- 通用二次确认弹窗（账号删除等） -->
+<div class="confirm-mask" id="generic-confirm">
+    <div class="confirm-box">
+        <div class="confirm-icon" id="gc-icon">🗑️</div>
+        <div class="confirm-title" id="gc-title">确认操作</div>
+        <p class="confirm-text" id="gc-text"></p>
+        <button class="confirm-btn confirm-cancel" onclick="closeGenericConfirm()">取消</button>
+        <button class="confirm-btn confirm-danger" id="gc-ok" onclick="doGenericConfirm()">确定</button>
     </div>
 </div>
 </body>
