@@ -4076,6 +4076,32 @@ function account_noteLogin(){
     }).catch(function(){});
 }
 
+// 账号项点击：长按(>=600ms)删除该账号；短点切换
+function accItemTap(el){
+    var longPress = false;
+    if(window.__accT){
+        longPress = (Date.now() - window.__accT >= 600);
+    }
+    var id = el.getAttribute('data-acc-id');
+    var mail = el.getAttribute('data-acc-mail') || '该账号';
+    if(longPress && !__accMoved){
+        event && event.stopPropagation && event.stopPropagation();
+        accRemoveAccount(id, mail);
+        return;
+    }
+    switchToAccount(id);
+}
+
+// 长按：删除本机记录的账号（不影响云端账号本身）
+function accRemoveAccount(id, mail){
+    if(!confirm('确定从本机删除账号「' + mail + '」吗？\n（只是移除本机记录，不影响该账号及云端数据）')){
+        return;
+    }
+    var list = account_list().filter(function(a){ return a && a.id !== id; });
+    LSS('account_sessions', list);
+    renderAccountSwitcher();
+}
+
 // 切换到指定账号（内联密码表单：手机端可用的稳定切换）
 window.switchToAccount = function(id){
     if(!sb) return;
@@ -4176,11 +4202,14 @@ window.renderAccountSwitcher = function(){
         for(var i=0;i<others.length;i++){
             var o = others[i];
             var oName = o.email || '账号';
-            html += '<div class="account-item" onclick="switchToAccount(\'' + o.id + '\')">' +
+            html += '<div class="account-item" data-acc-id="'+o.id+'" data-acc-mail="'+oName+'" ' +
+                        'ontouchstart="window.__accT=Date.now();__accMoved=false;" ontouchmove="__accMoved=true;" ' +
+                        'onmousedown="window.__accT=Date.now();__accMoved=false;" onmousemove="__accMoved=true;" ' +
+                        'onclick="accItemTap(this)">' +
                         '<div class="account-avatar">👤</div>' +
                         '<div class="account-info">' +
                             '<div class="account-nick">' + oName + '</div>' +
-                            '<div class="account-tag">点击切换</div>' +
+                            '<div class="account-tag">点击切换 · 长按删除</div>' +
                         '</div>' +
                         '<span style="color:var(--theme-sub);font-size:0.8rem;">〉</span>' +
                     '</div>';
