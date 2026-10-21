@@ -4084,17 +4084,20 @@ function account_noteLogin(){
 
 /* ===== 账号项左滑删除（微信式） ===== */
 var __accStartX = 0, __accMoved = false, __accOpen = null;   // 当前展开删除的项
-function accSwipeStart(ev){
-    var t = ev.touches ? ev.touches[0] : ev;
-    __accStartX = t.clientX;
+function accSwipeStart(ev, el){
+    ev = ev || window.event || {};
+    var t = ev.touches ? ev.touches[0] : (ev.changedTouches ? ev.changedTouches[0] : ev);
+    __accStartX = (t && t.clientX) || 0;
     __accMoved = false;
     // 关闭其他已展开的删除项
-    accSwipeCloseOthers(ev.currentTarget);
+    accSwipeCloseOthers(el);
 }
-function accSwipeMove(ev){
-    var t = ev.touches ? ev.touches[0] : ev;
+function accSwipeMove(ev, el){
+    ev = ev || window.event || {};
+    var t = ev.touches ? ev.touches[0] : (ev.changedTouches ? ev.changedTouches[0] : ev);
+    if(!t || !el) return;
     var dx = t.clientX - __accStartX;
-    var body = ev.currentTarget;
+    var body = el;
     if(Math.abs(dx) > 6) __accMoved = true;
     var offset = __accOpen === body ? -72 + dx : dx;
     if(offset > 0) offset = 0;
@@ -4102,10 +4105,16 @@ function accSwipeMove(ev){
     body.style.transition = 'none';
     body.style.transform = 'translateX(' + offset + 'px)';
 }
-function accSwipeEnd(ev){
-    var body = ev.currentTarget;
-    var style = window.getComputedStyle ? parseInt(window.getComputedStyle(body).transform.split(',')[4] || '0', 10) : 0;
-    var cur = style;
+function accSwipeEnd(el){
+    if(!el) el = __accOpen;
+    var body = el;
+    if(!body) return;
+    var cur = 0;
+    try {
+        var m = window.getComputedStyle(body).transform.split(',');
+        cur = parseInt(m && m[4] ? m[4] : '0', 10);
+        if(isNaN(cur)) cur = 0;
+    } catch(e){ cur = 0; }
     if(cur < -40){ openSwipe(body); }
     else { closeSwipe(body); }
 }
@@ -4250,9 +4259,8 @@ window.renderAccountSwitcher = function(){
             html += '<div class="acc-swipe" data-swipe-id="'+o.id+'">' +
                         '<div class="acc-swipe-bg" onclick="accRemoveAccount(\''+o.id+'\',\''+oName.replace(/'/g,"\\'")+'\')">删除</div>' +
                         '<div class="acc-swipe-body account-item" ' +
-                            'ontouchstart="accSwipeStart(event)" ontouchmove="accSwipeMove(event)" ontouchend="accSwipeEnd()" ' +
-                            'onmousedown="accSwipeStart(event)" onmousemove="accSwipeMove(event)" onmouseup="accSwipeEnd()" onmouseleave="accSwipeEnd()" ' +
-                            'onclick="accSwipeTap(this)">' +
+                            'ontouchstart="accSwipeStart(event,this)" ontouchmove="accSwipeMove(event,this)" ontouchend="accSwipeEnd(this)" ontouchcancel="accSwipeEnd(this)" ' +
+                            'onmousedown="accSwipeStart(event,this)" onmousemove="accSwipeMove(event,this)" onmouseup="accSwipeEnd(this)" onmouseleave="accSwipeEnd(this)" onclick="accSwipeTap(this)">' +
                             '<div class="account-avatar">👤</div>' +
                             '<div class="account-info">' +
                                 '<div class="account-nick">' + oName + '</div>' +
