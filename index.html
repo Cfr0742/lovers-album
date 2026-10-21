@@ -2448,7 +2448,8 @@ function cloudSyncNow(){
         var memMap = {};
         cloudAnns.forEach(function(a){ if(a && a.id != null && !tombAnns[a.id]){ a._cloud = 1; memMap[a.id] = a; } });
         (DATA.anniversaries || []).forEach(function(a){
-            if(a && a.id != null){ memMap[a.id] = a; }
+            // 本地残留行同样按墓碑过滤：否则另一方本地缓存会把已删项推回并集 → 复活
+            if(a && a.id != null && !tombAnns[a.id]){ memMap[a.id] = a; }
         });
         DATA.anniversaries = Object.keys(memMap).map(function(k){ return memMap[k]; }).filter(function(a){ return a; });
 
@@ -2456,7 +2457,7 @@ function cloudSyncNow(){
         var msgMap = {};
         cloudChats.forEach(function(c){ if(c && c.id != null && !tombChats[c.id]){ c._cloud = 1; msgMap[c.id] = c; } });
         (DATA.chats || []).forEach(function(c){
-            if(c && c.id != null){ msgMap[c.id] = c; }
+            if(c && c.id != null && !tombChats[c.id]){ msgMap[c.id] = c; }
         });
         DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
 
@@ -2464,20 +2465,20 @@ function cloudSyncNow(){
         var periodMap = {};
         cloudPeriods.forEach(function(p){ if(p && p.start && !tombPeriods[p.start]){ periodMap[p.start] = p; } });
         (DATA.periodRecords || []).forEach(function(p){
-            if(p && p.start){ periodMap[p.start] = p; }
+            if(p && p.start && !tombPeriods[p.start]){ periodMap[p.start] = p; }
         });
         DATA.periodRecords = Object.keys(periodMap).map(function(k){ return periodMap[k]; });
 
         // = 合并情侣日常（云端 ∪ 本地，按 id 去重） =
         var dailyMap = {};
         cloudDailies.forEach(function(d){ if(d && d.id != null && !tombDailies[d.id]){ d._cloud = 1; dailyMap[d.id] = d; } });
-        (DATA.dailies || []).forEach(function(d){ if(d && d.id != null){ dailyMap[d.id] = d; } });
+        (DATA.dailies || []).forEach(function(d){ if(d && d.id != null && !tombDailies[d.id]){ dailyMap[d.id] = d; } });
         DATA.dailies = Object.keys(dailyMap).map(function(k){ return dailyMap[k]; }).filter(function(d){ return d; });
 
         // = 合并相册（云端 ∪ 本地，按 id 去重） =
         var photoMap = {};
         cloudPhotos.forEach(function(p){ if(p && p.id != null && !tombPhotos[p.id]){ p._cloud = 1; photoMap[p.id] = p; } });
-        (DATA.photos || []).forEach(function(p){ if(p && p.id != null){ photoMap[p.id] = p; } });
+        (DATA.photos || []).forEach(function(p){ if(p && p.id != null && !tombPhotos[p.id]){ photoMap[p.id] = p; } });
         DATA.photos = Object.keys(photoMap).map(function(k){ return photoMap[k]; }).filter(function(p){ return p; });
 
         // = 经期设置：本地默认值首次推上云端；云端有而本地未改动则取云端 =
