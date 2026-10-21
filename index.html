@@ -1700,12 +1700,6 @@ body::after {
             <div id="profile-sub-account" class="home-sub-page" style="display:none">
                 <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>👤 账号管理</span></div>
                 <div id="account-switcher"></div>
-                <div class="setting-item">
-                    <label>云端实时同步（两台手机 / TA 都能看到同一份内容）</label>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button onclick="showCloudPanel()" style="flex:1;" class="share-btn">☁️ 云端同步设置</button>
-                    </div>
-                </div>
             </div>
 
             <div id="profile-sub-cloud" class="home-sub-page" style="display:none">
@@ -2001,6 +1995,7 @@ window.cloudRegister = function(email, password, cb){
             if(res.data.session){   // 部分配置直接登录成功
                 cloudUser = res.data.session.user;
                 saveCloudSession();
+                account_noteLogin();
                 cb(true);
             } else {                // 需要邮箱验证
                 cb(false, '注册成功，请到邮箱点击验证链接后登录');
@@ -2016,6 +2011,7 @@ window.cloudLogin = function(email, password, cb){
             if(res.error){ cb(false, res.error.message || '登录失败'); return; }
             cloudUser = res.data.user;
             saveCloudSession();
+            account_noteLogin();
             cb(true);
         })
         .catch(function(e){ cb(false, '网络错误，请稍后重试'); });
@@ -2659,6 +2655,7 @@ function initAuthFlow(){
             var session = res.data && res.data.session;
             if(session && session.user){
                 cloudUser = session.user;
+                account_noteLogin();
                 enterMainAfterAuth();
             } else {
                 cloudUser = null; cloudSpace = null;
@@ -2800,8 +2797,41 @@ function enterMainAfterAuth(){
         pullPartnerProfile();
         renderProfilePairStatus();
     } else {
-        renderProfilePairStatus();
+        // 本机没有配对信息：尝试从云端自动找回（退出当前仅清会话不解除绑定，重登自动恢复）
+        autoRestoreSpace();
     }
+}
+
+// 登录/注册后自动找回云端绑定（user 属于某 couple 且未软删除 → 自动恢复配对，无需重新输配对ID）
+function autoRestoreSpace(){
+    var user = sbUser();
+    if(!user || !sb){ renderProfilePairStatus(); return; }
+    var uid = user.id;
+    sb.from('couples')
+        .select('*')
+        .or('user1_id.eq.' + uid + ',user2_id.eq.' + uid)
+        .then(function(res){
+            if(res.error || !res.data || res.data.length === 0){
+                renderProfilePairStatus();
+                return;
+            }
+            // 优先找未软删除的配对
+            var c = null;
+            for(var i=0;i<res.data.length;i++){
+                if(!res.data[i].deleted_at){ c = res.data[i]; break; }
+            }
+            if(c){
+                cloudSpace = { couple_id: c.id, pair_code: c.pair_code || '', my_side: c.user1_id === uid ? 1 : 2 };
+                saveCloudSession();
+                startCloudPoll();      // 立即同步 + 实时订阅
+                pullPartnerProfile();
+                renderProfilePairStatus();
+            } else {
+                // 全都软删除了（曾断开关联），保持未配对
+                renderProfilePairStatus();
+            }
+        })
+        .catch(function(){ renderProfilePairStatus(); });
 }
 
 window.doLogout = function(){
@@ -4016,17 +4046,108 @@ document.addEventListener('keydown', function(e){
 });
 
 /* ===== 微信聊天风格消息 ===== */
-// 账号切换
+// 账号切换（微信同款：当前账号 + 历史账号列表 + 切换 + 退出发起）
+// 多账号 session 存储：本地记录已登录过的账号，便于一键切换
+function account_remember(sess){
+    if(!sess || !sess.user) return;
+    var list = LS('account_sessions', []);
+    if(!Array.isArray(list)) list = [];
+    var user = sess.user;
+    var idx = -1;
+    for(var i=0;i<list.length;i++){
+        if(list[i] && list[i].id === user.id){ idx = i; break; }
+    }
+    var entry = { id: user.id, email: user.email || '', session: sess };
+    if(idx >= 0){ list[idx] = entry; }
+    else { list.push(entry); }
+    if(list.length > 5){ list = list.slice(list.length - 5); } // 最多保留 5 个
+    LSS('account_sessions', list);
+}
+function account_list(){
+    var list = LS('account_sessions', []);
+    return Array.isArray(list) ? list : [];
+}
+// 记下当前新登录账号
+function account_noteLogin(){
+    if(!cloudUser) return;
+    sb.auth.getSession().then(function(res){
+        var sess = res.data && res.data.session;
+        if(sess && sess.user){ account_remember(sess); }
+    }).catch(function(){});
+}
+
+// 切换到指定账号（B-1 真切换：复原其 session → 重进主页 → 自动恢复其配对）
+window.switchToAccount = function(id){
+    if(!sb) return;
+    var list = account_list();
+    var target = null;
+    for(var i=0;i<list.length;i++){
+        if(list[i] && list[i].id === id){ target = list[i]; break; }
+    }
+    if(!target || !target.session || !target.session.access_token){
+        alert('该账号的登录状态已过期，请重新登录后切换');
+        return;
+    }
+    // 复原目标账号 session
+    sb.auth.setSession({
+        access_token: target.session.access_token,
+        refresh_token: target.session.refresh_token
+    }).then(function(res){
+        if(res.error || !res.data.session){
+            alert('切换失败：' + ((res.error && res.error.message) || '会话已失效'));
+            return;
+        }
+        cloudUser = res.data.session.user;
+        cloudSpace = null;   // 清掉旧 space，交给 autoRestoreSpace 按新账号恢复
+        saveCloudSession();
+        enterMainAfterAuth();
+        renderAccountSwitcher();
+    }).catch(function(){ alert('切换失败，请重试'); });
+};
+
+// 渲染账号管理（微信同款）：当前账号高亮 + 其余账号可点 + 退出按钮
 window.renderAccountSwitcher = function(){
     var el = $('account-switcher');
     if(!el) return;
+    var me = cloudUser || (sbUser ? sbUser() : null);
+    var myId = me ? me.id : (DATA.myUserId || '');
+    var myMail = me ? (me.email || '') : '';
     var avt = DATA.myAvatar ? '<img src="'+DATA.myAvatar+'">' : (DATA.myGender==='female'?'👧':(DATA.myGender==='male'?'👦':'👤'));
     var genderLabel = DATA.myGender==='female' ? '女 · 她' : (DATA.myGender==='male' ? '男 · 他' : '未设置性别');
-    el.innerHTML =
-        '<div class="account-item active">' +
-            '<div class="account-avatar" onclick="openProfileCard()">'+avt+'</div>' +
-            '<div class="account-info" onclick="openProfileCard()"><div class="account-nick">'+DATA.myNick+' <span class="account-edit">✏️</span></div><div class="account-tag">我的资料 · '+genderLabel+'</div></div>' +
-        '</div>';
+
+    var html = '';
+    // 1) 当前账号卡（高亮）
+    html += '<div class="account-item active">' +
+                '<div class="account-avatar" onclick="openProfileCard()">' + avt + '</div>' +
+                '<div class="account-info" onclick="openProfileCard()">' +
+                    '<div class="account-nick">' + DATA.myNick + ' <span class="account-edit">✏️</span></div>' +
+                    '<div class="account-tag">当前账号 · ' + myMail + ' · ' + genderLabel + '</div>' +
+                '</div>' +
+                '<span class="account-check">✓</span>' +
+            '</div>';
+
+    // 2) 其余已登录账号列表
+    var others = account_list().filter(function(a){ return a && a.id !== myId; });
+    if(others.length){
+        html += '<div style="margin:10px 0 4px;font-size:0.75rem;color:var(--theme-sub);padding-left:6px;">切换其他账号</div>';
+        for(var i=0;i<others.length;i++){
+            var o = others[i];
+            var oName = o.email || '账号';
+            html += '<div class="account-item" onclick="switchToAccount(\'' + o.id + '\')">' +
+                        '<div class="account-avatar">👤</div>' +
+                        '<div class="account-info">' +
+                            '<div class="account-nick">' + oName + '</div>' +
+                            '<div class="account-tag">点击切换</div>' +
+                        '</div>' +
+                        '<span style="color:var(--theme-sub);font-size:0.8rem;">〉</span>' +
+                    '</div>';
+        }
+    }
+
+    // 3) 退出当前账号按钮（只退会话，不解除配对）
+    html += '<button class="share-btn" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#ff9a9e,#ff6b6b);color:#fff;" onclick="doLogout()">🚪 退出当前账号</button>';
+
+    el.innerHTML = html;
 };
 
 window.deleteChatMsg = function(id){
