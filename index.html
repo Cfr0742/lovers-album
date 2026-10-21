@@ -1920,7 +1920,7 @@ function pad(n){ return n < 10 ? '0' + n : '' + n; }
 
 /* ===== Supabase 云端实时同步 ===== */
 // Supabase 项目配置（部署时如地址/key 变化，只需改这里两行）
-var SUPABASE_URL = 'https://jxqrckxqqcdevqrzgocz.supabase.co';
+var SUPABASE_URL = 'https://api.cfrlove.top';
 var SUPABASE_KEY = 'sb_publishable_SDEvx6W200nIbtAtzvhngw_SnNciPVc';
 
 // Supabase 客户端（全局唯一）
@@ -2313,6 +2313,11 @@ function photoToRow(p, coupleId){
 }
 function rowToPhoto(row){
     try { return JSON.parse(row.remark); } catch(e){ return null; }
+}
+// 旧照片地址是 supabase.co 域名（手机被墙），显示时统一重写为反代域名 api.cfrlove.top
+function fixPhotoUrl(url){
+    if(!url) return url;
+    return url.replace('jxqrckxqqcdevqrzgocz.supabase.co', 'api.cfrlove.top');
 }
 // 经期记录指纹（按 start 排序）
 function cloudFingerprintPeriods(periodMap){
@@ -3709,7 +3714,7 @@ function renderPhotos(){
         var cbShow = photoSelectMode ? ' show' : '';
         h += '<div class="photo-item-wrap">' +
             '<div class="photo-checkbox' + cbShow + checked + '" onclick="event.stopPropagation();togglePhotoSelect('+pid+')">' + (selectedPhotoIds[pid] ? '✓' : '') + '</div>' +
-            '<img src="'+DATA.photos[i].src+'" data-id="'+pid+'" data-idx="'+i+'" loading="lazy"' +
+            '<img src="'+fixPhotoUrl(DATA.photos[i].src)+'" data-id="'+pid+'" data-idx="'+i+'" loading="lazy"' +
                 ' onmousedown="startPhotoLongPress(event,'+pid+')" onmouseup="cancelPhotoLongPress()" onmouseleave="cancelPhotoLongPress()"' +
                 ' ontouchstart="startPhotoLongPress(event,'+pid+')" ontouchend="cancelPhotoLongPress()" ontouchmove="cancelPhotoLongPress()"' +
                 ' onclick="onPhotoClick(event,'+i+','+pid+')">' +
@@ -3874,7 +3879,7 @@ function updateLightbox(){
     var p = lbPhotos[lbIndex];
     $('lb-img').style.opacity = '0';
     setTimeout(function(){
-        $('lb-img').src = p.src;
+        $('lb-img').src = fixPhotoUrl(p.src);
         $('lb-img').onload = function(){ $('lb-img').style.opacity = '1'; };
         $('lb-counter').textContent = (lbIndex+1) + ' / ' + lbPhotos.length;
     }, 100);
