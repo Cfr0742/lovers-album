@@ -755,6 +755,9 @@ body::after {
 .acc-swipe-bg { position:absolute; top:0; right:0; bottom:0; width:80px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#ff6b6b,#ff4f4f); color:#fff; font-size:0.85rem; font-weight:600; cursor:pointer; }
 .acc-swipe-body { position:relative; z-index:1; margin-bottom:0 !important; touch-action:pan-y; user-select:none; -webkit-user-select:none; }
 .acc-swipe-body .account-avatar, .acc-swipe-body .account-info { pointer-events:none; }
+.acc-del-btn { flex-shrink:0; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#ff9a9e,#ff6b6b); color:#fff; font-size:1rem; cursor:pointer; box-shadow:0 2px 5px rgba(255,80,80,0.4); transition:transform 0.15s; }
+.acc-del-btn:hover { transform:scale(1.1); }
+.acc-del-btn:active { transform:scale(0.9); }
 
 /* ===== 资料卡弹窗 ===== */
 .profile-modal-bg { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:2000; display:flex; align-items:center; justify-content:center; animation:fadeIn 0.2s; }
@@ -4256,20 +4259,23 @@ window.renderAccountSwitcher = function(){
         for(var i=0;i<others.length;i++){
             var o = others[i];
             var oName = o.email || '账号';
+            var escMail = String(oName).replace(/'/g,"\\'").replace(/"/g,'&quot;');
             html += '<div class="acc-swipe" data-swipe-id="'+o.id+'">' +
-                        '<div class="acc-swipe-bg" onclick="accRemoveAccount(\''+o.id+'\',\''+oName.replace(/'/g,"\\'")+'\')">删除</div>' +
+                        '<div class="acc-swipe-bg" onclick="accRemoveAccount(\''+o.id+'\',\''+escMail+'\')">删除</div>' +
                         '<div class="acc-swipe-body account-item" ' +
                             'ontouchstart="accSwipeStart(event,this)" ontouchmove="accSwipeMove(event,this)" ontouchend="accSwipeEnd(this)" ontouchcancel="accSwipeEnd(this)" ' +
                             'onmousedown="accSwipeStart(event,this)" onmousemove="accSwipeMove(event,this)" onmouseup="accSwipeEnd(this)" onmouseleave="accSwipeEnd(this)" onclick="accSwipeTap(this)">' +
                             '<div class="account-avatar">👤</div>' +
                             '<div class="account-info">' +
                                 '<div class="account-nick">' + oName + '</div>' +
-                                '<div class="account-tag">左滑删除</div>' +
+                                '<div class="account-tag">左滑或点右侧删除</div>' +
                             '</div>' +
-                            '<span style="color:var(--theme-sub);font-size:0.8rem;">〉</span>' +
+                            '<span class="acc-del-btn" onclick="event.stopPropagation();accRemoveAccount(\''+o.id+'\',\''+escMail+'\')">✕</span>' +
                         '</div>' +
                     '</div>';
         }
+    } else {
+        html += '<div style="margin:14px 0;padding:14px;border-radius:12px;background:rgba(255,255,255,0.35);text-align:center;font-size:0.8rem;color:var(--theme-sub);">暂无其他账号<br>点下方「➕ 添加账号」可登录新账号</div>';
     }
 
     // 3) 添加账号 + 退出当前账号（微信同款）
