@@ -4262,10 +4262,10 @@ window.doSwitchLoginFromForm = function(){
     });
 };
 
-function cancelSwitchForm(){
+window.cancelSwitchForm = function(){
     var f = document.getElementById('switch-form');
     if(f) f.remove();
-}
+};
 
 // 渲染账号管理（微信同款）：当前账号高亮 + 其余账号可点 + 退出按钮
 window.renderAccountSwitcher = function(){
