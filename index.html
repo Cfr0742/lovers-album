@@ -1670,8 +1670,8 @@ body::after {
                 <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>⚙️ 设置</span></div>
                 <div class="settings-list">
                     <div class="settings-item" onclick="openProfileSub('account')">
-                        <span class="settings-item-icon">👤</span>
-                        <span class="settings-item-text">账号管理</span>
+                        <span class="settings-item-icon">🔄</span>
+                        <span class="settings-item-text">切换账号</span>
                         <span class="settings-item-arrow">〉</span>
                     </div>
                     <div class="settings-item" onclick="openProfileSub('date')">
@@ -4144,10 +4144,25 @@ window.renderAccountSwitcher = function(){
         }
     }
 
-    // 3) 退出当前账号按钮（只退会话，不解除配对）
-    html += '<button class="share-btn" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#ff9a9e,#ff6b6b);color:#fff;" onclick="doLogout()">🚪 退出当前账号</button>';
+    // 3) 添加账号 + 退出当前账号（微信同款）
+    html += '<button class="share-btn" style="width:100%;margin-top:14px;" onclick="doAddAccount()">➕ 添加账号</button>';
+    html += '<button class="share-btn" style="width:100%;margin-top:10px;background:linear-gradient(135deg,#ff9a9e,#ff6b6b);color:#fff;" onclick="doLogout()">🚪 退出当前账号</button>';
 
     el.innerHTML = html;
+};
+
+// 添加账号（微信式）：记住当前账号 → 退出会话 → 回登录页注册/登录新账号
+window.doAddAccount = function(){
+    // 先把当前账号 session 记入列表，保证添加后还能切回来
+    if(cloudUser){
+        sb.auth.getSession().then(function(res){
+            var sess = res.data && res.data.session;
+            if(sess && sess.user) account_remember(sess);
+            doLogout();
+        }).catch(function(){ doLogout(); });
+    } else {
+        doLogout();
+    }
 };
 
 window.deleteChatMsg = function(id){
