@@ -2432,8 +2432,12 @@ function cloudSyncNow(){
         var cloudPhotos = photoRows.map(rowToPhoto).filter(function(p){ return p; });
         var cloudPhotoFp = fingerprintList(cloudPhotos);
 
-        // 墓碑：本机已删除的内容 id，合并时排除（防止删除被"云端∪本地"并集复活）
-        var tomb = DATA._tombstones || {};
+        // 共享墓碑：本地 ∪ 云端(couples.tombstones) 取并集，合并时排除（防止删除被"云端∪本地"并集复活）。
+        // 必须叠加云端墓碑：否则对方设备会用自己的本地旧数据把已删项重新插入。
+        var cloudTomb = {};
+        try { if(coupleRow && coupleRow.tombstones){ cloudTomb = JSON.parse(coupleRow.tombstones) || {}; } } catch(e){}
+        var tomb = mergeTombstones(cloudTomb, DATA._tombstones);
+        DATA._tombstones = tomb;   // 本地升级为并集，随下方 LSS 一起落盘
         var tombAnns = tomb.anniversaries || {};
         var tombChats = tomb.chats || {};
         var tombPeriods = tomb.periodRecords || {};
@@ -2519,7 +2523,7 @@ function cloudSyncNow(){
         LSS('couple_data', DATA);
         refreshAll();
 
-        // 合并后与云端一致且起始日期/经期均无变化 → 无需回写
+        // 合并后与云端一致且起始日期/经期/墓碑均无变化 → 无需回写
         var writeFp = cloudFingerprint(DATA.anniversaries, DATA.chats);
         var writePeriodFp = cloudFingerprintPeriods(listToMap(DATA.periodRecords, 'start'));
         var writeDailyFp = fingerprintList(DATA.dailies);
@@ -2528,13 +2532,15 @@ function cloudSyncNow(){
         var periodSame = (writePeriodFp === cloudPeriodFp);
         var dailySame = (writeDailyFp === cloudDailyFp);
         var photoSame = (writePhotoFp === cloudPhotoFp);
-        if(memSame && periodSame && dailySame && photoSame && !startChanged && !settingsChanged && !chatBgChanged){ return null; }
+        var tombChanged = (JSON.stringify(tomb) !== JSON.stringify(mergeTombstones(cloudTomb, {})));
+        if(memSame && periodSame && dailySame && photoSame && !startChanged && !settingsChanged && !chatBgChanged && !tombChanged){ return null; }
 
-        // 回写：起始日期/经期设置/留言背景变了则先更新 couples
+        // 回写：起始日期/经期设置/留言背景/墓碑变了则先更新 couples
         var coupleUpdate = {};
         if(startChanged){ coupleUpdate.start_date = DATA.startDate; }
         if(settingsChanged){ coupleUpdate.period_settings = JSON.stringify(DATA.periodSettings || {}); }
         if(chatBgChanged){ coupleUpdate.chat_bg = DATA.myChatBg || ''; }
+        if(tombChanged){ coupleUpdate.tombstones = JSON.stringify(tomb); }
         var startTask = Promise.resolve();
         if(Object.keys(coupleUpdate).length){
             startTask = sb.from('couples').update(coupleUpdate).eq('id', coupleId);
@@ -2627,7 +2633,35 @@ function trackCloudDelete(builder){
 
 function cloudDeleteByLocalId(table, jsonCol, localId){
     if(!sb || !cloudSpace) return Promise.resolve();
-    return trackCloudDelete(sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%'));
+    // 只删当前配对（couple_id 过滤），避免多配对/多账号时误删对方空间的数据
+    return trackCloudDelete(sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%').eq('couple_id', cloudSpace.couple_id));
+}
+
+// 合并两个墓碑对象（取并集）：把"本机已删"与"云端已删"叠加。
+function mergeTombstones(a, b){
+    var out = {};
+    a = a || {}; b = b || {};
+    ['anniversaries','chats','dailies','photos','periodRecords'].forEach(function(k){
+        out[k] = {};
+        var ak = a[k] || {}, bk = b[k] || {};
+        for(var key in ak){ out[k][key] = true; }
+        for(var key in bk){ out[k][key] = true; }
+    });
+    return out;
+}
+
+// 立即把本机墓碑同步上云（读改写合并，避免覆盖对方设备的墓碑）。
+// 关键：删除是"双方实时同步"，墓碑必须上云，否则对方设备会用本地旧数据把已删项重新插入（复活）。
+function cloudPushTombstone(){
+    if(!sb || !cloudSpace) return;
+    sb.from('couples').select('tombstones').eq('id', cloudSpace.couple_id).maybeSingle()
+        .then(function(res){
+            var cloudTomb = {};
+            try { if(res.data && res.data.tombstones){ cloudTomb = JSON.parse(res.data.tombstones) || {}; } } catch(e){}
+            var merged = mergeTombstones(cloudTomb, DATA._tombstones);
+            return sb.from('couples').update({ tombstones: JSON.stringify(merged) }).eq('id', cloudSpace.couple_id);
+        })
+        .catch(function(){});
 }
 
 // 记录"已删除"墓碑：合并时据此排除云端同名 id，防止删除被"云端∪本地"并集复活。
@@ -2635,6 +2669,7 @@ function tombstoneMark(kind, key){
     DATA._tombstones = DATA._tombstones || {};
     DATA._tombstones[kind] = DATA._tombstones[kind] || {};
     DATA._tombstones[kind][key] = true;
+    cloudPushTombstone();
 }
 
 // 从云端覆盖拉取（进入空间后立即同步一次）
@@ -3465,7 +3500,7 @@ window.deletePeriodRecord = function(index){
     }
     tombstoneMark('periodRecords', target.start);
     saveData();
-    if(sb && cloudSpace){ trackCloudDelete(sb.from('period_records').delete().eq('start', target.start)); }
+    if(sb && cloudSpace){ trackCloudDelete(sb.from('period_records').delete().eq('start', target.start).eq('couple_id', cloudSpace.couple_id)); }
     periodCalendarYear = null; periodCalendarMonth = null;
     renderPeriodTracker();
 };
