@@ -2489,6 +2489,24 @@ function cloudSyncNow(){
             DATA.startDate = coupleRow.start_date;
         }
 
+        // = 留言背景：本地有则回写云端（云端若旧则用本地），云端有而本地无则取云端 =
+        // 首次上传背景控件在本地但云端空 → 回写；仅云端有 → 取云端；两者都有且不同 → 以最近修改为准
+        var chatBgChanged = false;
+        if(DATA._chatBgCleared){
+            // 用户主动清空过背景 → 云端同步清空（本地与云端都为空）
+            if(coupleRow && coupleRow.chat_bg){ chatBgChanged = true; }
+            DATA.myChatBg = '';
+        } else if(DATA.myChatBg && (!coupleRow || !coupleRow.chat_bg)){
+            // 本地有、云端空：本地推上云
+            chatBgChanged = true;
+        } else if(coupleRow && coupleRow.chat_bg && !DATA.myChatBg){
+            // 云端有、本地空（本地从未设置过）：取云端
+            DATA.myChatBg = coupleRow.chat_bg;
+        } else if(coupleRow && coupleRow.chat_bg && DATA.myChatBg && coupleRow.chat_bg !== DATA.myChatBg){
+            // 两者都有但不同：以本地为准并回写（本地是最近操作）
+            chatBgChanged = true;
+        }
+
         // 写回本地
         DATA.anniversaries.forEach(function(a){ delete a._cloud; });
         DATA.chats.forEach(function(c){ delete c._cloud; });
@@ -2506,12 +2524,13 @@ function cloudSyncNow(){
         var periodSame = (writePeriodFp === cloudPeriodFp);
         var dailySame = (writeDailyFp === cloudDailyFp);
         var photoSame = (writePhotoFp === cloudPhotoFp);
-        if(memSame && periodSame && dailySame && photoSame && !startChanged && !settingsChanged){ return null; }
+        if(memSame && periodSame && dailySame && photoSame && !startChanged && !settingsChanged && !chatBgChanged){ return null; }
 
-        // 回写：起始日期/经期设置变了则先更新 couples
+        // 回写：起始日期/经期设置/留言背景变了则先更新 couples
         var coupleUpdate = {};
         if(startChanged){ coupleUpdate.start_date = DATA.startDate; }
         if(settingsChanged){ coupleUpdate.period_settings = JSON.stringify(DATA.periodSettings || {}); }
+        if(chatBgChanged){ coupleUpdate.chat_bg = DATA.myChatBg || ''; }
         var startTask = Promise.resolve();
         if(Object.keys(coupleUpdate).length){
             startTask = sb.from('couples').update(coupleUpdate).eq('id', coupleId);
@@ -4096,6 +4115,7 @@ window.setChatBg = function(e){
             ctx.drawImage(img, 0, 0, w, h);
             var base64 = canvas.toDataURL('image/jpeg', 0.85);
             DATA.myChatBg = base64;
+            DATA._chatBgCleared = false;   // 已重新设置背景，取消“清空”标记
             saveData();
             applyChatBg(base64);
         };
@@ -4123,6 +4143,7 @@ function applyChatBg(url){
 
 window.clearChatBg = function(){
     DATA.myChatBg = '';
+    DATA._chatBgCleared = true;   // 标记“已主动清空”，下次同步把云端也清掉
     saveData();
     applyChatBg('');
 };
