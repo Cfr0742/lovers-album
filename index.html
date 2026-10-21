@@ -2633,8 +2633,11 @@ function trackCloudDelete(builder){
 
 function cloudDeleteByLocalId(table, jsonCol, localId){
     if(!sb || !cloudSpace) return Promise.resolve();
-    // 只删当前配对（couple_id 过滤），避免多配对/多账号时误删对方空间的数据
-    return trackCloudDelete(sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%').eq('couple_id', cloudSpace.couple_id));
+    // 先确保墓碑上云，再持锁删云端行：保证任何并集拉取都能识别该墓碑，不会被"云端∪本地"拉回。
+    return cloudPushTombstone().then(function(){
+        // 只删当前配对（couple_id 过滤），避免多配对/多账号时误删对方空间的数据
+        return trackCloudDelete(sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%').eq('couple_id', cloudSpace.couple_id));
+    });
 }
 
 // 合并两个墓碑对象（取并集）：把"本机已删"与"云端已删"叠加。
@@ -2652,16 +2655,18 @@ function mergeTombstones(a, b){
 
 // 立即把本机墓碑同步上云（读改写合并，避免覆盖对方设备的墓碑）。
 // 关键：删除是"双方实时同步"，墓碑必须上云，否则对方设备会用本地旧数据把已删项重新插入（复活）。
+// 返回 Promise，便于删除流程"先等墓碑上云、再删云端行"，避免后到的并集拉取把已删项拉回。
 function cloudPushTombstone(){
-    if(!sb || !cloudSpace) return;
-    sb.from('couples').select('tombstones').eq('id', cloudSpace.couple_id).maybeSingle()
+    if(!sb || !cloudSpace) return Promise.resolve(false);
+    return sb.from('couples').select('tombstones').eq('id', cloudSpace.couple_id).maybeSingle()
         .then(function(res){
             var cloudTomb = {};
             try { if(res.data && res.data.tombstones){ cloudTomb = JSON.parse(res.data.tombstones) || {}; } } catch(e){}
             var merged = mergeTombstones(cloudTomb, DATA._tombstones);
-            return sb.from('couples').update({ tombstones: JSON.stringify(merged) }).eq('id', cloudSpace.couple_id);
+            return sb.from('couples').update({ tombstones: JSON.stringify(merged) }).eq('id', cloudSpace.couple_id)
+                .then(function(){ return true; });
         })
-        .catch(function(){});
+        .catch(function(){ return false; });
 }
 
 // 记录"已删除"墓碑：合并时据此排除云端同名 id，防止删除被"云端∪本地"并集复活。
@@ -3500,7 +3505,12 @@ window.deletePeriodRecord = function(index){
     }
     tombstoneMark('periodRecords', target.start);
     saveData();
-    if(sb && cloudSpace){ trackCloudDelete(sb.from('period_records').delete().eq('start', target.start).eq('couple_id', cloudSpace.couple_id)); }
+    // 先确保墓碑上云，再删云端行（与其它类型一致，防止并集拉取拉回）
+    if(sb && cloudSpace){
+        cloudPushTombstone().then(function(){
+            return trackCloudDelete(sb.from('period_records').delete().eq('start', target.start).eq('couple_id', cloudSpace.couple_id));
+        });
+    }
     periodCalendarYear = null; periodCalendarMonth = null;
     renderPeriodTracker();
 };
