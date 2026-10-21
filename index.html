@@ -4154,7 +4154,7 @@ window.doGenericConfirm = function(){
 };
 
 // 删除本机账号记录（不影响云端账号本身）
-function accRemoveAccount(id, mail){
+window.accRemoveAccount = function(id, mail){
     var delFn = function(){
         // 直接从 localStorage 原始数组中移除，多 tab 也生效
         var lsKey = 'account_sessions';
