@@ -751,8 +751,9 @@ body::after {
 .account-edit:active { transform:scale(0.9); }
 
 /* ===== 账号项（点击切换 + 右侧 ✕ 删除） ===== */
-.account-row { margin-bottom:6px; }
+.account-row { display:flex; align-items:center; margin-bottom:6px; }
 .account-row .account-item { border-radius:12px; }
+.account-row .acc-del-btn { margin-left:8px; }
 .acc-del-btn { flex-shrink:0; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#ff9a9e,#ff6b6b); color:#fff; font-size:1rem; cursor:pointer; box-shadow:0 2px 5px rgba(255,80,80,0.4); transition:transform 0.15s; }
 .acc-del-btn:hover { transform:scale(1.1); }
 .acc-del-btn:active { transform:scale(0.9); }
@@ -4111,9 +4112,12 @@ window.doGenericConfirm = function(){
 // 删除本机账号记录（不影响云端账号本身）
 function accRemoveAccount(id, mail){
     var delFn = function(){
+        var before = account_list().length;
         var list = account_list().filter(function(a){ return a && a.id !== id; });
         LSS('account_sessions', list);
+        var after = account_list().length;
         renderAccountSwitcher();
+        alert((after < before) ? '已删除该账号的本机记录' : '该账号未找到或已移除');
     };
     showGenericConfirm({
         icon: '🗑️',
@@ -4236,15 +4240,15 @@ window.renderAccountSwitcher = function(){
             var o = others[i];
             var oName = o.email || '账号';
             var escMail = String(oName).replace(/'/g,"\\'").replace(/"/g,'&quot;');
-            html += '<div class="account-row" data-swipe-id="'+o.id+'">' +
-                        '<div class="account-item" style="display:flex;align-items:center;cursor:pointer;" onclick="switchToAccount(\''+o.id+'\')">' +
+            html += '<div class="account-row">' +
+                        '<div class="account-item" style="display:flex;align-items:center;flex:1;cursor:pointer;" onclick="switchToAccount(\''+o.id+'\')">' +
                             '<div class="account-avatar">👤</div>' +
                             '<div class="account-info">' +
                                 '<div class="account-nick">' + oName + '</div>' +
                                 '<div class="account-tag">点击切换</div>' +
                             '</div>' +
-                            '<span class="acc-del-btn" onclick="event.stopPropagation();accRemoveAccount(\''+o.id+'\',\''+escMail+'\')">✕</span>' +
                         '</div>' +
+                        '<span class="acc-del-btn" onclick="accRemoveAccount(\''+o.id+'\',\''+escMail+'\')">✕</span>' +
                     '</div>';
         }
     } else {
