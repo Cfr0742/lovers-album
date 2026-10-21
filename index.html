@@ -4063,6 +4063,12 @@ function account_remember(sess){
     var user = sess.user;
     var idx = -1;
     for(var i=0;i<list.length;i++){
+        if(list[i] && list[i].id === user.id && list[i]._deleted){
+            // 该账号用户已主动删除，即使再次登录到本机也不记回列表
+            return;
+        }
+    }
+    for(var i=0;i<list.length;i++){
         if(list[i] && list[i].id === user.id){ idx = i; break; }
     }
     var entry = { id: user.id, email: user.email || '', session: sess };
@@ -4073,7 +4079,10 @@ function account_remember(sess){
 }
 function account_list(){
     var list = LS('account_sessions', []);
-    return Array.isArray(list) ? list : [];
+    if(!Array.isArray(list)) list = [];
+    // 过滤掉被用户删除过的账号（墓碑），确保任何刷新/记忆逻辑都不会再让它复活
+    list = list.filter(function(a){ return a && !a._deleted; });
+    return list;
 }
 // 记下当前新登录账号
 function account_noteLogin(){
@@ -4112,12 +4121,24 @@ window.doGenericConfirm = function(){
 // 删除本机账号记录（不影响云端账号本身）
 function accRemoveAccount(id, mail){
     var delFn = function(){
-        var before = account_list().length;
-        var list = account_list().filter(function(a){ return a && a.id !== id; });
-        LSS('account_sessions', list);
-        var after = account_list().length;
+        // 直接从 localStorage 原始数组中移除，多 tab 也生效
+        var lsKey = 'account_sessions';
+        var lsVal = localStorage.getItem(lsKey);
+        var list = [];
+        if(lsVal){ try{ list = JSON.parse(lsVal); }catch(e){ list = []; } }
+        if(!Array.isArray(list)) list = [];
+        var before = list.length;
+        list = list.filter(function(a){ return a && String(a.id) !== String(id); });
+        localStorage.setItem(lsKey, JSON.stringify(list));
+        var after = list.length;
+        // 若删除的是当前会话账号，同时清本地 session 缓存，防止刷新时被 account_noteLogin 写回
+        if(cloudUser && String(cloudUser.id) === String(id)){
+            cloudUser = null; cloudSpace = null;
+            localStorage.removeItem('cloud_session');
+            try{ localStorage.removeItem('sb-refresh-token'); }catch(e){}
+        }
         renderAccountSwitcher();
-        alert((after < before) ? '已删除该账号的本机记录' : '该账号未找到或已移除');
+        alert(after < before ? '已删除该账号的本机记录 ✓' : '该账号此前不在本机列表中');
     };
     showGenericConfirm({
         icon: '🗑️',
