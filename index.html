@@ -818,7 +818,7 @@ body::after {
     gap: 8px;
 }
 @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-.chat-body { display:flex; flex-direction:column; max-width:75%; min-width:0; }
+.chat-body { display:flex; flex-direction:column; max-width:100%; min-width:0; flex:0 1 auto; }
 .chat-body.left-body { align-items:flex-start; }
 .chat-body.right-body { align-items:flex-end; }
 .chat-nick-name {
@@ -838,6 +838,7 @@ body::after {
     line-height:1.45;
     word-break: break-all;
     overflow-wrap: anywhere;
+    max-width:100%;
     position:relative;
 }
 .msg-row.left-row .bubble {
@@ -860,7 +861,7 @@ body::after {
 .conversation-avatar { width:48px; height:48px; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#e0e0e0; font-size:28px; flex-shrink:0; }
 .conversation-avatar img { width:100%; height:100%; object-fit:cover; }
 .conversation-body { flex:1; min-width:0; }
-.conversation-name { font-size:0.95rem; font-weight:500; color:var(--theme-text); }
+.conversation-name { font-size:0.95rem; font-weight:500; color:var(--theme-text); overflow-wrap:anywhere; word-break:break-all; }
 .conversation-preview { font-size:0.78rem; color:var(--theme-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; margin-top:2px; }
 .conversation-time { font-size:0.7rem; color:#bbb; flex-shrink:0; }
 .conversation-side { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
@@ -1156,7 +1157,7 @@ body::after {
 .online-badge { text-align:center; font-size:0.8rem; color:var(--theme-sub); margin-top:8px; }
 
 .recent-list { display:flex; flex-direction:column; gap:8px; }
-.recent-list .recent-item { padding:8px 12px; border-radius:10px; background:var(--theme-bg); font-size:0.88rem; }
+.recent-list .recent-item { padding:8px 12px; border-radius:10px; background:var(--theme-bg); font-size:0.88rem; word-break:break-all; overflow-wrap:anywhere; }
 
 .recent-badge {
     padding: 10px 14px;
@@ -1170,6 +1171,8 @@ body::after {
     margin-bottom:8px;
     font-weight:600;
     color: var(--theme-text);
+    word-break:break-all;
+    overflow-wrap:anywhere;
 }
 
 /* ===== 贴心 Tab ===== */
@@ -1953,9 +1956,11 @@ var DATA = LS('couple_data', {
     lastReadChatId: 0    // 本机"最后已读"的留言 id（未读数 = 对方发的且 id 更大的条数）
 });
 
-// 兼容旧数据：确保墓碑对象 / 已读标记存在
+// 兼容旧数据：确保墓碑对象 / 已读标记 / 背景字段存在
 DATA._tombstones = DATA._tombstones || {};
 if(DATA.lastReadChatId == null){ DATA.lastReadChatId = 0; }
+if(DATA.myChatBg == null){ DATA.myChatBg = ''; }
+if(DATA.myAppBg == null){ DATA.myAppBg = ''; }
 
 function saveData(){ LSS('couple_data', DATA); cloudPush(); }
 
@@ -2802,6 +2807,8 @@ window.initApp = function(){
     initAnniCategory();
     initDailyMood();
     restoreCloudSession();
+    applyChatBg(DATA.myChatBg);
+    applyAppBg(DATA.myAppBg);
     initAuthFlow();   // 微信式：先登录，再配对，最后进主页
     setTimeout(applySavedEmojis, 20);
 };
@@ -3687,7 +3694,7 @@ function renderDailies(){
     for(var i=0; i<arr.length; i++){
         var d = arr[i];
         h += '<div class="card-item"><span class="card-emoji">'+d.mood+'</span>' +
-            '<span>'+d.content+'</span><span class="card-date">'+d.date+'</span>' +
+            '<span class="card-name">'+d.content+'</span><span class="card-date">'+d.date+'</span>' +
             '<span class="del-btn" onclick="event.stopPropagation();delDaily('+d.id+')">✕</span></div>';
     }
     if(!h) h = '<div style="color:#bbb;font-size:0.85rem;text-align:center;">还没有日常记录</div>';
@@ -4101,7 +4108,7 @@ function applyChatBg(url){
     var container = $('chat-container');
     var clearBtn = document.querySelector('.chat-bg-clear');
     if(url){
-        view.style.setProperty('--chat-bg-url', 'url('+url+')');
+        view.style.setProperty('--chat-bg-url', 'url("'+url+'")');
         view.classList.add('has-bg');
         if(container){ container.style.background = 'transparent'; container.style.backgroundColor = 'transparent'; }
         if(clearBtn) clearBtn.classList.add('show');
@@ -4148,7 +4155,7 @@ window.setAppBg = function(e){
 function applyAppBg(url){
     var bg = document.body;
     if(url){
-        bg.style.setProperty('--app-bg-url', 'url('+url+')');
+        bg.style.setProperty('--app-bg-url', 'url("'+url+'")');
     } else {
         bg.style.removeProperty('--app-bg-url');
     }
