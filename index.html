@@ -2330,6 +2330,9 @@ function cloudFingerprintPeriods(periodMap){
 // 完整同步：把本地纪念日/留言/起始日与云端做一次“双向合并”
 // 保证双方各自新增的内容都保留，实现两人实时可见。
 function cloudSyncNow(){
+    // 有云端删除在进行中：先跳过本次拉取，避免"云端∪本地"并集把还没删掉的云端行又拉回本地；
+    // 删除全部完成后 cloudDeleteByLocalId 会补一次 cloudPush。
+    if(cloudDeleteLock > 0){ cloudDeletePending = true; return; }
     if(!cloudSpace || cloudSyncLock) return;
     if(!sb || !sbUser()) return;
     cloudSyncLock = true;
@@ -2519,11 +2522,29 @@ function cloudPush(){
 // 云端删除一行：本地删除后按本地 id 删云端对应行。
 // remark/content 是 text 存的 JSON 字符串（不是 jsonb，无法用 ->），改用 LIKE 匹配 "id":数字。
 // 否则 cloudSyncNow 的"云端∪本地"并集合并会把云端还没删的那条拉回本地，导致删除失效。
+var cloudDeleteLock = 0;
+var cloudDeletePending = false;
+
+// 追踪一次云端删除：删除期间跳过 cloudSyncNow 拉取，全部删完后补一次同步。
+function trackCloudDelete(builder){
+    cloudDeleteLock++;
+    var done = function(){
+        cloudDeleteLock--;
+        if(cloudDeleteLock <= 0){
+            cloudDeleteLock = 0;
+            if(cloudDeletePending){
+                cloudDeletePending = false;
+                cloudPush();
+            }
+        }
+    };
+    try { return builder.then(done, done); }
+    catch(e){ done(); return Promise.resolve(false); }
+}
+
 function cloudDeleteByLocalId(table, jsonCol, localId){
-    if(!sb || !cloudSpace) return;
-    try {
-        sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%').then(function(){}, function(){});
-    } catch(e){}
+    if(!sb || !cloudSpace) return Promise.resolve();
+    return trackCloudDelete(sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%'));
 }
 
 // 从云端覆盖拉取（进入空间后立即同步一次）
@@ -3316,7 +3337,7 @@ window.deletePeriodRecord = function(index){
         }
     }
     saveData();
-    if(sb && cloudSpace){ try { sb.from('period_records').delete().eq('start', target.start).then(function(){}, function(){}); } catch(e){} }
+    if(sb && cloudSpace){ trackCloudDelete(sb.from('period_records').delete().eq('start', target.start)); }
     periodCalendarYear = null; periodCalendarMonth = null;
     renderPeriodTracker();
 };
