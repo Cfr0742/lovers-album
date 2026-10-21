@@ -501,6 +501,7 @@ body::after {
 .card-list .card-item:active { transform:scale(0.98); }
 .card-list .card-item .del-btn {
     margin-left:auto;
+    flex-shrink:0;
     color:#d3545c;
     cursor:pointer;
     padding:6px 10px;
@@ -516,8 +517,8 @@ body::after {
 }
 .card-list .card-item .del-btn:hover { background: rgba(255,210,210,0.8); color:#e53935; }
 .card-list .card-item .del-btn:active { transform: scale(0.92); }
-.card-list .card-date { font-size:0.75rem; color:var(--theme-sub); white-space:nowrap; }
-.card-list .card-name { font-weight:600; white-space:nowrap; }
+.card-list .card-date { font-size:0.75rem; color:var(--theme-sub); white-space:nowrap; flex-shrink:0; }
+.card-list .card-name { font-weight:600; flex:1; min-width:0; word-break:break-word; overflow-wrap:anywhere; }
 .card-list .card-emoji { font-size:1.3rem; }
 
 /* ===== 相册 ===== */
@@ -835,7 +836,8 @@ body::after {
     border-radius: 16px;
     font-size:0.9rem;
     line-height:1.45;
-    word-break: break-word;
+    word-break: break-all;
+    overflow-wrap: anywhere;
     position:relative;
 }
 .msg-row.left-row .bubble {
