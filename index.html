@@ -2511,12 +2511,13 @@ function cloudPush(){
     cloudTimeout = setTimeout(function(){ cloudSyncNow(); }, 400);
 }
 
-// 云端删除一行：本地删除后按本地 id 精确删云端对应行（remark/content 里存了完整本地对象，含 id）。
+// 云端删除一行：本地删除后按本地 id 删云端对应行。
+// remark/content 是 text 存的 JSON 字符串（不是 jsonb，无法用 ->），改用 LIKE 匹配 "id":数字。
 // 否则 cloudSyncNow 的"云端∪本地"并集合并会把云端还没删的那条拉回本地，导致删除失效。
 function cloudDeleteByLocalId(table, jsonCol, localId){
     if(!sb || !cloudSpace) return;
     try {
-        sb.from(table).delete().eq(jsonCol + '->>id', String(localId)).then(function(){}, function(){});
+        sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%').then(function(){}, function(){});
     } catch(e){}
 }
 
@@ -3848,7 +3849,7 @@ window.deleteSelectedPhotos = function(){
     if(paths.length && sb){ try { sb.storage.from('photos').remove(paths).catch(function(){}); } catch(e){} }
     DATA.photos = DATA.photos.filter(function(p){ return !idSet[p.id]; });
     saveData();
-    if(ids.length && sb && cloudSpace){ try { sb.from('photos').delete().in('remark->>id', ids).then(function(){}, function(){}); } catch(e){} }
+    if(ids.length){ ids.forEach(function(pid){ cloudDeleteByLocalId('photos', 'remark', pid); }); }
     selectedPhotoIds = {};
     photoSelectMode = false;
     renderPhotos();
