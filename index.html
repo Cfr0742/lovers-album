@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -93,6 +93,48 @@ body.theme-orange {
     --tab-active: #ff8f00;
     --bubble-right: #ffe082;
     --shadow: 0 2px 12px rgba(200, 150, 100, 0.15);
+}
+
+body.theme-white {
+    --theme: #e0e0e0;
+    --theme-deep: #9e9e9e;
+    --theme-tint-l: rgba(220,220,220,0.6);
+    --theme-tint-m: rgba(200,200,200,0.42);
+    --theme-tint-d: rgba(210,210,210,0.45);
+    --theme-light: #f5f5f5;
+    --theme-bg: #ffffff;
+    --theme-bg-grad: radial-gradient(120% 90% at 10% 0%, #f9f9f9 0%, rgba(249,249,249,0) 55%), radial-gradient(100% 80% at 95% 15%, #f5f5f5 0%, rgba(245,245,245,0) 50%), linear-gradient(160deg, #ffffff 30%, #fafafa 100%);
+    --theme-blob: radial-gradient(circle at 15% 18%, rgba(200,200,200,0.5) 0%, rgba(200,200,200,0) 30%), radial-gradient(circle at 82% 20%, rgba(190,190,190,0.4) 0%, rgba(190,190,190,0) 26%), radial-gradient(circle at 65% 78%, rgba(210,210,210,0.4) 0%, rgba(210,210,210,0) 26%), radial-gradient(circle at 28% 82%, rgba(195,195,195,0.4) 0%, rgba(195,195,195,0) 28%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);
+    --theme-blob-2: radial-gradient(circle at 88% 72%, rgba(200,200,200,0.35) 0%, rgba(200,200,200,0) 22%), radial-gradient(circle at 8% 62%, rgba(215,215,215,0.35) 0%, rgba(215,215,215,0) 24%), radial-gradient(circle at 55% 18%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 60%);
+    --theme-card: #ffffff;
+    --theme-text: #333333;
+    --theme-sub: #999999;
+    --theme-accent: #757575;
+    --theme-gradient: linear-gradient(135deg, #e0e0e0, #bdbdbd);
+    --tab-active: #616161;
+    --bubble-right: #e8e8e8;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+body.theme-black {
+    --theme: #424242;
+    --theme-deep: #757575;
+    --theme-tint-l: rgba(80,80,80,0.6);
+    --theme-tint-m: rgba(60,60,60,0.42);
+    --theme-tint-d: rgba(70,70,70,0.45);
+    --theme-light: #2c2c2c;
+    --theme-bg: #121212;
+    --theme-bg-grad: radial-gradient(120% 90% at 10% 0%, #1a1a1a 0%, rgba(26,26,26,0) 55%), radial-gradient(100% 80% at 95% 15%, #1e1e1e 0%, rgba(30,30,30,0) 50%), linear-gradient(160deg, #121212 30%, #181818 100%);
+    --theme-blob: radial-gradient(circle at 15% 18%, rgba(80,80,80,0.5) 0%, rgba(80,80,80,0) 30%), radial-gradient(circle at 82% 20%, rgba(70,70,70,0.4) 0%, rgba(70,70,70,0) 26%), radial-gradient(circle at 65% 78%, rgba(90,90,90,0.4) 0%, rgba(90,90,90,0) 26%), radial-gradient(circle at 28% 82%, rgba(75,75,75,0.4) 0%, rgba(75,75,75,0) 28%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
+    --theme-blob-2: radial-gradient(circle at 88% 72%, rgba(70,70,70,0.35) 0%, rgba(70,70,70,0) 22%), radial-gradient(circle at 8% 62%, rgba(85,85,85,0.35) 0%, rgba(85,85,85,0) 24%), radial-gradient(circle at 55% 18%, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 60%);
+    --theme-card: #1e1e1e;
+    --theme-text: #e0e0e0;
+    --theme-sub: #9e9e9e;
+    --theme-accent: #bdbdbd;
+    --theme-gradient: linear-gradient(135deg, #424242, #616161);
+    --tab-active: #9e9e9e;
+    --bubble-right: #333333;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -226,7 +268,8 @@ body::after {
 /* ===== 主页面 ===== */
 #main-screen { max-width:500px; margin:0 auto; left:50%; transform:translateX(-50%); width:100%; }
 
-.tab-content { flex:1; overflow-y:auto; padding:12px 12px 76px; -webkit-overflow-scrolling:touch; }
+.tab-content { flex:1; overflow-y:auto; padding:12px 12px 8px; -webkit-overflow-scrolling:touch; }
+#tab-period { padding-bottom:12px; gap:6px; min-height:100%; }
 .tab-page { display:none; flex-direction:column; gap:14px; }
 .tab-page.active { display:flex; }
 
@@ -410,6 +453,9 @@ body::after {
     line-height: 1;
 }
 .sub-back-btn:active { background: linear-gradient(145deg, rgba(255,255,255,0.85), rgba(255,255,255,0.5)); transform: scale(0.94); }
+
+#period-settings-panel .sub-header { justify-content:center; position:relative; padding:8px 40px; }
+#period-settings-panel .sub-back-btn { position:absolute; left:4px; top:50%; transform:translateY(-50%); }
 
 .album-card {
     background: linear-gradient(145deg, rgba(255,255,255,0.32), rgba(255,255,255,0.08));
@@ -674,6 +720,7 @@ body::after {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     border-bottom: 1px solid rgba(0,0,0,0.06);
+    position:relative;
 }
 .chat-back-btn {
     border: 1px solid rgba(255,255,255,0.7); font-size: 1.3rem; cursor:pointer; padding:4px 12px; color:var(--theme);
@@ -714,6 +761,77 @@ body::after {
     -webkit-backdrop-filter: blur(6px);
     border-top: 1px solid rgba(0,0,0,0.06);
 }
+
+/* ===== AI 聊天按钮 ===== */
+.ai-chat-btn {
+    position:absolute; top:10px; right:12px; height:34px; border-radius:17px;
+    padding:0 14px; border:1px solid rgba(255,255,255,0.5); background:rgba(255,255,255,0.25);
+    font-size:0.85rem; cursor:pointer; line-height:1; white-space:nowrap;
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    box-shadow:0 4px 10px -4px rgba(0,0,0,0.2);
+}
+.ai-chat-btn:active { transform:scale(0.92); }
+
+#ai-chat-view {
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    z-index:200; display:none; flex-direction:column;
+    background:#f0efe6;
+    background-image:repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(0,0,0,0.025) 30px, rgba(0,0,0,0.025) 60px), repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(0,0,0,0.018) 30px, rgba(0,0,0,0.018) 60px);
+}
+#ai-chat-view.active { display:flex; }
+#ai-chat-view.bg-dark { color:#ddd; background:#1a1a2e; background-image:none; }
+#ai-chat-view.bg-dark .chat-header { color:#eee; background:rgba(255,255,255,0.05); border-bottom-color:rgba(255,255,255,0.08); }
+#ai-chat-view.bg-dark .chat-back-btn { color:#ccc; border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); }
+#ai-chat-view.bg-dark .ai-msg.user { color:#222; }
+#ai-chat-view.bg-dark .ai-msg.bot { background:#2a2a4a; color:#ddd; }
+#ai-chat-view.bg-dark .ai-msg.loading { background:#2a2a4a; color:#888; }
+#ai-chat-view.bg-dark .chat-input-row { background:rgba(0,0,0,0.3); border-top-color:rgba(255,255,255,0.08); }
+#ai-chat-view.bg-dark #ai-chat-input { background:rgba(255,255,255,0.1); color:#eee; border-color:rgba(255,255,255,0.15); }
+#ai-chat-view.bg-dark #ai-chat-input::placeholder { color:rgba(255,255,255,0.35); }
+#ai-chat-view.bg-dark #ai-send-btn { background:rgba(255,255,255,0.1); color:#ddd; }
+#ai-chat-view.bg-dark #ai-send-btn:disabled { color:#666; }
+#ai-chat-view.bg-dark .ai-theme-btn { color:#ddd; }
+#ai-chat-view.bg-light { background:#f5f5f5; background-image:none; }
+#ai-chat-view.bg-custom { background-image:none; }
+
+.ai-theme-btn {
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    width:30px; height:30px; border-radius:50%; border:none;
+    background:rgba(255,255,255,0.2); font-size:0.9rem; cursor:pointer;
+    line-height:1; padding:0;
+}
+
+/* 主题面板 */
+.ai-theme-panel {
+    width:90%; max-width:360px; background:#fff; border-radius:16px;
+    padding:18px; text-align:center;
+}
+.ai-theme-title { font-size:1rem; font-weight:600; color:#333; margin-bottom:14px; }
+.ai-theme-options { display:flex; gap:12px; justify-content:center; margin-bottom:14px; }
+.ai-theme-card { cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.ai-theme-preview {
+    width:64px; height:64px; border-radius:14px; display:flex; align-items:center;
+    justify-content:center; font-size:1.4rem; border:2px solid transparent;
+    transition:border-color 0.2s;
+}
+.ai-theme-preview:hover { border-color:#ccc; }
+.ai-preview-dark { background:linear-gradient(135deg, #1a1a2e, #16213e); }
+.ai-preview-light { background:#f5f5f5; border:2px solid #ddd; }
+.ai-preview-custom { background:linear-gradient(135deg, #ffecd2, #fcb69f); }
+.ai-theme-card span { font-size:0.78rem; color:#666; }
+.ai-color-row { margin-top:4px; }
+.ai-color-label { font-size:0.78rem; color:#888; display:block; margin-bottom:8px; }
+.ai-color-swatches { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.ai-color-swatch {
+    width:32px; height:32px; border-radius:50%; cursor:pointer;
+    border:2px solid transparent; transition:border-color 0.2s;
+}
+.ai-color-swatch:hover { border-color:#999; }
+
+.ai-msg { max-width:75%; padding:10px 14px; border-radius:18px; font-size:0.88rem; line-height:1.55; word-break:break-word; }
+.ai-msg.user { align-self:flex-end; background:#95ec69; border-bottom-right-radius:4px; margin-left:auto; }
+.ai-msg.bot { align-self:flex-start; background:#fff; border-bottom-left-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.ai-msg.loading { background:#eee; color:#999; }
 
 /* ===== 账号切换 ===== */
 .account-item {
@@ -1140,6 +1258,52 @@ body::after {
 }
 .theme-btn:active { transform:scale(0.9); }
 .theme-btn.active { border-color:var(--theme-accent); border-width:3px; box-shadow: 0 0 0 3px rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.12); }
+.card-lock-row { display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding:8px 0; border-top:1px solid rgba(128,128,128,0.15); }
+.card-lock-label { font-size:0.85rem; color:var(--theme-sub); display:flex; align-items:center; gap:6px; }
+.toggle-switch { position:relative; width:48px; height:26px; flex-shrink:0; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; border-radius:26px; transition:0.3s; }
+.toggle-slider::before { content:''; position:absolute; height:20px; width:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s; }
+.toggle-switch input:checked + .toggle-slider { background:var(--theme-accent); }
+.toggle-switch input:checked + .toggle-slider::before { transform:translateX(22px); }
+body.no-glass .together-card-3d,
+body.no-glass .home-entry-card,
+body.no-glass .profile-header,
+body.no-glass .settings-item,
+body.no-glass .album-card,
+body.no-glass .card-list .card-item,
+body.no-glass .account-item,
+body.no-glass .period-info-card,
+body.no-glass .period-history-card,
+body.no-glass .chat-header,
+body.no-glass .input-row input[type="text"],
+body.no-glass .input-row input[type="date"],
+body.no-glass .bottom-tab-bar,
+body.no-glass .period-calendar-section,
+body.no-glass .setting-item input[type="text"],
+body.no-glass #share-link,
+body.no-glass .recent-badge {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: var(--theme-card) !important;
+    border-color: rgba(128,128,128,0.2) !important;
+}
+body.no-glass .together-card-3d::after,
+body.no-glass .together-card-3d::before,
+body.no-glass .together-card-3d .drop-shine,
+body.no-glass .home-entry-card::before,
+body.no-glass .profile-header::before,
+body.no-glass .album-card::before,
+body.no-glass .card-list .card-item::before,
+body.no-glass .period-info-card::before,
+body.no-glass .period-history-card::before,
+body.no-glass .period-calendar-section::before {
+    display: none !important;
+}
+body.no-glass * {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
 .share-btn {
     padding: 10px 18px;
     border: none;
@@ -1186,24 +1350,24 @@ body::after {
 }
 
 /* ===== 贴心 Tab ===== */
-.period-page { padding: 20px 16px calc(80px + env(safe-area-inset-bottom)); overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-.period-phase-card { border-radius: 16px; padding: 20px; text-align: center; color: #fff; position: relative; overflow: hidden; }
+.period-page { padding: 12px 16px 12px; overflow-y: hidden; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.period-phase-card { border-radius: 16px; padding: 12px 16px; text-align: center; color: #fff; position: relative; overflow: hidden; }
 .period-phase-card.phase-period { background: linear-gradient(135deg, #f06292, #e91e63); }
 .period-phase-card.phase-safe { background: linear-gradient(135deg, #81c784, #43a047); }
 .period-phase-card.phase-fertile { background: linear-gradient(135deg, #ba68c8, #8e24aa); }
 .period-phase-card.phase-luteal { background: linear-gradient(135deg, #ffb74d, #f57c00); }
 .period-phase-day { font-size: 0.9rem; opacity: 0.85; margin-bottom: 4px; }
-.period-phase-num { font-size: 3rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-.period-phase-label { font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
-.period-phase-msg { font-size: 0.85rem; opacity: 0.9; }
-.period-progress-bar { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
-.period-progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s; }
+.period-phase-num { font-size: 2.4rem; font-weight: 700; line-height: 1; margin-bottom: 2px; }
+.period-phase-label { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+.period-phase-msg { font-size: 0.8rem; opacity: 0.9; }
+.period-progress-bar { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
+.period-progress-dot { width: 6px; height: 6px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s; }
 .period-progress-dot.filled { background: #999; }
 .period-progress-dot.period-dot { background: #e91e63; }
 .period-progress-dot.fertile-dot { background: #ab47bc; }
 .period-progress-dot.luteal-dot { background: #ff9800; }
 .period-progress-dot.today-dot { width: 10px; height: 10px; box-shadow: 0 0 6px currentColor; }
-.period-progress-legend { display: flex; gap: 12px; justify-content: center; font-size: 0.7rem; color: #999; flex-wrap: wrap; }
+.period-progress-legend { display: flex; gap: 10px; justify-content: center; font-size: 0.65rem; color: #999; flex-wrap: wrap; margin-bottom: 0; }
 .period-progress-legend span { display: flex; align-items: center; gap: 4px; }
 .period-progress-legend .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 .period-progress-legend .dot.red { background: #e91e63; }
@@ -1211,11 +1375,14 @@ body::after {
 .period-progress-legend .dot.purple { background: #ab47bc; }
 .period-progress-legend .dot.orange { background: #ff9800; }
 .period-calendar-section {
+    flex:1;
+    display:flex;
+    flex-direction:column;
     background: linear-gradient(145deg, rgba(255,205,220,0.45), rgba(255,255,255,0.10));
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
     border-radius: 18px;
-    padding: 14px;
+    padding: 10px;
     border: 1px solid rgba(255,255,255,0.6);
     box-shadow: 0 10px 22px -8px rgba(0,0,0,0.12), inset 2px 2px 8px rgba(255,255,255,0.7), inset -3px -4px 8px rgba(160,100,130,0.18);
     position: relative;
@@ -1230,13 +1397,13 @@ body::after {
     background: radial-gradient(ellipse 90% 100% at 50% -6%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%);
     filter: blur(2px);
 }
-.period-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.period-cal-header .cal-month-label { font-size: 1rem; font-weight: 600; color: #333; }
-.period-cal-header button { width: 32px; height: 32px; border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15)); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 1px 1px 3px rgba(255,255,255,0.8); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; }
+.period-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.period-cal-header .cal-month-label { font-size: 0.9rem; font-weight: 600; color: #333; }
+.period-cal-header button { width: 28px; height: 28px; border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15)); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 1px 1px 3px rgba(255,255,255,0.8); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; }
 .period-cal-header button:active { background: linear-gradient(145deg, rgba(255,255,255,0.75), rgba(255,255,255,0.25)); }
 .period-cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: #aaa; margin-bottom: 4px; }
-.period-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
-.period-cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-radius: 50%; position: relative; cursor: default; color: #444; }
+.period-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr; gap: 1px; text-align: center; flex:1; overflow-y:auto; }
+.period-cal-day { min-height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; border-radius: 50%; position: relative; cursor: default; color: #444; }
 .period-cal-day.today { font-weight: 700; color: #333; }
 .period-cal-day.cal-stage { color: #fff; }
 .period-cal-day.safe-day { background: #4caf50; }
@@ -1250,9 +1417,24 @@ body::after {
 .period-cal-day.selected { background: #fff; color: #ec407a; box-shadow: inset 0 0 0 2px #ec407a; font-weight: 700; }
 .period-cal-day.selected::after { content: none; }
 .period-cal-day.empty { cursor: default; background: transparent; box-shadow: none; color: transparent; }
-.period-cal-legend { display: flex; gap: 12px; justify-content: center; margin-top: 10px; font-size: 0.7rem; color: #999; flex-wrap: wrap; }
+.period-cal-legend { display: flex; gap: 10px; justify-content: center; margin-top: 6px; font-size: 0.68rem; color: #999; flex-wrap: wrap; }
 .period-cal-legend span { display: flex; align-items: center; gap: 4px; }
 .period-cal-legend .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.period-cal-day.overtime-day { background: #ffcdd2 !important; color: #b71c1c; }
+.period-alert-item { display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;font-size:0.85rem;color:#555;border:1px solid rgba(255,255,255,0.6);box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative;overflow:hidden;animation:fadeInDown 0.3s ease-out; }
+.period-alert-item.alert-warn { background:linear-gradient(145deg, rgba(255,235,200,0.7), rgba(255,255,255,0.4)); }
+.period-alert-item.alert-danger { background:linear-gradient(145deg, rgba(255,205,210,0.7), rgba(255,255,255,0.4)); }
+.period-alert-item.alert-info { background:linear-gradient(145deg, rgba(200,220,255,0.7), rgba(255,255,255,0.4)); }
+.period-alert-item .alert-icon { font-size:1.2rem;flex-shrink:0; }
+.period-alert-item .alert-text { flex:1;min-width:0; }
+.period-alert-item .alert-dismiss { cursor:pointer;font-size:0.75rem;color:#999;padding:4px 10px;border-radius:10px;border:1px solid rgba(128,128,128,0.2);background:rgba(255,255,255,0.6);white-space:nowrap;flex-shrink:0; }
+.period-alert-item .alert-dismiss:active { background:#eee; }
+@keyframes fadeInDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.period-caring-msg { text-align:center;font-size:0.82rem;padding:8px 12px;border-radius:10px;animation:fadeInDown 0.4s ease-out;display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);max-width:480px;width:calc(100% - 24px);z-index:200; }
+.period-caring-msg.show { display:block; }
+.period-caring-msg.early { background:rgba(129,199,132,0.25);color:#2e7d32; }
+.period-caring-msg.late { background:rgba(255,183,77,0.25);color:#e65100; }
+.period-caring-msg.delayed { background:rgba(186,104,200,0.2);color:#7b1fa2; }
 .period-info-card {
     background: linear-gradient(145deg, rgba(255,215,225,0.42), rgba(255,255,255,0.10));
     -webkit-backdrop-filter: blur(14px);
@@ -1273,12 +1455,27 @@ body::after {
 .period-record-btn:active { transform: scale(0.97); }
 .period-record-btn.done { background: linear-gradient(135deg, #bdbdbd, #9e9e9e); box-shadow: none; pointer-events: none; }
 .period-action-bar { display: flex; gap: 8px; }
-.period-action-btn { flex: 1; padding: 13px 0; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #fff; transition: transform 0.15s, opacity 0.2s; }
+.period-action-btn { flex: 1; padding: 10px 0; border: none; border-radius: 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #fff; transition: transform 0.15s, opacity 0.2s; }
 .period-action-btn:active { transform: scale(0.96); }
 .period-action-btn.record { background: linear-gradient(135deg, #f06292, #ec407a); box-shadow: 0 3px 10px rgba(240,98,146,0.3); }
 .period-action-btn.end { background: linear-gradient(135deg, #81c784, #43a047); box-shadow: 0 3px 10px rgba(67,160,71,0.3); }
 .period-action-btn.delay { background: linear-gradient(135deg, #ffb74d, #fb8c00); box-shadow: 0 3px 10px rgba(251,140,0,0.3); }
 .period-action-btn.disabled { background: #e0e0e0; color: #999; box-shadow: none; pointer-events: none; }
+/* 仪表盘 */
+.dashboard-container { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-start; height:172px; overflow-y:auto; padding:2px; border-radius:14px; background:rgba(255,255,255,0.25); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.5); }
+.dash-circle { width:52px; height:52px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; position:relative; transition:transform 0.15s; flex-shrink:0; background:rgba(255,255,255,0.5); box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+.dash-circle:active { transform:scale(0.92); }
+.dash-circle .emoji { font-size:1.1rem; line-height:1; }
+.dash-circle .num { font-size:0.6rem; font-weight:700; color:#666; line-height:1; }
+.dash-circle .lbl { font-size:0.55rem; color:#999; line-height:1; }
+.dash-circle.add-circle { background:rgba(255,255,255,0.3); border:2px dashed #ccc; box-shadow:none; }
+.dash-circle.add-circle .emoji { font-size:1.3rem; color:#bbb; }
+/* 子面板通用 */
+.sub-info-card { padding:12px; }
+.sub-info-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.5); font-size:0.85rem; color:#555; }
+.sub-info-row:last-child { border-bottom:none; }
+.sub-info-row .val { font-weight:600; color:var(--theme-accent); }
+.sub-goto-btn { display:block; width:100%; margin-top:12px; padding:10px; border:none; border-radius:12px; background:var(--theme-gradient); color:#fff; font-size:0.85rem; cursor:pointer; }
 .period-history-card {
     background: linear-gradient(145deg, rgba(255,220,230,0.40), rgba(255,255,255,0.10));
     -webkit-backdrop-filter: blur(14px);
@@ -1647,8 +1844,9 @@ body::after {
         <!-- Tab 2: 留言 -->
         <div class="tab-page" id="tab-messages">
             <div id="msg-list-view">
-                <section class="album-card">
+                <section class="album-card" style="position:relative;">
                     <h2><span class="emoji-editable" data-key="card_msgs">💌</span> 留言</h2>
+                    <button class="ai-chat-btn" onclick="openAiChat()" title="AI 助手">🤖 AI 聊天</button>
                     <div id="conversation-list"></div>
                 </section>
             </div>
@@ -1702,6 +1900,11 @@ body::after {
                         <span class="settings-item-text">数据管理</span>
                         <span class="settings-item-arrow">〉</span>
                     </div>
+                    <div class="settings-item" onclick="openAiKeyDialog()">
+                        <span class="settings-item-icon">🔑</span>
+                        <span class="settings-item-text">AI API 密钥</span>
+                        <span class="settings-item-arrow">〉</span>
+                    </div>
                 </div>
             </div>
 
@@ -1748,6 +1951,22 @@ body::after {
                         <button onclick="switchTheme('blue')" class="theme-btn theme-blue" title="蓝色"><span>💙</span></button>
                         <button onclick="switchTheme('purple')" class="theme-btn theme-purple" title="紫色"><span>💜</span></button>
                         <button onclick="switchTheme('orange')" class="theme-btn theme-orange" title="日落橙"><span>🧡</span></button>
+                        <button onclick="switchTheme('white')" class="theme-btn theme-white" title="白色"><span>🤍</span></button>
+                        <button onclick="switchTheme('black')" class="theme-btn theme-black" title="黑色"><span>🖤</span></button>
+                    </div>
+                    <div class="card-lock-row">
+                        <span class="card-lock-label">🔒 锁定卡片颜色</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="card-lock-toggle" onchange="toggleCardLock(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="card-lock-row" style="border-top:none;">
+                        <span class="card-lock-label">🔍 毛玻璃透明</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="glass-toggle" checked onchange="toggleGlass(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
                 </div>
                 <div class="setting-item">
@@ -1783,6 +2002,7 @@ body::after {
                 <button class="period-settings-btn" id="period-settings-btn" onclick="openPeriodSettings()" title="设置">⚙️</button>
             </div>
             <div class="period-page" id="period-page-content">
+                <div id="period-alerts" style="display:none;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
                 <div class="period-phase-card" id="period-phase-card">
                     <div class="period-phase-day" id="period-phase-day"></div>
                     <div class="period-phase-num" id="period-phase-num"></div>
@@ -1810,25 +2030,20 @@ body::after {
                         <span style="color:#ab47bc">✦ 排卵</span>
                     </div>
                 </div>
-                <div class="period-info-card" id="period-info-card">
-                    <h3>📊 预测信息</h3>
-                    <div id="period-info-content"></div>
-                </div>
                 <div class="period-action-bar" id="period-action-bar">
-                    <button class="period-action-btn record" id="btn-period-start" onclick="startPeriodFromSelected()">💖 记录开始</button>
-                    <button class="period-action-btn end" id="btn-period-end" onclick="endPeriodFromSelected()">✅ 记录结束</button>
-                    <button class="period-action-btn delay" id="btn-period-delay" onclick="delayPeriodFromSelected()">⏳ 延迟</button>
+                    <button class="period-action-btn record" id="btn-period-start" onclick="startPeriodFromSelected()">💖 来了</button>
+                    <button class="period-action-btn end" id="btn-period-end" onclick="endPeriodFromSelected()">✅ 走了</button>
+                    <button class="period-action-btn delay" id="btn-period-delay" onclick="delayPeriodFromSelected()">⏳ 推迟</button>
                 </div>
-                <div class="period-history-card" id="period-history-card">
-                    <h3>📝 历史记录</h3>
-                    <div id="period-history-list"></div>
-                </div>
-                <!-- 设置面板 -->
+                <div class="period-caring-msg" id="period-caring-msg"></div>
+                <!-- 仪表盘 -->
+                <div class="dashboard-container" id="dashboard-container"></div>
+                <!-- 周期子页 -->
                 <div id="period-settings-panel" style="display:none;">
                     <div class="sub-header"><button class="sub-back-btn" onclick="closePeriodSettings()">←</button><span>⚙️ 贴心设置</span></div>
                     <div class="period-settings-row">
                         <label>月经周期</label>
-                        <div class="stepper">
+                        <div class="stepper" id="cycle-stepper">
                             <button onclick="stepPeriodSetting('cycleDays', -1)">−</button>
                             <span class="val" id="ps-cycleDays">28</span>
                             <button onclick="stepPeriodSetting('cycleDays', 1)">+</button>
@@ -1836,15 +2051,39 @@ body::after {
                         </div>
                     </div>
                     <div class="period-settings-row">
+                        <label>智能周期</label>
+                        <label class="toggle-switch" style="margin:0;width:40px;height:22px;">
+                            <input type="checkbox" id="ps-auto-cycle" onchange="toggleAutoSetting('cycle')">
+                            <span class="toggle-slider" style="border-radius:22px;"></span>
+                        </label>
+                        <span id="ps-auto-cycle-hint" style="font-size:0.72rem;color:#999;margin-left:4px;"></span>
+                    </div>
+                    <div class="period-settings-row">
                         <label>经期持续</label>
-                        <div class="stepper">
+                        <div class="stepper" id="duration-stepper">
                             <button onclick="stepPeriodSetting('periodDays', -1)">−</button>
                             <span class="val" id="ps-periodDays">5</span>
                             <button onclick="stepPeriodSetting('periodDays', 1)">+</button>
                             <span style="font-size:0.8rem;color:#999">天</span>
                         </div>
                     </div>
+                    <div class="period-settings-row">
+                        <label>智能经期</label>
+                        <label class="toggle-switch" style="margin:0;width:40px;height:22px;">
+                            <input type="checkbox" id="ps-auto-duration" onchange="toggleAutoSetting('duration')">
+                            <span class="toggle-slider" style="border-radius:22px;"></span>
+                        </label>
+                        <span id="ps-auto-duration-hint" style="font-size:0.72rem;color:#999;margin-left:4px;"></span>
+                    </div>
                     <button class="period-save-settings" onclick="savePeriodSettings()">保存设置</button>
+                    <div class="period-info-card" id="period-info-card">
+                        <h3>📊 预测信息</h3>
+                        <div id="period-info-content"></div>
+                    </div>
+                    <div class="period-history-card" id="period-history-card">
+                        <h3>📝 历史记录</h3>
+                        <div id="period-history-list"></div>
+                    </div>
                 </div>
                 <!-- 日期选择面板 -->
                 <div id="period-date-picker" style="display:none;">
@@ -1858,6 +2097,16 @@ body::after {
                         <span class="pdp-label">日</span>
                     </div>
                     <button class="period-save-settings" onclick="confirmPeriodDate()">✅ 确认记录</button>
+                </div>
+                <!-- 仪表盘子页 -->
+                <div id="period-sub-panel" style="display:none;">
+                    <div class="sub-header"><button class="sub-back-btn" onclick="closeSubPanel()">←</button><span id="sub-panel-title"></span></div>
+                    <div id="sub-panel-body"></div>
+                </div>
+                <!-- 添加圆圈面板 -->
+                <div id="dashboard-add-panel" style="display:none;">
+                    <div class="sub-header"><button class="sub-back-btn" onclick="closeAddPanel()">←</button><span>➕ 添加追踪</span></div>
+                    <div id="add-panel-list" style="display:flex;flex-wrap:wrap;gap:10px;padding:12px;"></div>
                 </div>
             </div>
         </div>
@@ -1895,11 +2144,72 @@ body::after {
         <div class="menu-item danger" onclick="deletePhotoFromMenu()">🗑️ 删除</div>
     </div>
 
+    <!-- AI 聊天 -->
+    <div id="ai-chat-view">
+        <div class="chat-header">
+            <button class="chat-back-btn" onclick="closeAiChat()">←</button>
+            <span>🤖 AI 助手</span>
+            <button class="ai-theme-btn" onclick="openAiThemePicker()" title="聊天背景">🎨</button>
+        </div>
+        <div id="ai-chat-container" class="chat-container"></div>
+        <div class="chat-input-row">
+            <textarea id="ai-chat-input" rows="1" placeholder="和 AI 聊聊..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMessage();}" oninput="autoResizeAiInput()"></textarea>
+            <button id="ai-send-btn" onclick="sendAiMessage()">发送</button>
+        </div>
+    </div>
+
+    <!-- 主题选择面板 -->
+    <div id="ai-theme-mask" class="confirm-mask" onclick="event.target===this&&this.style.display='none'">
+        <div class="ai-theme-panel">
+            <div class="ai-theme-title">🎨 聊天背景</div>
+            <div class="ai-theme-options">
+                <div class="ai-theme-card" onclick="applyAiBg('dark')">
+                    <div class="ai-theme-preview ai-preview-dark">🌙</div>
+                    <span>深夜模式</span>
+                </div>
+                <div class="ai-theme-card" onclick="applyAiBg('light')">
+                    <div class="ai-theme-preview ai-preview-light">☀️</div>
+                    <span>白天模式</span>
+                </div>
+                <div class="ai-theme-card" onclick="showAiColorPicker()">
+                    <div class="ai-theme-preview ai-preview-custom">🎨</div>
+                    <span>自定义</span>
+                </div>
+            </div>
+            <div id="ai-color-row" class="ai-color-row" style="display:none;">
+                <span class="ai-color-label">选一个颜色</span>
+                <div class="ai-color-swatches">
+                    <span class="ai-color-swatch" style="background:#ffecd2" onclick="applyAiBg('custom-#ffecd2')"></span>
+                    <span class="ai-color-swatch" style="background:#e8dff5" onclick="applyAiBg('custom-#e8dff5')"></span>
+                    <span class="ai-color-swatch" style="background:#d4f0f0" onclick="applyAiBg('custom-#d4f0f0')"></span>
+                    <span class="ai-color-swatch" style="background:#fce4ec" onclick="applyAiBg('custom-#fce4ec')"></span>
+                    <span class="ai-color-swatch" style="background:#fff9c4" onclick="applyAiBg('custom-#fff9c4')"></span>
+                    <span class="ai-color-swatch" style="background:#e0f7fa" onclick="applyAiBg('custom-#e0f7fa')"></span>
+                    <span class="ai-color-swatch" style="background:#f3e5f5" onclick="applyAiBg('custom-#f3e5f5')"></span>
+                    <span class="ai-color-swatch" style="background:#c8e6c9" onclick="applyAiBg('custom-#c8e6c9')"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Key 弹窗 -->
+    <div id="ai-key-mask" class="confirm-mask">
+        <div class="confirm-box" style="text-align:left;">
+            <div class="confirm-title" style="color:#333;">🔑 DeepSeek API 密钥</div>
+            <div class="confirm-text" style="text-align:left;">请输入你的 DeepSeek API Key</div>
+            <input type="password" id="ai-key-input" placeholder="sk-..." style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid #ddd;font-size:0.85rem;box-sizing:border-box;margin-bottom:14px;">
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button class="confirm-btn confirm-cancel" onclick="$('ai-key-mask').style.display='none'">取消</button>
+                <button class="confirm-btn confirm-danger" style="background:#4c6ef5;color:#fff;" onclick="saveAiKey()">确定</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 底部 Tab -->
     <nav class="bottom-tab-bar">
         <div class="tab-item" onclick="switchTab('home', this)"><span class="tab-icon">🏠</span><span class="tab-text">首页</span></div>
         <div class="tab-item" onclick="switchTab('messages', this)"><span class="tab-icon">💌</span><span class="tab-text">留言</span><span class="tab-badge" id="msg-tab-badge" style="display:none"></span></div>
-        <div class="tab-item" onclick="switchTab('period', this)"><span class="tab-icon">🌸</span><span class="tab-text">贴心</span></div>
+        <div class="tab-item" onclick="switchTab('period', this)"><span class="tab-icon">🌸</span><span class="tab-text">贴心</span><span class="tab-badge" id="period-tab-badge" style="display:none"></span></div>
         <div class="tab-item" onclick="switchTab('profile', this)"><span class="tab-icon">👤</span><span class="tab-text">我的</span></div>
     </nav>
 </div>
@@ -1965,10 +2275,21 @@ DATA._tombstones = DATA._tombstones || {};
 if(DATA.lastReadChatId == null){ DATA.lastReadChatId = 0; }
 if(DATA.myChatBg == null){ DATA.myChatBg = ''; }
 if(DATA.myAppBg == null){ DATA.myAppBg = ''; }
+if(DATA.periodAutoCycle == null){ DATA.periodAutoCycle = false; }
+if(DATA.periodAutoDuration == null){ DATA.periodAutoDuration = false; }
+if(DATA.periodDismissedAlerts == null){ DATA.periodDismissedAlerts = {}; }
+if(DATA.periodLastCaring == null){ DATA.periodLastCaring = {}; }
+if(DATA.aiKey == null){ DATA.aiKey = ''; }
+if(DATA.aiChatHistory == null){ DATA.aiChatHistory = []; }
+if(DATA.aiChatBg == null){ DATA.aiChatBg = 'light'; }
 
 function saveData(){ LSS('couple_data', DATA); cloudPush(); }
 
 function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+function escapeHtml(s){
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 /* ===== Supabase 云端实时同步 ===== */
 // Supabase 项目配置（部署时如地址/key 变化，只需改这里两行）
@@ -2891,6 +3212,18 @@ window.doLogout = function(){
 window.initApp = function(){
     currentTheme = DATA.theme || 'pink';
     switchTheme(currentTheme, true);
+    if(DATA.cardLocked){
+        ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+            if(DATA['locked_'+v]) document.body.style.setProperty(v, DATA['locked_'+v]);
+        });
+        var lockToggle = document.getElementById('card-lock-toggle');
+        if(lockToggle) lockToggle.checked = true;
+    }
+    if(DATA.glassEnabled === false){
+        document.body.classList.add('no-glass');
+        var glassToggle = document.getElementById('glass-toggle');
+        if(glassToggle) glassToggle.checked = false;
+    }
     if(DATA.startDate) updateTogetherDays();
     renderAnniversaries();
     renderDailies();
@@ -3009,8 +3342,9 @@ window.switchTab = function(tabName, el){
     $('tab-' + tabName).classList.add('active');
     document.querySelectorAll('.bottom-tab-bar .tab-item').forEach(function(t){ t.classList.remove('active'); });
     el.classList.add('active');
+    $('ai-chat-view').classList.remove('active');
     if(tabName === 'profile'){ profileNavStack = []; backToProfileDashboard(); renderAccountSwitcher(); updateProfileHeader(); }
-    if(tabName === 'messages'){ renderConversationList(); $('msg-chat-view').classList.remove('active'); }
+    if(tabName === 'messages'){ renderConversationList(); $('msg-chat-view').classList.remove('active'); $('ai-chat-view').classList.remove('active'); }
     if(tabName === 'home'){ backToDashboard(); }
     if(tabName === 'period'){ renderPeriodTracker(); }
 };
@@ -3086,6 +3420,53 @@ window.updateProfileHeader = function(){
 var periodCalendarYear, periodCalendarMonth;
 var tempPeriodSettings = null;
 var periodSelectedDate = null;
+var periodCaringTimer = null;
+
+window.calcAverageCycle = function(){
+    var recs = DATA.periodRecords || [];
+    if(recs.length < 2) return null;
+    var sorted = recs.slice().sort(function(a,b){ return new Date(a.start) - new Date(b.start); });
+    var recent = sorted.slice(Math.max(0, sorted.length - 7));
+    var gaps = [];
+    for(var i = 1; i < recent.length; i++){
+        var d1 = new Date(recent[i-1].start + 'T00:00:00');
+        var d2 = new Date(recent[i].start + 'T00:00:00');
+        gaps.push(Math.round((d2 - d1) / 86400000));
+    }
+    if(!gaps.length) return null;
+    var sum = 0; for(var j = 0; j < gaps.length; j++) sum += gaps[j];
+    return Math.round(sum / gaps.length);
+};
+
+window.calcAverageDuration = function(){
+    var recs = DATA.periodRecords || [];
+    if(!recs.length) return null;
+    var sorted = recs.slice().sort(function(a,b){ return new Date(a.start) - new Date(b.start); });
+    var recent = sorted.slice(Math.max(0, sorted.length - 7));
+    var durs = [];
+    for(var i = 0; i < recent.length; i++){
+        var r = recent[i];
+        var dur = r.duration || (DATA.periodSettings ? DATA.periodSettings.periodDays : 5);
+        durs.push(dur);
+    }
+    if(!durs.length) return null;
+    var sum = 0; for(var j = 0; j < durs.length; j++) sum += durs[j];
+    return Math.round(sum / durs.length);
+};
+
+window.getEffectiveSettings = function(){
+    var base = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    var s = { cycleDays: base.cycleDays, periodDays: base.periodDays };
+    if(DATA.periodAutoCycle){
+        var avgCyc = calcAverageCycle();
+        if(avgCyc) s.cycleDays = avgCyc;
+    }
+    if(DATA.periodAutoDuration){
+        var avgDur = calcAverageDuration();
+        if(avgDur) s.periodDays = avgDur;
+    }
+    return s;
+};
 
 window.getLastPeriod = function(){
     var recs = DATA.periodRecords || [];
@@ -3165,7 +3546,7 @@ window.renderPeriodTracker = function(){
         periodCalendarMonth = now.getMonth() + 1;
     }
     var lastPeriod = getLastPeriod();
-    var settings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    var settings = getEffectiveSettings();
     var today = new Date();
     var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
     var isGirl = DATA.myGender === 'female';
@@ -3178,7 +3559,8 @@ window.renderPeriodTracker = function(){
         phaseInfo = getPhaseInfo(phaseData.phase, phaseData.day, settings);
         nextPeriod = getNextPeriod(lastPeriod, settings);
         var ls = lastPeriod.start;
-        var le = new Date(new Date(ls+'T00:00:00').getTime() + (settings.periodDays - 1) * 86400000);
+        var actualDur = lastPeriod.duration || settings.periodDays;
+        var le = new Date(new Date(ls+'T00:00:00').getTime() + (actualDur - 1) * 86400000);
         var leStr = le.getFullYear() + '-' + pad(le.getMonth()+1) + '-' + pad(le.getDate());
         if(todayStr >= ls && todayStr <= leStr) isRecordedToday = true;
     }
@@ -3187,6 +3569,9 @@ window.renderPeriodTracker = function(){
     renderPeriodCalendar(lastPeriod, settings);
     renderPeriodInfo(nextPeriod, settings);
     renderPeriodHistory();
+    renderPeriodAlerts(lastPeriod, settings, nextPeriod, isRecordedToday);
+    renderDashboard(lastPeriod, settings, nextPeriod, phaseData);
+    updatePeriodBadge(lastPeriod, settings, nextPeriod, isRecordedToday, isGirl);
     updatePeriodActionBar(isGirl, lastPeriod, settings);
     updatePeriodSettingsBtn(isGirl);
 };
@@ -3239,6 +3624,16 @@ window.renderPeriodCalendar = function(lastPeriod, settings){
             ovKey = nextPeriod.ovulation.getFullYear()+'-'+pad(nextPeriod.ovulation.getMonth()+1)+'-'+pad(nextPeriod.ovulation.getDate());
         }
     }
+    var overtimeEndKey = null;
+    if(lastPeriod && lastPeriod.duration == null){
+        var setDur = settings.periodDays;
+        if(lastPeriod.start <= todayKey){
+            var currentDay = Math.round((today - new Date(lastPeriod.start + 'T00:00:00')) / 86400000) + 1;
+            if(currentDay > setDur){
+                overtimeEndKey = todayKey;
+            }
+        }
+    }
     var firstDay = new Date(year, month - 1, 1);
     var lastDay = new Date(year, month, 0);
     var startDow = firstDay.getDay();
@@ -3248,6 +3643,8 @@ window.renderPeriodCalendar = function(lastPeriod, settings){
     for(var i = 0; i < startDow; i++){
         h += '<span class="period-cal-day empty"></span>';
     }
+    var lastStart = lastPeriod ? lastPeriod.start : null;
+    var effPeriodDays = lastPeriod ? (lastPeriod.duration || settings.periodDays) : settings.periodDays;
     for(var d = 1; d <= totalDays; d++){
         var key = year + '-' + pad(month) + '-' + pad(d);
         var cls = 'period-cal-day';
@@ -3255,6 +3652,11 @@ window.renderPeriodCalendar = function(lastPeriod, settings){
         if(lastPeriod){
             var stage = getCalendarStage(key, lastPeriod, settings, cycleDays, periodDays, lutealDays, fertileBefore);
             if(stage) cls += ' ' + stage;
+        }
+        if(overtimeEndKey && lastStart && key >= lastStart && key <= overtimeEndKey && key > lastStart){
+            var setEnd = new Date(new Date(lastStart+'T00:00:00').getTime() + (setDur - 1) * 86400000);
+            var setEndKey = setEnd.getFullYear()+'-'+pad(setEnd.getMonth()+1)+'-'+pad(setEnd.getDate());
+            if(key > setEndKey) cls += ' overtime-day';
         }
         if(key === ovKey) cls += ' ovulation-day';
         if(key === periodSelectedDate) cls += ' selected';
@@ -3269,7 +3671,8 @@ window.getCalendarStage = function(dateKey, lastPeriod, settings, cycleDays, per
     var diff = Math.floor((target - calStart) / 86400000);
     if(diff < 0) return null;
     var dayInCycle = diff % cycleDays + 1;
-    if(dayInCycle <= periodDays){
+    var useDays = (diff < cycleDays) ? (lastPeriod.duration || periodDays) : periodDays;
+    if(dayInCycle <= useDays){
         return diff < cycleDays ? 'cal-stage period-day' : 'cal-stage predicted-day';
     }
     if(dayInCycle > cycleDays - lutealDays - fertileBefore && dayInCycle <= cycleDays - lutealDays){
@@ -3285,7 +3688,7 @@ window.changePeriodMonth = function(delta){
     periodCalendarMonth += delta;
     if(periodCalendarMonth < 1){ periodCalendarMonth = 12; periodCalendarYear--; }
     if(periodCalendarMonth > 12){ periodCalendarMonth = 1; periodCalendarYear++; }
-    renderPeriodCalendar(getLastPeriod(), DATA.periodSettings || { cycleDays: 28, periodDays: 5 });
+    renderPeriodCalendar(getLastPeriod(), getEffectiveSettings());
 };
 
 window.selectPeriodDate = function(el, dateStr){
@@ -3294,7 +3697,7 @@ window.selectPeriodDate = function(el, dateStr){
     var cells = grid.querySelectorAll('.period-cal-day');
     for(var i = 0; i < cells.length; i++) cells[i].classList.remove('selected');
     if(el) el.classList.add('selected');
-    updatePeriodActionBar(DATA.myGender === 'female', getLastPeriod(), DATA.periodSettings || { cycleDays: 28, periodDays: 5 });}
+    updatePeriodActionBar(DATA.myGender === 'female', getLastPeriod(), getEffectiveSettings()); }
 
 window.getSelectedDate = function(){
     if(periodSelectedDate) return periodSelectedDate;
@@ -3318,6 +3721,11 @@ window.endPeriodFromSelected = function(){
     if(end < start){ alert('结束日期要晚于开始日期~'); return; }
     var dur = Math.round((end - start) / 86400000) + 1;
     last.duration = dur;
+    var pSettings = DATA.periodSettings || { periodDays: 5 };
+    DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    DATA.periodSettings.periodDays = dur;
+    if(dur < pSettings.periodDays){ showCaringMsg('early'); }
+    else if(dur > pSettings.periodDays){ showCaringMsg('late'); }
     saveData();
     periodSelectedDate = null;
     renderPeriodTracker();
@@ -3331,6 +3739,7 @@ window.delayPeriodFromSelected = function(){
     var start = new Date(last.start + 'T00:00:00');
     var target = new Date(dateStr + 'T00:00:00');
     last.delayDays = Math.max(0, Math.round((target - start) / 86400000) - ((DATA.periodSettings && DATA.periodSettings.cycleDays) || 28));
+    showCaringMsg('delayed');
     saveData();
     periodSelectedDate = null;
     renderPeriodTracker();
@@ -3359,7 +3768,7 @@ window.updatePeriodActionBar = function(isGirl, lastPeriod, settings){
 window.getPeriodLastRecordEnd = function(){
     var last = getLastPeriod();
     if(!last) return null;
-    var settings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    var settings = getEffectiveSettings();
     var dur = last.duration || settings.periodDays || 5;
     var end = new Date(new Date(last.start+'T00:00:00').getTime() + (dur - 1) * 86400000);
     return end;
@@ -3376,7 +3785,101 @@ window.renderPeriodInfo = function(nextPeriod, settings){
     h += '<div class="period-info-row"><span>预计排卵</span><span class="val">' + fmtDate(nextPeriod.ovulation) + '</span></div>';
     h += '<div class="period-info-row"><span>下次经期</span><span class="val">' + fmtDate(nextPeriod.nextStart) + ' ~ ' + fmtDate(nextPeriod.nextEnd) + '</span></div>';
     h += '<div class="period-info-row"><span>周期长度</span><span class="val">' + (settings.cycleDays || 28) + ' 天</span></div>';
+    if(DATA.periodAutoCycle || DATA.periodAutoDuration){
+        var modeText = [];
+        if(DATA.periodAutoCycle) modeText.push('周期·智能');
+        if(DATA.periodAutoDuration) modeText.push('经期·智能');
+        h += '<div class="period-info-row"><span>预测模式</span><span class="val" style="color:#e91e63;font-size:0.75rem;">' + modeText.join(' + ') + '</span></div>';
+    }
     container.innerHTML = h;
+};
+
+window.generatePeriodAlerts = function(lastPeriod, settings, nextPeriod, isRecordedToday){
+    var alerts = [];
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    if(nextPeriod && nextPeriod.nextStart){
+        var nextStart = new Date(nextPeriod.nextStart + 'T00:00:00');
+        var daysUntil = Math.round((nextStart - today) / 86400000);
+        if(daysUntil >= 0 && daysUntil <= 3 && !isRecordedToday){
+            var msg = daysUntil === 0 ? '经期预计今天到来，准备好了吗？🌸' : ('经期预计 ' + daysUntil + ' 天后到来，提前备好用品哦 💕');
+            alerts.push({ id: 'approaching_' + nextPeriod.nextStart, icon: '🟡', text: msg, level: 'alert-warn' });
+        }
+    }
+    if(isRecordedToday && lastPeriod){
+        var ls = lastPeriod.start;
+        var setDur = settings.periodDays;
+        var actualDur = lastPeriod.duration || setDur;
+        var currentDay = Math.round((today - new Date(ls + 'T00:00:00')) / 86400000) + 1;
+        if(currentDay > setDur && lastPeriod.duration == null){
+            alerts.push({ id: 'overtime_' + ls, icon: '🔴', text: '经期已持续 ' + currentDay + ' 天（设置 ' + setDur + ' 天），记得去记录结束哦 🔔', level: 'alert-danger' });
+        } else if(actualDur !== setDur && lastPeriod.duration != null){
+            var diff = actualDur - setDur;
+            var diffText = diff > 0 ? ('比设置多了 ' + diff + ' 天') : ('比设置少了 ' + Math.abs(diff) + ' 天');
+            alerts.push({ id: 'duration_diff_' + ls, icon: '📊', text: '上次经期实际持续 ' + actualDur + ' 天（' + diffText + '），建议调整设置', level: 'alert-info' });
+        }
+        if(currentDay <= setDur){
+            alerts.push({ id: 'in_period_' + ls, icon: '❤️', text: '今天是经期第 ' + currentDay + ' 天，多喝热水好好休息 ❤️', level: 'alert-info' });
+        }
+    }
+    return alerts;
+};
+
+window.renderPeriodAlerts = function(lastPeriod, settings, nextPeriod, isRecordedToday){
+    var container = $('period-alerts');
+    var alerts = generatePeriodAlerts(lastPeriod, settings, nextPeriod, isRecordedToday);
+    var dismissed = DATA.periodDismissedAlerts || {};
+    var visible = [];
+    for(var i = 0; i < alerts.length; i++){
+        if(!dismissed[alerts[i].id]) visible.push(alerts[i]);
+    }
+    if(!visible.length){ container.innerHTML = ''; container.style.display = 'none'; return; }
+    var h = '';
+    for(var j = 0; j < visible.length; j++){
+        var a = visible[j];
+        h += '<div class="period-alert-item ' + a.level + '"><span class="alert-icon">' + a.icon + '</span><span class="alert-text">' + a.text + '</span><span class="alert-dismiss" onclick="dismissPeriodAlert(\'' + a.id + '\')">✓ 已知晓</span></div>';
+    }
+    container.innerHTML = h;
+    container.style.display = 'flex';
+};
+
+window.dismissPeriodAlert = function(alertId){
+    DATA.periodDismissedAlerts = DATA.periodDismissedAlerts || {};
+    DATA.periodDismissedAlerts[alertId] = true;
+    saveData();
+    renderPeriodTracker();
+};
+
+window.updatePeriodBadge = function(lastPeriod, settings, nextPeriod, isRecordedToday, isGirl){
+    var badge = $('period-tab-badge');
+    if(!isGirl){ badge.style.display = 'none'; return; }
+    var alerts = generatePeriodAlerts(lastPeriod, settings, nextPeriod, isRecordedToday);
+    var dismissed = DATA.periodDismissedAlerts || {};
+    var count = 0;
+    for(var i = 0; i < alerts.length; i++){
+        if(!dismissed[alerts[i].id]) count++;
+    }
+    if(count > 0){
+        badge.style.display = 'flex';
+        badge.textContent = count;
+    } else {
+        badge.style.display = 'none';
+    }
+};
+
+window.showCaringMsg = function(type){
+    var el = $('period-caring-msg');
+    if(periodCaringTimer) clearTimeout(periodCaringTimer);
+    var msgs = {
+        early: ['经期提早结束啦，身体在自动调节呢 ❤️', '这次结束得早，好好休息补一补哦 🥰', '提前干净了，是不是状态很不错？✨'],
+        late: ['这次延迟了几天，别担心，压力大会影响的 💕', '经期稍微长了一点，注意保暖少喝冰的 🍵', '辛苦了，这几天对自己好一点 🌸'],
+        delayed: ['周期推迟了，作息不规律会有影响哦，放松心情 🌙', '有时候推迟很正常，别太焦虑，会来的 🤗', '最近是不是太累了？多休息，顺其自然 💤']
+    };
+    var pool = msgs[type] || [];
+    var msg = pool[Math.floor(Math.random() * pool.length)] || '';
+    el.className = 'period-caring-msg show ' + type;
+    el.textContent = msg;
+    periodCaringTimer = setTimeout(function(){ el.className = 'period-caring-msg'; }, 6000);
 };
 
 window.renderPeriodHistory = function(){
@@ -3533,12 +4036,19 @@ window.openPeriodSettings = function(){
     };
     $('ps-cycleDays').textContent = tempPeriodSettings.cycleDays;
     $('ps-periodDays').textContent = tempPeriodSettings.periodDays;
+    $('ps-auto-cycle').checked = !!DATA.periodAutoCycle;
+    $('ps-auto-duration').checked = !!DATA.periodAutoDuration;
+    updateAutoHints();
+    updateStepperState();
     $('period-settings-panel').style.display = 'block';
     $('period-date-picker').style.display = 'none';
+    $('period-sub-panel').style.display = 'none';
+    $('dashboard-add-panel').style.display = 'none';
     $('period-phase-card').style.display = 'none';
     $('period-progress-bar').style.display = 'none';
     $('period-progress-legend').style.display = 'none';
-    document.querySelectorAll('#tab-period .period-calendar-section, #tab-period .period-info-card, #tab-period .period-record-btn, #tab-period .period-history-card').forEach(function(el){ el.style.display = 'none'; });
+    $('period-action-bar').style.display = 'none';
+    document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = 'none'; });
 };
 
 window.closePeriodSettings = function(){
@@ -3546,7 +4056,8 @@ window.closePeriodSettings = function(){
     $('period-phase-card').style.display = '';
     $('period-progress-bar').style.display = '';
     $('period-progress-legend').style.display = '';
-    document.querySelectorAll('#tab-period .period-calendar-section, #tab-period .period-info-card, #tab-period .period-record-btn, #tab-period .period-history-card').forEach(function(el){ el.style.display = ''; });
+    $('period-action-bar').style.display = '';
+    document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = ''; });
     tempPeriodSettings = null;
 };
 
@@ -3566,15 +4077,65 @@ window.savePeriodSettings = function(){
         cycleDays: tempPeriodSettings.cycleDays,
         periodDays: tempPeriodSettings.periodDays
     };
+    DATA.periodAutoCycle = $('ps-auto-cycle').checked;
+    DATA.periodAutoDuration = $('ps-auto-duration').checked;
     if(DATA.periodRecords && DATA.periodRecords.length > 0){
         var last = DATA.periodRecords[DATA.periodRecords.length - 1];
-        last.duration = DATA.periodSettings.periodDays;
+        if(!DATA.periodAutoDuration && last.duration == null){
+            last.duration = DATA.periodSettings.periodDays;
+        }
     }
     saveData();
     tempPeriodSettings = null;
     closePeriodSettings();
     periodCalendarYear = null; periodCalendarMonth = null;
     renderPeriodTracker();
+};
+
+window.toggleAutoSetting = function(type){
+    if(type === 'cycle'){
+        DATA.periodAutoCycle = $('ps-auto-cycle').checked;
+    } else {
+        DATA.periodAutoDuration = $('ps-auto-duration').checked;
+    }
+    updateAutoHints();
+    updateStepperState();
+};
+
+window.updateAutoHints = function(){
+    var hintC = $('ps-auto-cycle-hint');
+    var hintD = $('ps-auto-duration-hint');
+    var avgCyc = calcAverageCycle();
+    var avgDur = calcAverageDuration();
+    hintC.textContent = '';
+    hintD.textContent = '';
+    if($('ps-auto-cycle').checked && avgCyc){
+        var n = DATA.periodRecords ? DATA.periodRecords.length - 1 : 0;
+        hintC.textContent = '基于 ' + (n < 2 ? n : (n > 7 ? 7 : n)) + ' 次，平均 ' + avgCyc + ' 天';
+    }
+    if($('ps-auto-duration').checked && avgDur){
+        var m = DATA.periodRecords ? DATA.periodRecords.length : 0;
+        hintD.textContent = '基于 ' + (m > 7 ? 7 : m) + ' 次，平均 ' + avgDur + ' 天';
+    }
+};
+
+window.updateStepperState = function(){
+    var cStepper = $('cycle-stepper');
+    var dStepper = $('duration-stepper');
+    if($('ps-auto-cycle').checked){
+        var avg = calcAverageCycle();
+        if(avg){ tempPeriodSettings.cycleDays = avg; $('ps-cycleDays').textContent = avg; }
+        cStepper.style.opacity = '0.4'; cStepper.style.pointerEvents = 'none';
+    } else {
+        cStepper.style.opacity = '1'; cStepper.style.pointerEvents = 'auto';
+    }
+    if($('ps-auto-duration').checked){
+        var avg = calcAverageDuration();
+        if(avg){ tempPeriodSettings.periodDays = avg; $('ps-periodDays').textContent = avg; }
+        dStepper.style.opacity = '0.4'; dStepper.style.pointerEvents = 'none';
+    } else {
+        dStepper.style.opacity = '1'; dStepper.style.pointerEvents = 'auto';
+    }
 };
 
 /* ===== 在一起天数 ===== */
@@ -4927,8 +5488,42 @@ window.switchTheme = function(name, init){
     document.body.className = 'theme-'+name;
     currentTheme = name;
     DATA.theme = name;
+    if(DATA.cardLocked){
+        ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+            if(DATA['locked_'+v]) document.body.style.setProperty(v, DATA['locked_'+v]);
+        });
+    } else {
+        ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+            document.body.style.removeProperty(v);
+        });
+    }
     saveData();
     updateThemeBtns();
+};
+
+window.toggleCardLock = function(checked){
+    DATA.cardLocked = checked;
+    if(checked){
+        ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+            DATA['locked_'+v] = getComputedStyle(document.body).getPropertyValue(v).trim();
+        });
+    } else {
+        ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+            DATA['locked_'+v] = null;
+            document.body.style.removeProperty(v);
+        });
+    }
+    saveData();
+};
+
+window.toggleGlass = function(checked){
+    DATA.glassEnabled = checked;
+    if(checked){
+        document.body.classList.remove('no-glass');
+    } else {
+        document.body.classList.add('no-glass');
+    }
+    saveData();
 };
 
 function updateThemeBtns(){
@@ -5284,6 +5879,357 @@ window.initCustomSelect = function(wrapId, storageKey, defaultOpts, hiddenSelect
 })();
 
 showEmojiPopover = window.showEmojiPopover;
+
+var _dashLongPressTimer = null;
+var _dashLongPressIdx = -1;
+
+window.renderDashboard = function(lastPeriod, settings, nextPeriod, phaseData){
+    var container = $('dashboard-container');
+    if(!container) return;
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    var cycleDays = settings ? settings.cycleDays : 28;
+    var periodDaysVal = settings ? settings.periodDays : 5;
+    var recCount = (DATA.periodRecords || []).length;
+    var cycleNum = '—';
+    var periodNum = '—';
+    var predictNum = '—';
+    if(lastPeriod){
+        var ls = new Date(lastPeriod.start + 'T00:00:00');
+        var diffDays = Math.round((today - ls) / 86400000);
+        var cycleDay = diffDays + 1;
+        if(cycleDay <= cycleDays) cycleNum = cycleDay + '/' + cycleDays;
+        var actualDur = lastPeriod.duration || periodDaysVal;
+        if(diffDays >= 0 && diffDays < actualDur){
+            periodNum = (diffDays + 1) + '/' + actualDur;
+        } else {
+            periodNum = '0/' + actualDur;
+        }
+        if(nextPeriod && nextPeriod.nextStart){
+            var nextStart = new Date(nextPeriod.nextStart + 'T00:00:00');
+            var daysUntil = Math.round((nextStart - today) / 86400000);
+            predictNum = daysUntil >= 0 ? daysUntil + '天' : '—';
+        }
+    }
+    var html = '';
+    html += '<div class="dash-circle" onclick="openSubPanel(\'cycle\')"><span class="emoji">🔄</span><span class="num">' + cycleNum + '</span><span class="lbl">周期</span></div>';
+    html += '<div class="dash-circle" onclick="openSubPanel(\'period\')"><span class="emoji">🩸</span><span class="num">' + periodNum + '</span><span class="lbl">经期</span></div>';
+    html += '<div class="dash-circle" onclick="openSubPanel(\'predict\')"><span class="emoji">📅</span><span class="num">' + predictNum + '</span><span class="lbl">预测</span></div>';
+    html += '<div class="dash-circle" onclick="openSubPanel(\'history\')"><span class="emoji">📋</span><span class="num">' + recCount + '条</span><span class="lbl">历史</span></div>';
+    html += '<div class="dash-circle add-circle" onclick="openAddPanel()"><span class="emoji">➕</span><span class="lbl">添加</span></div>';
+    var customItems = DATA.dashboardItems || [];
+    for(var i = 0; i < customItems.length; i++){
+        var item = customItems[i];
+        html += '<div class="dash-circle dash-custom" data-custom-idx="' + i + '" onclick="openSubPanel(\'custom_' + i + '\')" ontouchstart="dashTouchStart(event,' + i + ')" ontouchend="dashTouchEnd(event)" oncontextmenu="event.preventDefault();deleteDashboardItem(' + i + ');return false;"><span class="emoji">' + item.emoji + '</span><span class="num">' + (item.val || '') + '</span><span class="lbl">' + item.label + '</span></div>';
+    }
+    container.innerHTML = html;
+};
+
+window.dashTouchStart = function(e, idx){
+    _dashLongPressIdx = idx;
+    _dashLongPressTimer = setTimeout(function(){
+        _dashLongPressTimer = null;
+        deleteDashboardItem(_dashLongPressIdx);
+    }, 800);
+};
+
+window.dashTouchEnd = function(e){
+    if(_dashLongPressTimer){ clearTimeout(_dashLongPressTimer); _dashLongPressTimer = null; }
+};
+
+window.openSubPanel = function(id){
+    var title = '';
+    var body = '';
+    var lastPeriod = getLastPeriod();
+    var settings = getEffectiveSettings();
+    var nextPeriod = lastPeriod ? getNextPeriod(lastPeriod, settings) : null;
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    if(id === 'cycle'){
+        title = '🔄 周期';
+        if(lastPeriod){
+            var ls = new Date(lastPeriod.start + 'T00:00:00');
+            var diffDays = Math.round((today - ls) / 86400000);
+            var cycleDay = diffDays + 1;
+            var cycleDaysVal = settings.cycleDays || 28;
+            body = '<div class="sub-info-card"><div class="sub-info-row"><span>周期天数</span><span class="val">' + cycleDaysVal + ' 天</span></div><div class="sub-info-row"><span>当前第</span><span class="val">' + cycleDay + ' 天</span></div><div class="sub-info-row"><span>下次经期预计</span><span class="val">' + (nextPeriod ? nextPeriod.nextStart : '暂无') + '</span></div><button class="sub-goto-btn" onclick="openPeriodSettings()">⚙️ 调整周期设置</button></div>';
+        } else {
+            body = '<div style="text-align:center;color:#bbb;padding:20px;">暂无数据，请先记录经期</div>';
+        }
+    } else if(id === 'period'){
+        title = '🩸 经期';
+        if(lastPeriod){
+            var ls2 = new Date(lastPeriod.start + 'T00:00:00');
+            var diffDays2 = Math.round((today - ls2) / 86400000);
+            var actualDur = lastPeriod.duration || settings.periodDays;
+            var periodDaysVal2 = settings.periodDays || 5;
+            body = '<div class="sub-info-card"><div class="sub-info-row"><span>经期持续</span><span class="val">' + periodDaysVal2 + ' 天</span></div><div class="sub-info-row"><span>上次经期</span><span class="val">' + lastPeriod.start + ' ~ ' + fmtDate(new Date(ls2.getTime() + (actualDur - 1) * 86400000)) + '</span></div>';
+            if(diffDays2 >= 0 && diffDays2 < actualDur){
+                body += '<div class="sub-info-row"><span>今天</span><span class="val" style="color:#e91e63;">经期第 ' + (diffDays2 + 1) + ' 天</span></div>';
+            } else {
+                body += '<div class="sub-info-row"><span>当前</span><span class="val">不在经期中</span></div>';
+            }
+            body += '<button class="sub-goto-btn" onclick="openPeriodSettings()">⚙️ 调整经期设置</button></div>';
+        } else {
+            body = '<div style="text-align:center;color:#bbb;padding:20px;">暂无数据，请先记录经期</div>';
+        }
+    } else if(id === 'predict'){
+        title = '📅 预测';
+        if(nextPeriod){
+            body = '<div class="sub-info-card">';
+            body += '<div class="sub-info-row"><span>本次经期</span><span class="val">' + fmtDate(nextPeriod.currStart) + ' ~ ' + fmtDate(nextPeriod.currEnd) + '</span></div>';
+            body += '<div class="sub-info-row"><span>预计排卵</span><span class="val">' + fmtDate(nextPeriod.ovulation) + '</span></div>';
+            body += '<div class="sub-info-row"><span>下次经期</span><span class="val">' + fmtDate(nextPeriod.nextStart) + ' ~ ' + fmtDate(nextPeriod.nextEnd) + '</span></div>';
+            body += '<div class="sub-info-row"><span>周期长度</span><span class="val">' + (settings.cycleDays || 28) + ' 天</span></div>';
+            body += '</div>';
+        } else {
+            body = '<div style="text-align:center;color:#bbb;padding:20px;">暂无预测数据</div>';
+        }
+    } else if(id === 'history'){
+        title = '📋 历史';
+        var recs = DATA.periodRecords || [];
+        if(!recs.length){
+            body = '<div style="text-align:center;color:#bbb;padding:20px;">还没有记录</div>';
+        } else {
+            body = '<div class="sub-info-card">';
+            var sorted = recs.slice().sort(function(a,b){ return new Date(b.start) - new Date(a.start); });
+            var showCount = Math.min(20, sorted.length);
+            for(var ri = 0; ri < showCount; ri++){
+                var r = sorted[ri];
+                var dur = r.duration || (DATA.periodSettings ? DATA.periodSettings.periodDays : 5);
+                var endDate = new Date(new Date(r.start+'T00:00:00').getTime() + (dur - 1) * 86400000);
+                body += '<div class="sub-info-row"><span>' + r.start + ' ~ ' + fmtDate(endDate) + '</span><span class="val">' + dur + '天</span></div>';
+            }
+            if(sorted.length > showCount) body += '<div style="text-align:center;color:#999;font-size:0.75rem;padding-top:8px;">仅显示最近 ' + showCount + ' 条</div>';
+            body += '</div>';
+        }
+    } else if(id.startsWith('custom_')){
+        var idx = parseInt(id.split('_')[1]);
+        var customItems = DATA.dashboardItems || [];
+        if(customItems[idx]){
+            var item = customItems[idx];
+            title = item.emoji + ' ' + item.label;
+            body = '<div class="sub-info-card"><div style="text-align:center;padding:16px;color:#999;">记录追踪功能开发中...</div></div>';
+        } else {
+            title = '未知';
+            body = '<div style="text-align:center;color:#bbb;padding:20px;">数据不存在</div>';
+        }
+    }
+    $('sub-panel-title').textContent = title;
+    $('sub-panel-body').innerHTML = body;
+    $('period-sub-panel').style.display = 'block';
+    $('period-phase-card').style.display = 'none';
+    $('period-progress-bar').style.display = 'none';
+    $('period-progress-legend').style.display = 'none';
+    $('period-action-bar').style.display = 'none';
+    document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = 'none'; });
+};
+
+window.closeSubPanel = function(){
+    $('period-sub-panel').style.display = 'none';
+    $('period-phase-card').style.display = '';
+    $('period-progress-bar').style.display = '';
+    $('period-progress-legend').style.display = '';
+    $('period-action-bar').style.display = '';
+    document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = ''; });
+};
+
+window.openAddPanel = function(){
+    var list = $('add-panel-list');
+    var presets = [
+        {emoji: '💊', label: '用药'},
+        {emoji: '🤒', label: '症状'},
+        {emoji: '😴', label: '睡眠'},
+        {emoji: '😤', label: '情绪'},
+        {emoji: '📝', label: '备注'},
+        {emoji: '🔥', label: '体温'},
+        {emoji: '💑', label: '亲密'},
+        {emoji: '🏃', label: '运动'}
+    ];
+    var html = '';
+    for(var i = 0; i < presets.length; i++){
+        var p = presets[i];
+        html += '<div class="dash-circle" style="cursor:pointer;" onclick="addDashboardItem(\'' + p.emoji + '\',\'' + p.label + '\')"><span class="emoji">' + p.emoji + '</span><span class="lbl">' + p.label + '</span></div>';
+    }
+    list.innerHTML = html;
+    $('dashboard-add-panel').style.display = 'block';
+    $('period-phase-card').style.display = 'none';
+    $('period-progress-bar').style.display = 'none';
+    $('period-progress-legend').style.display = 'none';
+    $('period-action-bar').style.display = 'none';
+    document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = 'none'; });
+};
+
+window.closeAddPanel = function(){
+    $('dashboard-add-panel').style.display = 'none';
+    $('period-phase-card').style.display = '';
+    $('period-progress-bar').style.display = '';
+    $('period-progress-legend').style.display = '';
+    $('period-action-bar').style.display = '';
+    document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = ''; });
+};
+
+window.addDashboardItem = function(emoji, label){
+    if(!DATA.dashboardItems) DATA.dashboardItems = [];
+    DATA.dashboardItems.push({emoji: emoji, label: label, val: ''});
+    saveData();
+    closeAddPanel();
+    var lastPeriod = getLastPeriod();
+    var settings = getEffectiveSettings();
+    var nextPeriod = lastPeriod ? getNextPeriod(lastPeriod, settings) : null;
+    renderDashboard(lastPeriod, settings, nextPeriod, {day:0,phase:'none'});
+};
+
+window.deleteDashboardItem = function(idx){
+    if(!DATA.dashboardItems) return;
+    if(idx < 0 || idx >= DATA.dashboardItems.length) return;
+    var name = DATA.dashboardItems[idx].label;
+    if(!confirm('确定删除「' + name + '」吗？')) return;
+    DATA.dashboardItems.splice(idx, 1);
+    saveData();
+    var lastPeriod = getLastPeriod();
+    var settings = getEffectiveSettings();
+    var nextPeriod = lastPeriod ? getNextPeriod(lastPeriod, settings) : null;
+    renderDashboard(lastPeriod, settings, nextPeriod, {day:0,phase:'none'});
+};
+
+/* ===== AI 聊天 ===== */
+window.openAiChat = function(){
+    $('ai-chat-view').classList.add('active');
+    applyAiBg(DATA.aiChatBg);
+    renderAiChat();
+    setTimeout(function(){ $('ai-chat-input').focus(); }, 200);
+};
+
+window.closeAiChat = function(){
+    $('ai-chat-view').classList.remove('active');
+};
+
+window.renderAiChat = function(){
+    var container = $('ai-chat-container');
+    var history = DATA.aiChatHistory || [];
+    if(!history.length){
+        container.innerHTML = '<div style="text-align:center;color:#bbb;padding:60px 0;font-size:0.9rem;">🤖 你好，有什么可以帮你的？</div>';
+        return;
+    }
+    var h = '';
+    for(var i = 0; i < history.length; i++){
+        var m = history[i];
+        var cls = 'ai-msg ' + m.role;
+        h += '<div class="' + cls + '">' + escapeHtml(m.content) + '</div>';
+    }
+    container.innerHTML = h;
+    aiScrollToBottom();
+};
+
+window.sendAiMessage = function(){
+    var input = $('ai-chat-input');
+    var text = input.value.trim();
+    if(!text) return;
+    if(!DATA.aiKey){ alert('请先在「我的 → 设置 → AI API 密钥」中配置 DeepSeek API Key'); return; }
+    input.value = '';
+    autoResizeAiInput();
+    $('ai-send-btn').disabled = true;
+    var history = DATA.aiChatHistory || [];
+    history.push({ role: 'user', content: text });
+    DATA.aiChatHistory = history;
+    saveData();
+    renderAiChat();
+
+    var loadingEl = document.createElement('div');
+    loadingEl.className = 'ai-msg bot loading';
+    loadingEl.textContent = '思考中...';
+    $('ai-chat-container').appendChild(loadingEl);
+    aiScrollToBottom();
+
+    var messages = [{ role: 'system', content: '你是一个温暖贴心的AI助手，像一个好朋友一样和用户聊天。回复简洁友好，用中文。' }];
+    var recentHistory = history.slice(-20);
+    for(var i = 0; i < recentHistory.length; i++){
+        messages.push({ role: recentHistory[i].role, content: recentHistory[i].content });
+    }
+
+    fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DATA.aiKey },
+        body: JSON.stringify({ model: 'deepseek-chat', messages: messages, stream: false, temperature: 0.8, max_tokens: 2000 })
+    })
+    .then(function(res){
+        if(!res.ok){ return res.json().then(function(e){ throw new Error(e.error ? e.error.message : '请求失败('+res.status+')'); }); }
+        return res.json();
+    })
+    .then(function(data){
+        if(loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+        var reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '抱歉，我没有理解你的意思 😅';
+        history.push({ role: 'assistant', content: reply });
+        if(history.length > 200){ history = history.slice(-200); }
+        DATA.aiChatHistory = history;
+        saveData();
+        renderAiChat();
+    })
+    .catch(function(err){
+        if(loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+        var errMsg = '出错了: ' + (err.message || '网络异常，请稍后再试');
+        history.push({ role: 'assistant', content: errMsg });
+        if(history.length > 200){ history = history.slice(-200); }
+        DATA.aiChatHistory = history;
+        saveData();
+        renderAiChat();
+    })
+    .finally(function(){
+        $('ai-send-btn').disabled = false;
+        $('ai-chat-input').focus();
+    });
+};
+
+window.autoResizeAiInput = function(){
+    var ta = $('ai-chat-input');
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
+};
+
+window.openAiThemePicker = function(){
+    $('ai-theme-mask').style.display = 'flex';
+    $('ai-color-row').style.display = 'none';
+};
+
+window.applyAiBg = function(mode){
+    var v = $('ai-chat-view');
+    v.classList.remove('bg-dark','bg-light','bg-custom');
+    if(mode.indexOf('custom-') === 0){
+        v.classList.add('bg-custom');
+        v.style.background = mode.slice(7);
+    } else {
+        v.style.background = '';
+        v.classList.add('bg-'+mode);
+    }
+    DATA.aiChatBg = mode;
+    saveData();
+    $('ai-theme-mask').style.display = 'none';
+};
+
+window.showAiColorPicker = function(){
+    $('ai-color-row').style.display = 'block';
+};
+
+window.openAiKeyDialog = function(){
+    $('ai-key-input').value = DATA.aiKey || '';
+    $('ai-key-mask').style.display = 'flex';
+};
+
+window.saveAiKey = function(){
+    var key = $('ai-key-input').value.trim();
+    if(!key){ alert('请输入 API Key'); return; }
+    DATA.aiKey = key;
+    saveData();
+    $('ai-key-mask').style.display = 'none';
+    $('ai-key-input').value = '';
+    alert('API Key 已保存 ✅');
+};
+
+function aiScrollToBottom(){
+    var container = $('ai-chat-container');
+    if(container) container.scrollTop = container.scrollHeight;
+}
 
 })();
 </script>
