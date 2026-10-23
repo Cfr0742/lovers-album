@@ -2880,7 +2880,9 @@ function cloudSyncNow(){
             if(!periodSame){
                 var delP = sb.from('period_records').delete().eq('couple_id', coupleId);
                 tasks.push(delP.then(function(){
-                    var insP = (DATA.periodRecords||[]).map(function(p){ return periodToRow(p, coupleId); });
+                    var tombPeriods = tomb.periodRecords || {};
+                    var filtered = (DATA.periodRecords||[]).filter(function(p){ return !tombPeriods[p.start]; });
+                    var insP = filtered.map(function(p){ return periodToRow(p, coupleId); });
                     if(insP.length){ return sb.from('period_records').insert(insP); }
                     return null;
                 }));
@@ -6040,9 +6042,10 @@ window.deletePeriodRecord = function(startDate){
     saveData();
     try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     if(sb && cloudSpace){
-        cloudPushTombstone().then(function(){
-            return trackCloudDelete(sb.from('period_records').delete().eq('start', startDate).eq('couple_id', cloudSpace.couple_id));
-        });
+        Promise.all([
+            cloudPushTombstone(),
+            trackCloudDelete(sb.from('period_records').delete().eq('start', startDate).eq('couple_id', cloudSpace.couple_id))
+        ]);
     }
     if($('period-sub-panel').style.display === 'block'){
         openSubPanel('history');
