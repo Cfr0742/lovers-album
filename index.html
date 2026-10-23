@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -268,8 +268,8 @@ body::after {
 /* ===== 主页面 ===== */
 #main-screen { max-width:500px; margin:0 auto; left:50%; transform:translateX(-50%); width:100%; }
 
-.tab-content { flex:1; overflow-y:auto; padding:12px 12px 8px; -webkit-overflow-scrolling:touch; }
-#tab-period { padding-bottom:12px; gap:6px; min-height:100%; }
+.tab-content { flex:1; overflow-y:auto; padding:12px 12px 74px; -webkit-overflow-scrolling:touch; }
+#tab-period { padding-bottom:6px; gap:6px; min-height:100%; overflow:hidden; }
 .tab-page { display:none; flex-direction:column; gap:14px; }
 .tab-page.active { display:flex; }
 
@@ -1430,6 +1430,7 @@ body.no-glass * {
 .period-alert-item .alert-dismiss { cursor:pointer;font-size:0.75rem;color:#999;padding:4px 10px;border-radius:10px;border:1px solid rgba(128,128,128,0.2);background:rgba(255,255,255,0.6);white-space:nowrap;flex-shrink:0; }
 .period-alert-item .alert-dismiss:active { background:#eee; }
 @keyframes fadeInDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+#period-alerts { position:fixed; top:80px; left:50%; transform:translateX(-50%); max-width:480px; width:calc(100% - 24px); z-index:190; display:none; flex-direction:column; gap:8px; }
 .period-caring-msg { text-align:center;font-size:0.82rem;padding:8px 12px;border-radius:10px;animation:fadeInDown 0.4s ease-out;display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);max-width:480px;width:calc(100% - 24px);z-index:200; }
 .period-caring-msg.show { display:block; }
 .period-caring-msg.early { background:rgba(129,199,132,0.25);color:#2e7d32; }
@@ -1475,6 +1476,8 @@ body.no-glass * {
 .sub-info-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.5); font-size:0.85rem; color:#555; }
 .sub-info-row:last-child { border-bottom:none; }
 .sub-info-row .val { font-weight:600; color:var(--theme-accent); }
+.history-del { cursor:pointer; font-size:0.85rem; color:#ccc; padding:2px 6px; margin-left:8px; flex-shrink:0; }
+.history-del:active { color:#e53935; }
 .sub-goto-btn { display:block; width:100%; margin-top:12px; padding:10px; border:none; border-radius:12px; background:var(--theme-gradient); color:#fff; font-size:0.85rem; cursor:pointer; }
 .period-history-card {
     background: linear-gradient(145deg, rgba(255,220,230,0.40), rgba(255,255,255,0.10));
@@ -2002,7 +2005,7 @@ body.no-glass * {
                 <button class="period-settings-btn" id="period-settings-btn" onclick="openPeriodSettings()" title="设置">⚙️</button>
             </div>
             <div class="period-page" id="period-page-content">
-                <div id="period-alerts" style="display:none;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
+                <div id="period-alerts" style="display:none;"></div>
                 <div class="period-phase-card" id="period-phase-card">
                     <div class="period-phase-day" id="period-phase-day"></div>
                     <div class="period-phase-num" id="period-phase-num"></div>
@@ -2076,14 +2079,6 @@ body.no-glass * {
                         <span id="ps-auto-duration-hint" style="font-size:0.72rem;color:#999;margin-left:4px;"></span>
                     </div>
                     <button class="period-save-settings" onclick="savePeriodSettings()">保存设置</button>
-                    <div class="period-info-card" id="period-info-card">
-                        <h3>📊 预测信息</h3>
-                        <div id="period-info-content"></div>
-                    </div>
-                    <div class="period-history-card" id="period-history-card">
-                        <h3>📝 历史记录</h3>
-                        <div id="period-history-list"></div>
-                    </div>
                 </div>
                 <!-- 日期选择面板 -->
                 <div id="period-date-picker" style="display:none;">
@@ -3337,7 +3332,9 @@ function startHeartbeat(){
 }
 
 /* ===== Tab 切换 ===== */
+var _periodInit = false;
 window.switchTab = function(tabName, el){
+    if(el.classList.contains('active')) return;
     document.querySelectorAll('.tab-page').forEach(function(p){ p.classList.remove('active'); });
     $('tab-' + tabName).classList.add('active');
     document.querySelectorAll('.bottom-tab-bar .tab-item').forEach(function(t){ t.classList.remove('active'); });
@@ -3346,7 +3343,7 @@ window.switchTab = function(tabName, el){
     if(tabName === 'profile'){ profileNavStack = []; backToProfileDashboard(); renderAccountSwitcher(); updateProfileHeader(); }
     if(tabName === 'messages'){ renderConversationList(); $('msg-chat-view').classList.remove('active'); $('ai-chat-view').classList.remove('active'); }
     if(tabName === 'home'){ backToDashboard(); }
-    if(tabName === 'period'){ renderPeriodTracker(); }
+    if(tabName === 'period' && !_periodInit){ _periodInit = true; renderPeriodTracker(); }
 };
 
 /* ===== 首页子页切换 ===== */
@@ -3570,6 +3567,7 @@ window.renderPeriodTracker = function(){
     renderPeriodInfo(nextPeriod, settings);
     renderPeriodHistory();
     renderPeriodAlerts(lastPeriod, settings, nextPeriod, isRecordedToday);
+    $('dashboard-container').style.display = '';
     renderDashboard(lastPeriod, settings, nextPeriod, phaseData);
     updatePeriodBadge(lastPeriod, settings, nextPeriod, isRecordedToday, isGirl);
     updatePeriodActionBar(isGirl, lastPeriod, settings);
@@ -3776,6 +3774,7 @@ window.getPeriodLastRecordEnd = function(){
 
 window.renderPeriodInfo = function(nextPeriod, settings){
     var container = $('period-info-content');
+    if(!container) return;
     if(!nextPeriod){
         container.innerHTML = '<div class="period-info-row"><span>暂无预测数据</span><span class="val">请先记录经期</span></div>';
         return;
@@ -3884,6 +3883,7 @@ window.showCaringMsg = function(type){
 
 window.renderPeriodHistory = function(){
     var list = $('period-history-list');
+    if(!list) return;
     var recs = DATA.periodRecords || [];
     if(!recs.length){
         list.innerHTML = '<div style="text-align:center;color:#bbb;padding:16px 0;font-size:0.85rem;">还没有记录，开始记录吧 🌸</div>';
@@ -3897,7 +3897,7 @@ window.renderPeriodHistory = function(){
         var end = new Date(new Date(r.start+'T00:00:00').getTime() + (dur - 1) * 86400000);
         h += '<div class="period-history-item">';
         h += '<span>' + r.start + ' ~ ' + fmtDate(end) + '  <span style="color:#e91e63;font-size:0.8rem;">经期' + dur + '天</span></span>';
-        h += '<span class="del-btn" onclick="deletePeriodRecord(' + i + ')">✕</span>';
+        h += '<span class="del-btn" onclick="event.stopPropagation();deletePeriodRecord(\'' + r.start + '\')">✕</span>';
         h += '</div>';
     }
     list.innerHTML = h;
@@ -3922,6 +3922,7 @@ window.recordPeriodStart = function(dateStr){
     recs.push({ start: startStr, duration: periodDays });
     if(recs.length > 50) recs.shift();
     saveData();
+    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     renderPeriodTracker();
     return true;
 };
@@ -3995,30 +3996,6 @@ window.confirmPeriodDate = function(){
     if(ok !== false) closePeriodDatePicker();
 };
 
-window.deletePeriodRecord = function(index){
-    if(DATA.myGender !== 'female') return;
-    var recs = DATA.periodRecords || [];
-    var sorted = recs.slice().sort(function(a,b){ return new Date(b.start) - new Date(a.start); });
-    if(index < 0 || index >= sorted.length) return;
-    var target = sorted[index];
-    for(var i = recs.length - 1; i >= 0; i--){
-        if(recs[i].start === target.start){
-            recs.splice(i, 1);
-            break;
-        }
-    }
-    tombstoneMark('periodRecords', target.start);
-    saveData();
-    // 先确保墓碑上云，再删云端行（与其它类型一致，防止并集拉取拉回）
-    if(sb && cloudSpace){
-        cloudPushTombstone().then(function(){
-            return trackCloudDelete(sb.from('period_records').delete().eq('start', target.start).eq('couple_id', cloudSpace.couple_id));
-        });
-    }
-    periodCalendarYear = null; periodCalendarMonth = null;
-    renderPeriodTracker();
-};
-
 window.updatePeriodRecordBtn = function(isGirl, isRecordedToday, lastPeriod, settings){
     updatePeriodActionBar(isGirl, lastPeriod, settings);
 };
@@ -4048,10 +4025,12 @@ window.openPeriodSettings = function(){
     $('period-progress-bar').style.display = 'none';
     $('period-progress-legend').style.display = 'none';
     $('period-action-bar').style.display = 'none';
+    $('dashboard-container').style.display = 'none';
     document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = 'none'; });
 };
 
 window.closePeriodSettings = function(){
+    $('dashboard-container').style.display = '';
     $('period-settings-panel').style.display = 'none';
     $('period-phase-card').style.display = '';
     $('period-progress-bar').style.display = '';
@@ -5891,6 +5870,15 @@ window.renderDashboard = function(lastPeriod, settings, nextPeriod, phaseData){
     var cycleDays = settings ? settings.cycleDays : 28;
     var periodDaysVal = settings ? settings.periodDays : 5;
     var recCount = (DATA.periodRecords || []).length;
+    if(!recCount){
+        try {
+            var cached = JSON.parse(localStorage.getItem('couple_data'));
+            if(cached && cached.periodRecords && cached.periodRecords.length){
+                DATA.periodRecords = cached.periodRecords;
+                recCount = cached.periodRecords.length;
+            }
+        } catch(e){}
+    }
     var cycleNum = '—';
     var periodNum = '—';
     var predictNum = '—';
@@ -5989,6 +5977,15 @@ window.openSubPanel = function(id){
         title = '📋 历史';
         var recs = DATA.periodRecords || [];
         if(!recs.length){
+            try {
+                var cached = JSON.parse(localStorage.getItem('couple_data'));
+                if(cached && cached.periodRecords && cached.periodRecords.length){
+                    DATA.periodRecords = cached.periodRecords;
+                    recs = cached.periodRecords;
+                }
+            } catch(e){}
+        }
+        if(!recs.length){
             body = '<div style="text-align:center;color:#bbb;padding:20px;">还没有记录</div>';
         } else {
             body = '<div class="sub-info-card">';
@@ -5998,7 +5995,7 @@ window.openSubPanel = function(id){
                 var r = sorted[ri];
                 var dur = r.duration || (DATA.periodSettings ? DATA.periodSettings.periodDays : 5);
                 var endDate = new Date(new Date(r.start+'T00:00:00').getTime() + (dur - 1) * 86400000);
-                body += '<div class="sub-info-row"><span>' + r.start + ' ~ ' + fmtDate(endDate) + '</span><span class="val">' + dur + '天</span></div>';
+                body += '<div class="sub-info-row"><span>' + r.start + ' ~ ' + fmtDate(endDate) + '</span><span class="val">' + dur + '天</span><span class="history-del" onclick="event.stopPropagation();deletePeriodRecord(\'' + r.start + '\')">✕</span></div>';
             }
             if(sorted.length > showCount) body += '<div style="text-align:center;color:#999;font-size:0.75rem;padding-top:8px;">仅显示最近 ' + showCount + ' 条</div>';
             body += '</div>';
@@ -6022,16 +6019,41 @@ window.openSubPanel = function(id){
     $('period-progress-bar').style.display = 'none';
     $('period-progress-legend').style.display = 'none';
     $('period-action-bar').style.display = 'none';
+    $('dashboard-container').style.display = 'none';
     document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = 'none'; });
 };
 
 window.closeSubPanel = function(){
     $('period-sub-panel').style.display = 'none';
+    $('dashboard-container').style.display = '';
     $('period-phase-card').style.display = '';
     $('period-progress-bar').style.display = '';
     $('period-progress-legend').style.display = '';
     $('period-action-bar').style.display = '';
     document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = ''; });
+};
+
+window.deletePeriodRecord = function(startDate){
+    if(!confirm('确定删除 ' + startDate + ' 的经期记录吗？')) return;
+    var recs = DATA.periodRecords || [];
+    for(var i = recs.length - 1; i >= 0; i--){
+        if(recs[i].start === startDate){ recs.splice(i, 1); break; }
+    }
+    tombstoneMark('periodRecords', startDate);
+    saveData();
+    if(sb && cloudSpace){
+        cloudPushTombstone().then(function(){
+            return trackCloudDelete(sb.from('period_records').delete().eq('start', startDate).eq('couple_id', cloudSpace.couple_id));
+        });
+    }
+    // 子面板打开中 → 原地刷新；否则全量渲染
+    if($('period-sub-panel').style.display === 'block'){
+        openSubPanel('history');
+        renderPeriodCalendar(getLastPeriod(), getEffectiveSettings());
+    } else {
+        periodCalendarYear = null; periodCalendarMonth = null;
+        renderPeriodTracker();
+    }
 };
 
 window.openAddPanel = function(){
@@ -6057,11 +6079,13 @@ window.openAddPanel = function(){
     $('period-progress-bar').style.display = 'none';
     $('period-progress-legend').style.display = 'none';
     $('period-action-bar').style.display = 'none';
+    $('dashboard-container').style.display = 'none';
     document.querySelectorAll('#tab-period .period-calendar-section').forEach(function(el){ el.style.display = 'none'; });
 };
 
 window.closeAddPanel = function(){
     $('dashboard-add-panel').style.display = 'none';
+    $('dashboard-container').style.display = '';
     $('period-phase-card').style.display = '';
     $('period-progress-bar').style.display = '';
     $('period-progress-legend').style.display = '';
