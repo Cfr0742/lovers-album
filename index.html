@@ -3922,8 +3922,20 @@ window.recordPeriodStart = function(dateStr){
     }
     recs.push({ start: startStr, duration: periodDays });
     if(recs.length > 50) recs.shift();
-    saveData();
     try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
+    var verified = false;
+    try {
+        var back = JSON.parse(localStorage.getItem('couple_data'));
+        if(back && back.periodRecords){
+            for(var vi = 0; vi < back.periodRecords.length; vi++){
+                if(back.periodRecords[vi].start === startStr){ verified = true; break; }
+            }
+        }
+    } catch(e){}
+    if(!verified){
+        try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
+    }
+    saveData();
     renderPeriodTracker();
     return true;
 };
