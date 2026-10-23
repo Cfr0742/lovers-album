@@ -2777,11 +2777,11 @@ function cloudSyncNow(){
         });
         DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
 
-        // = 合并经期记录（云端 ∪ 本地，按 start 去重） =
+        // = 合并经期记录：云端优先，本地只保留刚创建尚未同步的新记录(_new标记)
         var periodMap = {};
         cloudPeriods.forEach(function(p){ if(p && p.start && !tombPeriods[p.start]){ periodMap[p.start] = p; } });
         (DATA.periodRecords || []).forEach(function(p){
-            if(p && p.start && !tombPeriods[p.start]){ periodMap[p.start] = p; }
+            if(p && p.start && !tombPeriods[p.start] && !periodMap[p.start] && p._new){ periodMap[p.start] = p; }
         });
         DATA.periodRecords = Object.keys(periodMap).map(function(k){ return periodMap[k]; });
 
@@ -2882,8 +2882,11 @@ function cloudSyncNow(){
                 tasks.push(delP.then(function(){
                     var tombPeriods = tomb.periodRecords || {};
                     var filtered = (DATA.periodRecords||[]).filter(function(p){ return !tombPeriods[p.start]; });
-                    var insP = filtered.map(function(p){ return periodToRow(p, coupleId); });
-                    if(insP.length){ return sb.from('period_records').insert(insP); }
+                    if(filtered.length){
+                        filtered.forEach(function(p){ delete p._new; });
+                        var insP = filtered.map(function(p){ return periodToRow(p, coupleId); });
+                        return sb.from('period_records').insert(insP);
+                    }
                     return null;
                 }));
             }
@@ -3922,7 +3925,7 @@ window.recordPeriodStart = function(dateStr){
             return false;
         }
     }
-    recs.push({ start: startStr, duration: periodDays });
+    recs.push({ start: startStr, duration: periodDays, _new: true });
     if(recs.length > 50) recs.shift();
     try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     var verified = false;
@@ -6051,10 +6054,9 @@ window.deletePeriodRecord = function(startDate){
     saveData();
     try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     if(sb && cloudSpace){
-        Promise.all([
-            cloudPushTombstone(),
-            trackCloudDelete(sb.from('period_records').delete().eq('start', startDate).eq('couple_id', cloudSpace.couple_id))
-        ]);
+        cloudPushTombstone().then(function(){
+            return trackCloudDelete(sb.from('period_records').delete().eq('start', startDate).eq('couple_id', cloudSpace.couple_id));
+        });
     }
     if($('period-sub-panel').style.display === 'block'){
         openSubPanel('history');
