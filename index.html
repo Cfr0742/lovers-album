@@ -2811,6 +2811,8 @@ function cloudSyncNow(){
             DATA.periodSettings.cardLocked = DATA.cardLocked || false;
             DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
             DATA.periodSettings.appBg = DATA.myAppBg || '';
+            DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
+            DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
             });
@@ -2836,6 +2838,9 @@ function cloudSyncNow(){
             if(cloudSettings.cardLocked != null){ DATA.cardLocked = cloudSettings.cardLocked; }
             if(cloudSettings.glassEnabled != null){ DATA.glassEnabled = cloudSettings.glassEnabled; }
             if(cloudSettings.appBg){ DATA.myAppBg = cloudSettings.appBg; }
+            // 贴心智能开关
+            if(cloudSettings.periodAutoCycle != null){ DATA.periodAutoCycle = cloudSettings.periodAutoCycle; }
+            if(cloudSettings.periodAutoDuration != null){ DATA.periodAutoDuration = cloudSettings.periodAutoDuration; }
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
             });
@@ -2843,6 +2848,9 @@ function cloudSyncNow(){
             if((DATA.cardLocked||false) !== (cloudSettings.cardLocked||false)) settingsChanged = true;
             if((DATA.glassEnabled===undefined?true:DATA.glassEnabled) !== (cloudSettings.glassEnabled===undefined?true:cloudSettings.glassEnabled)) settingsChanged = true;
             if((DATA.myAppBg||'') !== (cloudSettings.appBg||'')) settingsChanged = true;
+            // 贴心智能开关对比
+            if((DATA.periodAutoCycle||false) !== (cloudSettings.periodAutoCycle||false)) settingsChanged = true;
+            if((DATA.periodAutoDuration||false) !== (cloudSettings.periodAutoDuration||false)) settingsChanged = true;
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 if((DATA['locked_'+v]||'') !== (cloudSettings['locked_'+v]||'')) settingsChanged = true;
             });
@@ -2851,6 +2859,8 @@ function cloudSyncNow(){
             DATA.periodSettings.cardLocked = DATA.cardLocked || false;
             DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
             DATA.periodSettings.appBg = DATA.myAppBg || '';
+            DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
+            DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
             });
@@ -4122,10 +4132,9 @@ window.stepPeriodSetting = function(key, delta){
 
 window.savePeriodSettings = function(){
     if(!tempPeriodSettings) return;
-    DATA.periodSettings = {
-        cycleDays: tempPeriodSettings.cycleDays,
-        periodDays: tempPeriodSettings.periodDays
-    };
+    DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    DATA.periodSettings.cycleDays = tempPeriodSettings.cycleDays;
+    DATA.periodSettings.periodDays = tempPeriodSettings.periodDays;
     DATA.periodAutoCycle = $('ps-auto-cycle').checked;
     DATA.periodAutoDuration = $('ps-auto-duration').checked;
     if(DATA.periodRecords && DATA.periodRecords.length > 0){
@@ -4135,6 +4144,7 @@ window.savePeriodSettings = function(){
         }
     }
     saveData();
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     tempPeriodSettings = null;
     closePeriodSettings();
     periodCalendarYear = null; periodCalendarMonth = null;
