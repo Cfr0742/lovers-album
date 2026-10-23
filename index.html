@@ -2276,7 +2276,7 @@ if(DATA.periodAutoDuration == null){ DATA.periodAutoDuration = false; }
 if(DATA.periodDismissedAlerts == null){ DATA.periodDismissedAlerts = {}; }
 if(DATA.periodLastCaring == null){ DATA.periodLastCaring = {}; }
 if(DATA.aiKey == null){ DATA.aiKey = ''; }
-if(DATA._aiKeyDirty == null){ DATA._aiKeyDirty = false; }
+if(DATA._settingsDirty == null){ DATA._settingsDirty = false; }
 if(DATA.aiChatHistory == null){ DATA.aiChatHistory = []; }
 if(DATA.aiChatBg == null){ DATA.aiChatBg = 'light'; }
 
@@ -2822,54 +2822,60 @@ function cloudSyncNow(){
             if(JSON.stringify(DATA.periodSettings) !== JSON.stringify({cycleDays:cloudSettings.cycleDays,periodDays:cloudSettings.periodDays})){
                 settingsChanged = true;
             }
-            // AI Key: 脏标记(刚保存) → 推本地到云端；否则云端为准
-            if(DATA._aiKeyDirty){
-                DATA._aiKeyDirty = false;
+            // = 外观/智能/仪表盘同步：脏标记=推本地，否则拉云端 =
+            if(DATA._settingsDirty){
+                DATA._settingsDirty = false;
                 settingsChanged = true;
                 DATA.periodSettings.aiKey = DATA.aiKey || '';
-            } else if(cloudSettings.aiKey){
-                DATA.aiKey = cloudSettings.aiKey;
-                DATA.periodSettings.aiKey = cloudSettings.aiKey;
-            } else if(DATA.aiKey){
-                settingsChanged = true;
-                DATA.periodSettings.aiKey = DATA.aiKey;
+                DATA.periodSettings.theme = DATA.theme || '';
+                DATA.periodSettings.cardLocked = DATA.cardLocked || false;
+                DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
+                DATA.periodSettings.appBg = DATA.myAppBg || '';
+                DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
+                DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
+                DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+                ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                    DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
+                });
+            } else {
+                // AI Key: 云端为准
+                if(cloudSettings.aiKey){ DATA.aiKey = cloudSettings.aiKey; DATA.periodSettings.aiKey = cloudSettings.aiKey; }
+                else if(DATA.aiKey){ settingsChanged = true; DATA.periodSettings.aiKey = DATA.aiKey; }
+                // 外观：云端为准
+                if(cloudSettings.theme){ DATA.theme = cloudSettings.theme; }
+                if(cloudSettings.cardLocked != null){ DATA.cardLocked = cloudSettings.cardLocked; }
+                if(cloudSettings.glassEnabled != null){ DATA.glassEnabled = cloudSettings.glassEnabled; }
+                if(cloudSettings.appBg){ DATA.myAppBg = cloudSettings.appBg; }
+                // 贴心智能开关
+                if(cloudSettings.periodAutoCycle != null){ DATA.periodAutoCycle = cloudSettings.periodAutoCycle; }
+                if(cloudSettings.periodAutoDuration != null){ DATA.periodAutoDuration = cloudSettings.periodAutoDuration; }
+                // 仪表盘自定义项
+                try { if(cloudSettings.dashboardItems){ DATA.dashboardItems = cloudSettings.dashboardItems; } } catch(e){}
+                ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                    if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
+                });
+                if((DATA.theme||'') !== (cloudSettings.theme||'')) settingsChanged = true;
+                if((DATA.cardLocked||false) !== (cloudSettings.cardLocked||false)) settingsChanged = true;
+                if((DATA.glassEnabled===undefined?true:DATA.glassEnabled) !== (cloudSettings.glassEnabled===undefined?true:cloudSettings.glassEnabled)) settingsChanged = true;
+                if((DATA.myAppBg||'') !== (cloudSettings.appBg||'')) settingsChanged = true;
+                if((DATA.periodAutoCycle||false) !== (cloudSettings.periodAutoCycle||false)) settingsChanged = true;
+                if((DATA.periodAutoDuration||false) !== (cloudSettings.periodAutoDuration||false)) settingsChanged = true;
+                if(JSON.stringify(DATA.dashboardItems||[]) !== JSON.stringify(cloudSettings.dashboardItems||[])) settingsChanged = true;
+                ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                    if((DATA['locked_'+v]||'') !== (cloudSettings['locked_'+v]||'')) settingsChanged = true;
+                });
+                // 将所有外观设置塞进 period_settings 供回写
+                DATA.periodSettings.theme = DATA.theme || '';
+                DATA.periodSettings.cardLocked = DATA.cardLocked || false;
+                DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
+                DATA.periodSettings.appBg = DATA.myAppBg || '';
+                DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
+                DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
+                DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+                ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                    DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
+                });
             }
-            // = 外观：主题色、卡片锁色、毛玻璃、背景 → 云端为准，本地有新则回写 =
-            if(cloudSettings.theme){ DATA.theme = cloudSettings.theme; }
-            if(cloudSettings.cardLocked != null){ DATA.cardLocked = cloudSettings.cardLocked; }
-            if(cloudSettings.glassEnabled != null){ DATA.glassEnabled = cloudSettings.glassEnabled; }
-            if(cloudSettings.appBg){ DATA.myAppBg = cloudSettings.appBg; }
-            // 贴心智能开关
-            if(cloudSettings.periodAutoCycle != null){ DATA.periodAutoCycle = cloudSettings.periodAutoCycle; }
-            if(cloudSettings.periodAutoDuration != null){ DATA.periodAutoDuration = cloudSettings.periodAutoDuration; }
-            // 仪表盘自定义项
-            try { if(cloudSettings.dashboardItems){ DATA.dashboardItems = cloudSettings.dashboardItems; } } catch(e){}
-            ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
-                if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
-            });
-            if((DATA.theme||'') !== (cloudSettings.theme||'')) settingsChanged = true;
-            if((DATA.cardLocked||false) !== (cloudSettings.cardLocked||false)) settingsChanged = true;
-            if((DATA.glassEnabled===undefined?true:DATA.glassEnabled) !== (cloudSettings.glassEnabled===undefined?true:cloudSettings.glassEnabled)) settingsChanged = true;
-            if((DATA.myAppBg||'') !== (cloudSettings.appBg||'')) settingsChanged = true;
-            // 贴心智能开关对比
-            if((DATA.periodAutoCycle||false) !== (cloudSettings.periodAutoCycle||false)) settingsChanged = true;
-            if((DATA.periodAutoDuration||false) !== (cloudSettings.periodAutoDuration||false)) settingsChanged = true;
-            // 仪表盘自定义项对比
-            if(JSON.stringify(DATA.dashboardItems||[]) !== JSON.stringify(cloudSettings.dashboardItems||[])) settingsChanged = true;
-            ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
-                if((DATA['locked_'+v]||'') !== (cloudSettings['locked_'+v]||'')) settingsChanged = true;
-            });
-            // 将所有外观设置塞进 period_settings 供回写
-            DATA.periodSettings.theme = DATA.theme || '';
-            DATA.periodSettings.cardLocked = DATA.cardLocked || false;
-            DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
-            DATA.periodSettings.appBg = DATA.myAppBg || '';
-            DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
-            DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
-            DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
-            ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
-                DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
-            });
         }
 
         // = 恋爱起始日期：本地有则回写云端，云端有而本地无则取云端 =
@@ -4150,6 +4156,7 @@ window.savePeriodSettings = function(){
         }
     }
     saveData();
+    DATA._settingsDirty = true;
     if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     tempPeriodSettings = null;
     closePeriodSettings();
@@ -5107,6 +5114,7 @@ window.setAppBg = function(e){
             var base64 = canvas.toDataURL('image/jpeg', 0.82);
             DATA.myAppBg = base64;
             saveData();
+            DATA._settingsDirty = true;
             if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
             applyAppBg(base64);
         };
@@ -5128,6 +5136,7 @@ function applyAppBg(url){
 window.clearAppBg = function(){
     DATA.myAppBg = '';
     saveData();
+    DATA._settingsDirty = true;
     if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     applyAppBg('');
 };
@@ -5565,6 +5574,7 @@ window.switchTheme = function(name, init){
         });
     }
     saveData();
+    DATA._settingsDirty = true;
     if(!init && cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     updateThemeBtns();
 };
@@ -5582,6 +5592,7 @@ window.toggleCardLock = function(checked){
         });
     }
     saveData();
+    DATA._settingsDirty = true;
     if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
 };
 
@@ -5593,6 +5604,7 @@ window.toggleGlass = function(checked){
         document.body.classList.add('no-glass');
     }
     saveData();
+    DATA._settingsDirty = true;
     if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
 };
 
@@ -6181,6 +6193,7 @@ window.addDashboardItem = function(emoji, label){
     if(!DATA.dashboardItems) DATA.dashboardItems = [];
     DATA.dashboardItems.push({emoji: emoji, label: label, val: ''});
     saveData();
+    DATA._settingsDirty = true;
     if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     closeAddPanel();
     var lastPeriod = getLastPeriod();
@@ -6196,6 +6209,7 @@ window.deleteDashboardItem = function(idx){
     if(!confirm('确定删除「' + name + '」吗？')) return;
     DATA.dashboardItems.splice(idx, 1);
     saveData();
+    DATA._settingsDirty = true;
     if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     var lastPeriod = getLastPeriod();
     var settings = getEffectiveSettings();
@@ -6330,7 +6344,7 @@ window.saveAiKey = function(){
     var key = $('ai-key-input').value.trim();
     if(!key){ alert('请输入 API Key'); return; }
     DATA.aiKey = key;
-    DATA._aiKeyDirty = true;
+    DATA._settingsDirty = true;
     DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
     DATA.periodSettings.aiKey = key;
     LSS('couple_data', DATA);
