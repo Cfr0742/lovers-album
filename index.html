@@ -2798,15 +2798,22 @@ function cloudSyncNow(){
         (DATA.photos || []).forEach(function(p){ if(p && p.id != null && !tombPhotos[p.id]){ photoMap[p.id] = p; } });
         DATA.photos = Object.keys(photoMap).map(function(k){ return photoMap[k]; }).filter(function(p){ return p; });
 
-        // = 经期设置：本地默认值首次推上云端；云端有而本地未改动则取云端 =
+        // = 经期设置 + AI Key：本地默认值首次推上云端；云端有而本地未改动则取云端；一人配置两人共享 =
         var cloudSettings = null;
         try { if(coupleRow && coupleRow.period_settings){ cloudSettings = JSON.parse(coupleRow.period_settings); } } catch(e){}
         var settingsChanged = false;
-        var localSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
-        if(!cloudSettings && localSettings){
+        if(!cloudSettings){
             settingsChanged = true;
-        } else if(cloudSettings){
-            DATA.periodSettings = cloudSettings;
+            DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+            DATA.periodSettings.aiKey = DATA.aiKey || '';
+        } else {
+            DATA.periodSettings = { cycleDays: cloudSettings.cycleDays || 28, periodDays: cloudSettings.periodDays || 5 };
+            if(cloudSettings.aiKey && !DATA.aiKey){ DATA.aiKey = cloudSettings.aiKey; }
+            if(JSON.stringify(DATA.periodSettings) !== JSON.stringify({cycleDays:cloudSettings.cycleDays,periodDays:cloudSettings.periodDays}) ||
+               (DATA.aiKey||'') !== (cloudSettings.aiKey||'')){
+                settingsChanged = true;
+                DATA.periodSettings.aiKey = DATA.aiKey || '';
+            }
         }
 
         // = 恋爱起始日期：本地有则回写云端，云端有而本地无则取云端 =
@@ -6256,10 +6263,12 @@ window.saveAiKey = function(){
     var key = $('ai-key-input').value.trim();
     if(!key){ alert('请输入 API Key'); return; }
     DATA.aiKey = key;
+    DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
+    DATA.periodSettings.aiKey = key;
     saveData();
     $('ai-key-mask').style.display = 'none';
     $('ai-key-input').value = '';
-    alert('API Key 已保存 ✅');
+    alert('API Key 已保存，云端同步中 ✅');
 };
 
 function aiScrollToBottom(){
