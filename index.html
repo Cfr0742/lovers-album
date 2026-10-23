@@ -2276,6 +2276,7 @@ if(DATA.periodAutoDuration == null){ DATA.periodAutoDuration = false; }
 if(DATA.periodDismissedAlerts == null){ DATA.periodDismissedAlerts = {}; }
 if(DATA.periodLastCaring == null){ DATA.periodLastCaring = {}; }
 if(DATA.aiKey == null){ DATA.aiKey = ''; }
+if(DATA._aiKeyDirty == null){ DATA._aiKeyDirty = false; }
 if(DATA.aiChatHistory == null){ DATA.aiChatHistory = []; }
 if(DATA.aiChatBg == null){ DATA.aiChatBg = 'light'; }
 
@@ -2798,7 +2799,7 @@ function cloudSyncNow(){
         (DATA.photos || []).forEach(function(p){ if(p && p.id != null && !tombPhotos[p.id]){ photoMap[p.id] = p; } });
         DATA.photos = Object.keys(photoMap).map(function(k){ return photoMap[k]; }).filter(function(p){ return p; });
 
-        // = 经期设置 + AI Key：本地默认值首次推上云端；云端有而本地未改动则取云端；一人配置两人共享 =
+        // = 经期设置 + AI Key：一人配置两人共享；AI Key 云端为主，刚保存时本地优先 =
         var cloudSettings = null;
         try { if(coupleRow && coupleRow.period_settings){ cloudSettings = JSON.parse(coupleRow.period_settings); } } catch(e){}
         var settingsChanged = false;
@@ -2808,11 +2809,20 @@ function cloudSyncNow(){
             DATA.periodSettings.aiKey = DATA.aiKey || '';
         } else {
             DATA.periodSettings = { cycleDays: cloudSettings.cycleDays || 28, periodDays: cloudSettings.periodDays || 5 };
-            if(cloudSettings.aiKey && !DATA.aiKey){ DATA.aiKey = cloudSettings.aiKey; }
-            if(JSON.stringify(DATA.periodSettings) !== JSON.stringify({cycleDays:cloudSettings.cycleDays,periodDays:cloudSettings.periodDays}) ||
-               (DATA.aiKey||'') !== (cloudSettings.aiKey||'')){
+            if(JSON.stringify(DATA.periodSettings) !== JSON.stringify({cycleDays:cloudSettings.cycleDays,periodDays:cloudSettings.periodDays})){
+                settingsChanged = true;
+            }
+            // AI Key: 脏标记(刚保存) → 推本地到云端；否则云端为准
+            if(DATA._aiKeyDirty){
+                DATA._aiKeyDirty = false;
                 settingsChanged = true;
                 DATA.periodSettings.aiKey = DATA.aiKey || '';
+            } else if(cloudSettings.aiKey){
+                DATA.aiKey = cloudSettings.aiKey;
+                DATA.periodSettings.aiKey = cloudSettings.aiKey;
+            } else if(DATA.aiKey){
+                settingsChanged = true;
+                DATA.periodSettings.aiKey = DATA.aiKey;
             }
         }
 
@@ -6263,9 +6273,11 @@ window.saveAiKey = function(){
     var key = $('ai-key-input').value.trim();
     if(!key){ alert('请输入 API Key'); return; }
     DATA.aiKey = key;
+    DATA._aiKeyDirty = true;
     DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
     DATA.periodSettings.aiKey = key;
-    saveData();
+    LSS('couple_data', DATA);
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     $('ai-key-mask').style.display = 'none';
     $('ai-key-input').value = '';
     alert('API Key 已保存，云端同步中 ✅');
