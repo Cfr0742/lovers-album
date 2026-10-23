@@ -3725,6 +3725,7 @@ window.endPeriodFromSelected = function(){
     DATA.periodSettings.periodDays = dur;
     if(dur < pSettings.periodDays){ showCaringMsg('early'); }
     else if(dur > pSettings.periodDays){ showCaringMsg('late'); }
+    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     saveData();
     periodSelectedDate = null;
     renderPeriodTracker();
@@ -3739,6 +3740,7 @@ window.delayPeriodFromSelected = function(){
     var target = new Date(dateStr + 'T00:00:00');
     last.delayDays = Math.max(0, Math.round((target - start) / 86400000) - ((DATA.periodSettings && DATA.periodSettings.cycleDays) || 28));
     showCaringMsg('delayed');
+    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     saveData();
     periodSelectedDate = null;
     renderPeriodTracker();
