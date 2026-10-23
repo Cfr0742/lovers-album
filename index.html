@@ -2991,7 +2991,6 @@ function tombstoneMark(kind, key){
     DATA._tombstones = DATA._tombstones || {};
     DATA._tombstones[kind] = DATA._tombstones[kind] || {};
     DATA._tombstones[kind][key] = true;
-    cloudPushTombstone();
 }
 
 // 从云端覆盖拉取（进入空间后立即同步一次）
@@ -6039,14 +6038,16 @@ window.deletePeriodRecord = function(startDate){
     for(var i = recs.length - 1; i >= 0; i--){
         if(recs[i].start === startDate){ recs.splice(i, 1); break; }
     }
-    tombstoneMark('periodRecords', startDate);
+    DATA._tombstones = DATA._tombstones || {};
+    DATA._tombstones.periodRecords = DATA._tombstones.periodRecords || {};
+    DATA._tombstones.periodRecords[startDate] = true;
     saveData();
+    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     if(sb && cloudSpace){
         cloudPushTombstone().then(function(){
             return trackCloudDelete(sb.from('period_records').delete().eq('start', startDate).eq('couple_id', cloudSpace.couple_id));
         });
     }
-    // 子面板打开中 → 原地刷新；否则全量渲染
     if($('period-sub-panel').style.display === 'block'){
         openSubPanel('history');
         renderPeriodCalendar(getLastPeriod(), getEffectiveSettings());
