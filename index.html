@@ -2799,7 +2799,7 @@ function cloudSyncNow(){
         (DATA.photos || []).forEach(function(p){ if(p && p.id != null && !tombPhotos[p.id]){ photoMap[p.id] = p; } });
         DATA.photos = Object.keys(photoMap).map(function(k){ return photoMap[k]; }).filter(function(p){ return p; });
 
-        // = 经期设置 + AI Key：一人配置两人共享；AI Key 云端为主，刚保存时本地优先 =
+        // = 经期设置 + AI Key + 外观：一人配置两人共享 =
         var cloudSettings = null;
         try { if(coupleRow && coupleRow.period_settings){ cloudSettings = JSON.parse(coupleRow.period_settings); } } catch(e){}
         var settingsChanged = false;
@@ -2807,6 +2807,13 @@ function cloudSyncNow(){
             settingsChanged = true;
             DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
             DATA.periodSettings.aiKey = DATA.aiKey || '';
+            DATA.periodSettings.theme = DATA.theme || '';
+            DATA.periodSettings.cardLocked = DATA.cardLocked || false;
+            DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
+            DATA.periodSettings.appBg = DATA.myAppBg || '';
+            ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
+            });
         } else {
             DATA.periodSettings = { cycleDays: cloudSettings.cycleDays || 28, periodDays: cloudSettings.periodDays || 5 };
             if(JSON.stringify(DATA.periodSettings) !== JSON.stringify({cycleDays:cloudSettings.cycleDays,periodDays:cloudSettings.periodDays})){
@@ -2824,6 +2831,29 @@ function cloudSyncNow(){
                 settingsChanged = true;
                 DATA.periodSettings.aiKey = DATA.aiKey;
             }
+            // = 外观：主题色、卡片锁色、毛玻璃、背景 → 云端为准，本地有新则回写 =
+            if(cloudSettings.theme){ DATA.theme = cloudSettings.theme; }
+            if(cloudSettings.cardLocked != null){ DATA.cardLocked = cloudSettings.cardLocked; }
+            if(cloudSettings.glassEnabled != null){ DATA.glassEnabled = cloudSettings.glassEnabled; }
+            if(cloudSettings.appBg){ DATA.myAppBg = cloudSettings.appBg; }
+            ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
+            });
+            if((DATA.theme||'') !== (cloudSettings.theme||'')) settingsChanged = true;
+            if((DATA.cardLocked||false) !== (cloudSettings.cardLocked||false)) settingsChanged = true;
+            if((DATA.glassEnabled===undefined?true:DATA.glassEnabled) !== (cloudSettings.glassEnabled===undefined?true:cloudSettings.glassEnabled)) settingsChanged = true;
+            if((DATA.myAppBg||'') !== (cloudSettings.appBg||'')) settingsChanged = true;
+            ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                if((DATA['locked_'+v]||'') !== (cloudSettings['locked_'+v]||'')) settingsChanged = true;
+            });
+            // 将所有外观设置塞进 period_settings 供回写
+            DATA.periodSettings.theme = DATA.theme || '';
+            DATA.periodSettings.cardLocked = DATA.cardLocked || false;
+            DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
+            DATA.periodSettings.appBg = DATA.myAppBg || '';
+            ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
+                DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
+            });
         }
 
         // = 恋爱起始日期：本地有则回写云端，云端有而本地无则取云端 =
@@ -2856,6 +2886,10 @@ function cloudSyncNow(){
         DATA.dailies.forEach(function(d){ delete d._cloud; });
         DATA.photos.forEach(function(p){ delete p._cloud; });
         LSS('couple_data', DATA);
+        // 应用云端同步的外观设置（主题/卡片锁色/毛玻璃/背景）
+        if(DATA.theme) switchTheme(DATA.theme, true);
+        if(DATA.glassEnabled === false){ document.body.classList.add('no-glass'); } else { document.body.classList.remove('no-glass'); }
+        if(DATA.myAppBg){ applyAppBg(DATA.myAppBg); }
         refreshAll();
 
         // 合并后与云端一致且起始日期/经期/墓碑均无变化 → 无需回写
@@ -5057,6 +5091,7 @@ window.setAppBg = function(e){
             var base64 = canvas.toDataURL('image/jpeg', 0.82);
             DATA.myAppBg = base64;
             saveData();
+            if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
             applyAppBg(base64);
         };
         img.src = ev.target.result;
@@ -5077,6 +5112,7 @@ function applyAppBg(url){
 window.clearAppBg = function(){
     DATA.myAppBg = '';
     saveData();
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     applyAppBg('');
 };
 
@@ -5513,6 +5549,7 @@ window.switchTheme = function(name, init){
         });
     }
     saveData();
+    if(!init && cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     updateThemeBtns();
 };
 
@@ -5529,6 +5566,7 @@ window.toggleCardLock = function(checked){
         });
     }
     saveData();
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
 };
 
 window.toggleGlass = function(checked){
@@ -5539,6 +5577,7 @@ window.toggleGlass = function(checked){
         document.body.classList.add('no-glass');
     }
     saveData();
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
 };
 
 function updateThemeBtns(){
