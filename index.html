@@ -2813,6 +2813,7 @@ function cloudSyncNow(){
             DATA.periodSettings.appBg = DATA.myAppBg || '';
             DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
             DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
+            DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
             });
@@ -2841,6 +2842,8 @@ function cloudSyncNow(){
             // 贴心智能开关
             if(cloudSettings.periodAutoCycle != null){ DATA.periodAutoCycle = cloudSettings.periodAutoCycle; }
             if(cloudSettings.periodAutoDuration != null){ DATA.periodAutoDuration = cloudSettings.periodAutoDuration; }
+            // 仪表盘自定义项
+            try { if(cloudSettings.dashboardItems){ DATA.dashboardItems = cloudSettings.dashboardItems; } } catch(e){}
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
             });
@@ -2851,6 +2854,8 @@ function cloudSyncNow(){
             // 贴心智能开关对比
             if((DATA.periodAutoCycle||false) !== (cloudSettings.periodAutoCycle||false)) settingsChanged = true;
             if((DATA.periodAutoDuration||false) !== (cloudSettings.periodAutoDuration||false)) settingsChanged = true;
+            // 仪表盘自定义项对比
+            if(JSON.stringify(DATA.dashboardItems||[]) !== JSON.stringify(cloudSettings.dashboardItems||[])) settingsChanged = true;
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 if((DATA['locked_'+v]||'') !== (cloudSettings['locked_'+v]||'')) settingsChanged = true;
             });
@@ -2861,6 +2866,7 @@ function cloudSyncNow(){
             DATA.periodSettings.appBg = DATA.myAppBg || '';
             DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
             DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
+            DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
             });
@@ -6175,6 +6181,7 @@ window.addDashboardItem = function(emoji, label){
     if(!DATA.dashboardItems) DATA.dashboardItems = [];
     DATA.dashboardItems.push({emoji: emoji, label: label, val: ''});
     saveData();
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     closeAddPanel();
     var lastPeriod = getLastPeriod();
     var settings = getEffectiveSettings();
@@ -6189,6 +6196,7 @@ window.deleteDashboardItem = function(idx){
     if(!confirm('确定删除「' + name + '」吗？')) return;
     DATA.dashboardItems.splice(idx, 1);
     saveData();
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     var lastPeriod = getLastPeriod();
     var settings = getEffectiveSettings();
     var nextPeriod = lastPeriod ? getNextPeriod(lastPeriod, settings) : null;
