@@ -5868,16 +5868,11 @@ window.renderDashboard = function(lastPeriod, settings, nextPeriod, phaseData){
     var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
     var cycleDays = settings ? settings.cycleDays : 28;
     var periodDaysVal = settings ? settings.periodDays : 5;
+    try {
+        var cached = JSON.parse(localStorage.getItem('couple_data'));
+        if(cached && cached.periodRecords) DATA.periodRecords = cached.periodRecords;
+    } catch(e){}
     var recCount = (DATA.periodRecords || []).length;
-    if(!recCount){
-        try {
-            var cached = JSON.parse(localStorage.getItem('couple_data'));
-            if(cached && cached.periodRecords && cached.periodRecords.length){
-                DATA.periodRecords = cached.periodRecords;
-                recCount = cached.periodRecords.length;
-            }
-        } catch(e){}
-    }
     var cycleNum = '—';
     var periodNum = '—';
     var predictNum = '—';
@@ -5974,16 +5969,12 @@ window.openSubPanel = function(id){
         }
     } else if(id === 'history'){
         title = '📋 历史';
+        try {
+            var cached = JSON.parse(localStorage.getItem('couple_data'));
+            if(cached && cached.periodRecords) DATA.periodRecords = cached.periodRecords;
+            if(cached && cached._tombstones) DATA._tombstones = cached._tombstones;
+        } catch(e){}
         var recs = DATA.periodRecords || [];
-        if(!recs.length){
-            try {
-                var cached = JSON.parse(localStorage.getItem('couple_data'));
-                if(cached && cached.periodRecords && cached.periodRecords.length){
-                    DATA.periodRecords = cached.periodRecords;
-                    recs = cached.periodRecords;
-                }
-            } catch(e){}
-        }
         if(!recs.length){
             body = '<div style="text-align:center;color:#bbb;padding:20px;">还没有记录</div>';
         } else {
@@ -6033,6 +6024,11 @@ window.closeSubPanel = function(){
 };
 
 window.deletePeriodRecord = function(startDate){
+    try {
+        var cached = JSON.parse(localStorage.getItem('couple_data'));
+        if(cached && cached.periodRecords) DATA.periodRecords = cached.periodRecords;
+        if(cached && cached._tombstones) DATA._tombstones = cached._tombstones || {};
+    } catch(e){}
     if(!confirm('确定删除 ' + startDate + ' 的经期记录吗？')) return;
     var recs = DATA.periodRecords || [];
     for(var i = recs.length - 1; i >= 0; i--){
