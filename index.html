@@ -2349,6 +2349,7 @@ window.cloudRegister = function(email, password, cb){
             if(res.error){ cb(false, res.error.message || '注册失败'); return; }
             if(res.data.session){   // 部分配置直接登录成功
                 cloudUser = res.data.session.user;
+                cloudSpace = null;   // 新用户注册，清除旧配对
                 saveCloudSession();
                 account_noteLogin();
                 cb(true);
@@ -2365,6 +2366,7 @@ window.cloudLogin = function(email, password, cb){
         .then(function(res){
             if(res.error){ cb(false, res.error.message || '登录失败'); return; }
             cloudUser = res.data.user;
+            cloudSpace = null;   // 清除旧配对，由 autoRestoreSpace 按当前用户重新校验
             saveCloudSession();
             account_noteLogin();
             cb(true);
@@ -3127,6 +3129,8 @@ function initAuthFlow(){
             var session = res.data && res.data.session;
             if(session && session.user){
                 cloudUser = session.user;
+                cloudSpace = null;  // 清除旧配对，新用户/重登由 autoRestoreSpace 重新校验
+                LS_del('cloud_session');
                 account_noteLogin();
                 enterMainAfterAuth();
             } else {
