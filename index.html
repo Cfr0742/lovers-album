@@ -2308,6 +2308,7 @@ if(DATA.aiKey == null){ DATA.aiKey = ''; }
 if(DATA._settingsDirty == null){ DATA._settingsDirty = false; }
 if(DATA.aiChatHistory == null){ DATA.aiChatHistory = []; }
 if(DATA.aiChatBg == null){ DATA.aiChatBg = 'light'; }
+if(DATA._userId == null){ DATA._userId = ''; }
 
 function saveData(){ LSS('couple_data', DATA); cloudPush(); }
 
@@ -3266,6 +3267,45 @@ window.doPairSubmit = function(){
 
 // 登录/注册成功后的统一入口：直接进主页（微信式），再拉资料、启同步
 function enterMainAfterAuth(){
+    var user = sbUser();
+    
+    // 🔑 数据隔离：检测是否换了不同的用户账号
+    if(user && DATA._userId && DATA._userId !== user.id){
+        // 换号了！重置所有本地数据为全新空白
+        DATA.startDate = '';
+        DATA.password = '';
+        DATA.anniversaries = [];
+        DATA.dailies = [];
+        DATA.photos = [];
+        DATA.chats = [];
+        DATA.users = [];
+        DATA.myGender = '';
+        DATA.myNick = '我';
+        DATA.myAvatar = '';
+        DATA.myChatBg = '';
+        DATA.myAppBg = '';
+        DATA.partnerNick = 'TA';
+        DATA.partnerAvatar = '';
+        DATA.partnerGender = '';
+        DATA.periodRecords = [];
+        DATA.periodSettings = { cycleDays: 28, periodDays: 5 };
+        DATA._tombstones = {};
+        DATA.lastReadChatId = 0;
+        DATA._settingsDirty = false;
+        DATA.aiChatHistory = [];
+        DATA.aiChatBg = 'light';
+        // 保留账号无关的偏好设置
+        // theme, cardLocked, glassEnabled 保留
+        LSS('couple_data', DATA);
+        // 刷新头像/昵称显示
+        updateProfileHeader();
+        renderAccountSwitcher();
+    }
+    if(user){
+        DATA._userId = user.id;
+        saveData();
+    }
+    
     showScreen('main-screen');
     pullMyProfile();
     if(cloudSpace){
