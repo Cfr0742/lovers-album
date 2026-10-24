@@ -405,7 +405,7 @@ body::after {
 #date-editor input { padding:6px 10px; border:1px solid #e0d0d5; border-radius:8px; font-size:0.85rem; background:#fff; color:var(--theme-text); }
 #date-editor button { padding:6px 14px; border:none; border-radius:8px; background:var(--theme-gradient); color:#fff; cursor:pointer; font-size:0.82rem; margin-left:6px; }
 
-/* ===== 锟斤拷页锟斤拷诳锟狡?===== */
+/* ===== 锟斤拷页锟斤拷诳锟斤拷?===== */
 .home-entry-card {
     display: flex; justify-content: space-between; align-items: center;
     margin: 0 4px 8px; padding: 14px 16px;
@@ -1738,12 +1738,12 @@ body.no-glass * {
                     </div>
                 </div>
 
-                <!-- 锟斤拷诳锟狡?-->
+                <!-- 锟斤拷诳锟斤拷?-->
                 <div class="home-entry-card entry-calendar" onclick="openHomeSub('calendar')">
                     <span>?? 锟斤拷锟斤拷锟斤拷锟斤拷</span><span>锟斤拷</span>
                 </div>
                 <div class="home-entry-card entry-status" onclick="openHomeSub('status')">
-                    <span>?? 锟斤拷锟阶刺?/span><span>锟斤拷</span>
+                    <span>?? 锟斤拷锟阶达拷?/span><span>锟斤拷</span>
                 </div>
                 <div class="home-entry-card entry-daily" onclick="openHomeSub('daily')">
                     <span><span class="emoji-editable" data-key="card_daily">??</span> 锟斤拷锟斤拷锟秸筹拷</span><span>锟斤拷</span>
@@ -1770,11 +1770,11 @@ body.no-glass * {
                 <div class="calendar-grid" id="calendar-grid"></div>
             </div>
 
-            <!-- 锟斤拷页锟斤拷锟斤拷锟阶刺?-->
+            <!-- 锟斤拷页锟斤拷锟斤拷锟阶达拷?-->
             <div id="home-sub-status" class="home-sub-page" style="display:none">
                 <div class="sub-header">
                     <button class="sub-back-btn" onclick="backToDashboard()">锟斤拷</button>
-                    <span>?? 锟斤拷锟阶刺?/span>
+                    <span>?? 锟斤拷锟阶达拷?/span>
                 </div>
                 <div id="recent-activity" class="recent-list"></div>
             </div>
@@ -1923,7 +1923,7 @@ body.no-glass * {
                     <div id="cloud-status" style="font-size:0.9rem;color:var(--theme-text);text-align:center;line-height:1.8;"></div>
                 </div>
                 <div style="display:flex;gap:8px;margin-top:10px;">
-                    <button class="share-btn" style="flex:1;" onclick="doLogout()">?? 锟剿筹拷锟斤拷录</button>
+                    <button class="share-btn" style="flex:1;" onclick="doLogout()">锟剿筹拷锟斤拷录</button>`n                    <button class="share-btn" style="flex:1;background:#fee2e2;color:#dc2626;" onclick="doDeleteAccount()">注锟斤拷锟剿猴拷</button>
                 </div>
             </div>
 
@@ -2304,7 +2304,7 @@ function escapeHtml(s){
 }
 
 /* ===== Supabase 锟狡讹拷实时同锟斤拷 ===== */
-// Supabase 锟斤拷目锟斤拷锟矫ｏ拷锟斤拷锟斤拷时锟斤拷锟街?key 锟戒化锟斤拷只锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷校锟?
+// Supabase 锟斤拷目锟斤拷锟矫ｏ拷锟斤拷锟斤拷时锟斤拷锟斤拷?key 锟戒化锟斤拷只锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷校锟?
 var SUPABASE_URL = 'https://api.cfrlove.top';
 var SUPABASE_KEY = 'sb_publishable_SDEvx6W200nIbtAtzvhngw_SnNciPVc';
 
@@ -2476,7 +2476,7 @@ window.renderProfilePairStatus = function(){
     applyPairGating();
 };
 
-// 锟角凤拷锟斤拷锟斤拷裕锟斤拷锟铰硷拷锟斤拷泄锟斤拷锟斤拷占洌?
+// 锟角凤拷锟斤拷锟斤拷裕锟斤拷锟铰硷拷锟斤拷泄锟斤拷锟斤拷占锟?
 function isPaired(){ return !!(cloudUser && cloudSpace); }
 
 // 未锟斤拷锟绞憋拷锟斤拷锟斤拷鹿锟斤拷埽锟斤拷锟绞硷拷锟斤拷锟?锟斤拷锟斤拷锟斤拷/锟斤拷锟届）锟斤拷示"锟斤拷院锟斤拷锟?占位
@@ -2493,7 +2493,7 @@ window.applyPairGating = function(){
 
 /* ---------- 锟斤拷锟斤拷同锟斤拷锟斤拷memorials / messages / couples锟斤拷 ---------- */
 
-// 锟斤拷锟斤拷锟狡端会话锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟铰?+ 锟斤拷锟阶刺拷锟?
+// 锟斤拷锟斤拷锟狡端会话锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷?+ 锟斤拷锟阶刺拷锟?
 function saveCloudSession(){
     LSS('cloud_session', { user: cloudUser, space: cloudSpace });
 }
@@ -2648,7 +2648,7 @@ function rowToChat(row){
     try { var c = JSON.parse(row.content); if(row.sender_id) c.senderId = row.sender_id; return c; } catch(e){ return null; }
 }
 
-// 锟斤拷锟斤拷指锟狡ｏ拷锟斤拷锟窖斤拷锟斤拷锟侥硷拷锟斤拷锟斤拷/锟斤拷锟皆规范锟斤拷锟斤拷锟街凤拷锟斤拷锟斤拷锟斤拷锟斤拷锟叫讹拷锟狡讹拷锟诫本锟斤拷锟角凤拷锟斤拷牟锟酵?
+// 锟斤拷锟斤拷指锟狡ｏ拷锟斤拷锟窖斤拷锟斤拷锟侥硷拷锟斤拷锟斤拷/锟斤拷锟皆规范锟斤拷锟斤拷锟街凤拷锟斤拷锟斤拷锟斤拷锟斤拷锟叫讹拷锟狡讹拷锟诫本锟斤拷锟角凤拷锟斤拷牟锟斤拷?
 // 锟斤拷锟斤拷锟解“每锟斤拷同锟斤拷锟斤拷锟斤拷写锟斤拷锟斤拷锟斤拷 Realtime 锟斤拷循锟斤拷锟斤拷锟斤拷
 function cloudFingerprint(anns, chats){
     function clean(a){
@@ -2856,7 +2856,7 @@ function cloudSyncNow(){
                 // AI Key: 锟狡讹拷为准
                 if(cloudSettings.aiKey){ DATA.aiKey = cloudSettings.aiKey; DATA.periodSettings.aiKey = cloudSettings.aiKey; }
                 else if(DATA.aiKey){ settingsChanged = true; DATA.periodSettings.aiKey = DATA.aiKey; }
-                // 锟斤拷郏锟斤拷贫锟轿?
+                // 锟斤拷郏锟斤拷贫锟轿拷?
                 if(cloudSettings.theme){ DATA.theme = cloudSettings.theme; }
                 if(cloudSettings.cardLocked != null){ DATA.cardLocked = cloudSettings.cardLocked; }
                 if(cloudSettings.glassEnabled != null){ DATA.glassEnabled = cloudSettings.glassEnabled; }
@@ -2900,7 +2900,7 @@ function cloudSyncNow(){
         }
 
         // = 锟斤拷锟皆憋拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟叫达拷贫耍锟斤拷贫锟斤拷锟斤拷锟斤拷锟斤拷帽锟斤拷兀锟斤拷锟斤拷贫锟斤拷卸锟斤拷锟斤拷锟斤拷锟斤拷锟饺★拷贫锟?=
-        // 锟阶达拷锟较达拷锟斤拷锟斤拷锟截硷拷锟节憋拷锟截碉拷锟狡端匡拷 锟斤拷 锟斤拷写锟斤拷锟斤拷锟狡讹拷锟斤拷 锟斤拷 取锟狡端ｏ拷锟斤拷锟竭讹拷锟斤拷锟揭诧拷同 锟斤拷 锟斤拷锟斤拷锟斤拷薷锟轿?
+        // 锟阶达拷锟较达拷锟斤拷锟斤拷锟截硷拷锟节憋拷锟截碉拷锟狡端匡拷 锟斤拷 锟斤拷写锟斤拷锟斤拷锟狡讹拷锟斤拷 锟斤拷 取锟狡端ｏ拷锟斤拷锟竭讹拷锟斤拷锟揭诧拷同 锟斤拷 锟斤拷锟斤拷锟斤拷薷锟轿拷?
         var chatBgChanged = false;
         if(DATA._chatBgCleared){
             // 锟矫伙拷锟斤拷锟斤拷锟斤拷展锟斤拷锟斤拷锟?锟斤拷 锟狡讹拷同锟斤拷锟斤拷眨锟斤拷锟斤拷锟斤拷锟斤拷贫硕锟轿拷眨锟?
@@ -2929,7 +2929,7 @@ function cloudSyncNow(){
         if(DATA.myAppBg){ applyAppBg(DATA.myAppBg); }
         refreshAll();
 
-        // 锟较诧拷锟斤拷锟斤拷锟狡讹拷一锟斤拷锟斤拷锟斤拷始锟斤拷锟斤拷/锟斤拷锟斤拷/墓锟斤拷锟斤拷锟睫变化 锟斤拷 锟斤拷锟斤拷锟叫?
+        // 锟较诧拷锟斤拷锟斤拷锟狡讹拷一锟斤拷锟斤拷锟斤拷始锟斤拷锟斤拷/锟斤拷锟斤拷/墓锟斤拷锟斤拷锟睫变化 锟斤拷 锟斤拷锟斤拷锟斤拷?
         var writeFp = cloudFingerprint(DATA.anniversaries, DATA.chats);
         var writePeriodFp = cloudFingerprintPeriods(listToMap(DATA.periodRecords, 'start'));
         var writeDailyFp = fingerprintList(DATA.dailies);
@@ -3047,7 +3047,7 @@ function trackCloudDelete(builder){
 
 function cloudDeleteByLocalId(table, jsonCol, localId){
     if(!sb || !cloudSpace) return Promise.resolve();
-    // 锟斤拷确锟斤拷墓锟斤拷锟斤拷锟狡ｏ拷锟劫筹拷锟斤拷删锟狡讹拷锟叫ｏ拷锟斤拷证锟轿何诧拷锟斤拷锟斤拷取锟斤拷锟斤拷识锟斤拷锟侥癸拷锟斤拷锟斤拷锟斤拷岜?锟狡端∪憋拷锟斤拷"锟斤拷锟截★拷
+    // 锟斤拷确锟斤拷墓锟斤拷锟斤拷锟狡ｏ拷锟劫筹拷锟斤拷删锟狡讹拷锟叫ｏ拷锟斤拷证锟轿何诧拷锟斤拷锟斤拷取锟斤拷锟斤拷识锟斤拷锟侥癸拷锟斤拷锟斤拷锟斤拷锟?锟狡端∪憋拷锟斤拷"锟斤拷锟截★拷
     return cloudPushTombstone().then(function(){
         // 只删锟斤拷前锟斤拷裕锟絚ouple_id 锟斤拷锟剿ｏ拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷/锟斤拷锟剿猴拷时锟斤拷删锟皆凤拷锟秸硷拷锟斤拷锟斤拷锟?
         return trackCloudDelete(sb.from(table).delete().like(jsonCol, '%"id":' + localId + '%').eq('couple_id', cloudSpace.couple_id));
@@ -3193,6 +3193,37 @@ window.cloudLogout = async function(){
     showScreen('login-screen');
 }
 
+window.doDeleteAccount = async function(){
+    if(!cloudUser){ alert('Please login first'); return; }
+    var confirm1 = confirm('Are you sure you want to delete your account? This will permanently delete all your data and cannot be recovered.');
+    if(!confirm1) return;
+    var confirm2 = prompt('Type DELETE to confirm account cancellation:', '');
+    if(confirm2 !== 'DELETE'){ alert('Confirmation failed, operation cancelled'); return; }
+    var uid = cloudUser.id;
+    var cid = cloudSpace ? cloudSpace.couple_id : null;
+    try {
+        stopCloudPoll();
+        if(cid){
+            await sb.from('memorials').delete().eq('couple_id', cid);
+            await sb.from('messages').delete().eq('couple_id', cid);
+            await sb.from('photos').delete().eq('couple_id', cid);
+            await sb.from('dailies').delete().eq('couple_id', cid);
+            await sb.from('period_records').delete().eq('couple_id', cid);
+        }
+        await sb.from('couples').delete().or('user1_id.eq.' + uid + ',user2_id.eq.' + uid);
+        await sb.from('profiles').delete().eq('user_id', uid);
+        try { await sb.auth.signOut(); } catch(e){}
+    } catch(e){ console.warn('Data cleanup failed:', e); }
+    // Note: auth user deletion requires service_role key (not safe in frontend).
+    // The business data above is already cleaned. Auth user can be removed via Supabase Dashboard if needed.
+    LS_del(dataKey());
+    LS_del('cloud_session');
+    DATA = JSON.parse(JSON.stringify(DATA_DEFAULTS));
+    cloudUser = null; cloudSpace = null;
+    alert('Account cancelled');
+    showScreen('login-screen');
+}
+
 function LS_del(key){ try { localStorage.removeItem(key); } catch(e){} }
 
 window.refreshAll = function(){ if(window.renderEverything) renderEverything(); }
@@ -3209,7 +3240,7 @@ function updateCloudStatusByAuth(){
     var st = $('cloud-status');
     if(!st) return;
     if(user && cloudSpace){
-        st.innerHTML = '? 锟斤拷同锟斤拷<br>锟斤拷锟斤拷耄?b>' + (cloudSpace.pair_code || cloudSpace.couple_id || '') + '</b><br>锟斤拷前锟剿号ｏ拷' + (user.email || '');
+        st.innerHTML = '? 锟斤拷同锟斤拷<br>锟斤拷锟斤拷锟?b>' + (cloudSpace.pair_code || cloudSpace.couple_id || '') + '</b><br>锟斤拷前锟剿号ｏ拷' + (user.email || '');
     } else if(user){
         st.innerHTML = '锟窖碉拷录锟斤拷' + (user.email || '') + '<br>锟斤拷未锟斤拷锟?;
     } else {
@@ -3337,7 +3368,7 @@ window.initApp = function(){
     restoreCloudSession();
     applyChatBg(DATA.myChatBg);
     applyAppBg(DATA.myAppBg);
-    initAuthFlow();   // 微锟斤拷式锟斤拷锟饺碉拷录锟斤拷锟斤拷锟斤拷裕锟斤拷锟斤拷锟斤拷锟揭?
+    initAuthFlow();   // 微锟斤拷式锟斤拷锟饺碉拷录锟斤拷锟斤拷锟斤拷裕锟斤拷锟斤拷锟斤拷锟斤拷?
     setTimeout(applySavedEmojis, 20);
 };
 
@@ -3594,7 +3625,7 @@ window.getPeriodPhase = function(date, lastPeriod, settings){
 window.getPhaseInfo = function(phase, day, settings){
     var periodDays = settings ? (settings.periodDays || 5) : 5;
     var info = {
-        period:  { label: '锟斤拷锟斤拷锟斤拷', cls: 'phase-period',  icon: '??', msg: '锟斤拷锟斤拷时锟节ｏ拷锟斤拷锟斤拷锟剿拷锟斤拷煤锟斤拷锟较???' },
+        period:  { label: '锟斤拷锟斤拷锟斤拷', cls: 'phase-period',  icon: '??', msg: '锟斤拷锟斤拷时锟节ｏ拷锟斤拷锟斤拷锟剿拷锟斤拷煤锟斤拷锟斤拷???' },
         safe:    { label: '锟斤拷全锟斤拷', cls: 'phase-safe',    icon: '??', msg: '一锟叫帮拷锟矫ｏ拷锟斤拷锟斤拷每一锟斤拷 ??' },
         fertile: { label: '锟斤拷锟斤拷锟斤拷', cls: 'phase-fertile', icon: '??', msg: '状态锟斤拷锟斤拷锟斤拷注锟解保暖哦 ??' },
         luteal:  { label: '锟斤拷锟斤拷锟斤拷', cls: 'phase-luteal',  icon: '??', msg: '锟届到锟剿ｏ拷锟斤拷前锟斤拷锟斤拷锟斤拷品呀 ??' },
@@ -3903,7 +3934,7 @@ window.generatePeriodAlerts = function(lastPeriod, settings, nextPeriod, isRecor
         var nextStart = new Date(nextPeriod.nextStart + 'T00:00:00');
         var daysUntil = Math.round((nextStart - today) / 86400000);
         if(daysUntil >= 0 && daysUntil <= 3 && !isRecordedToday){
-            var msg = daysUntil === 0 ? '锟斤拷锟斤拷预锟狡斤拷锟届到锟斤拷锟斤拷准锟斤拷锟斤拷锟斤拷锟斤拷??' : ('锟斤拷锟斤拷预锟斤拷 ' + daysUntil + ' 锟斤拷锟斤拷锟斤拷锟斤拷锟角帮拷锟斤拷锟斤拷锟狡放???');
+            var msg = daysUntil === 0 ? '锟斤拷锟斤拷预锟狡斤拷锟届到锟斤拷锟斤拷准锟斤拷锟斤拷锟斤拷锟斤拷??' : ('锟斤拷锟斤拷预锟斤拷 ' + daysUntil + ' 锟斤拷锟斤拷锟斤拷锟斤拷锟角帮拷锟斤拷锟斤拷锟狡凤拷???');
             alerts.push({ id: 'approaching_' + nextPeriod.nextStart, icon: '??', text: msg, level: 'alert-warn' });
         }
     }
@@ -3920,7 +3951,7 @@ window.generatePeriodAlerts = function(lastPeriod, settings, nextPeriod, isRecor
             alerts.push({ id: 'duration_diff_' + ls, icon: '??', text: '锟较次撅拷锟斤拷实锟绞筹拷锟斤拷 ' + actualDur + ' 锟届（' + diffText + '锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟?, level: 'alert-info' });
         }
         if(currentDay <= setDur){
-            alerts.push({ id: 'in_period_' + ls, icon: '??', text: '锟斤拷锟斤拷锟角撅拷锟节碉拷 ' + currentDay + ' 锟届，锟斤拷锟斤拷锟剿拷煤锟斤拷锟较???', level: 'alert-info' });
+            alerts.push({ id: 'in_period_' + ls, icon: '??', text: '锟斤拷锟斤拷锟角撅拷锟节碉拷 ' + currentDay + ' 锟届，锟斤拷锟斤拷锟剿拷煤锟斤拷锟斤拷???', level: 'alert-info' });
         }
     }
     return alerts;
@@ -3972,9 +4003,9 @@ window.showCaringMsg = function(type){
     var el = $('period-caring-msg');
     if(periodCaringTimer) clearTimeout(periodCaringTimer);
     var msgs = {
-        early: ['锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷远锟斤拷锟斤拷锟斤拷锟???', '锟斤拷谓锟斤拷锟斤拷锟斤拷纾拷煤锟斤拷锟较拷锟揭伙拷锟脚???', '锟斤拷前锟缴撅拷锟剿ｏ拷锟角诧拷锟斤拷状态锟杰诧拷锟斤拷锟斤拷?'],
+        early: ['锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷远锟斤拷锟斤拷锟斤拷锟???', '锟斤拷谓锟斤拷锟斤拷锟斤拷纾拷煤锟斤拷锟较拷锟揭伙拷锟斤拷???', '锟斤拷前锟缴撅拷锟剿ｏ拷锟角诧拷锟斤拷状态锟杰诧拷锟斤拷锟斤拷?'],
         late: ['锟斤拷锟斤拷映锟斤拷思锟斤拷欤拷锟斤拷模锟窖癸拷锟斤拷锟斤拷影锟斤拷锟???', '锟斤拷锟斤拷锟斤拷微锟斤拷锟斤拷一锟姐，注锟解保暖锟劫喝憋拷锟斤拷 ??', '锟斤拷锟斤拷锟剿ｏ拷锟解几锟斤拷锟斤拷约锟斤拷锟揭伙拷锟???'],
-        delayed: ['锟斤拷锟斤拷锟狡筹拷锟剿ｏ拷锟斤拷息锟斤拷锟斤拷锟缴伙拷锟斤拷影锟斤拷哦锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷 ??', '锟斤拷时锟斤拷锟狡迟猴拷锟斤拷锟斤拷锟斤拷锟斤拷太锟斤拷锟角ｏ拷锟斤拷锟斤拷锟斤拷 ??', '锟斤拷锟斤拷遣锟斤拷锟教拷锟斤拷耍锟斤拷锟斤拷锟较拷锟剿筹拷锟斤拷锟饺???']
+        delayed: ['锟斤拷锟斤拷锟狡筹拷锟剿ｏ拷锟斤拷息锟斤拷锟斤拷锟缴伙拷锟斤拷影锟斤拷哦锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷 ??', '锟斤拷时锟斤拷锟狡迟猴拷锟斤拷锟斤拷锟斤拷锟斤拷太锟斤拷锟角ｏ拷锟斤拷锟斤拷锟斤拷 ??', '锟斤拷锟斤拷遣锟斤拷锟教拷锟斤拷耍锟斤拷锟斤拷锟较拷锟剿筹拷锟斤拷锟斤拷???']
     };
     var pool = msgs[type] || [];
     var msg = pool[Math.floor(Math.random() * pool.length)] || '';
@@ -4227,7 +4258,7 @@ function updateTogetherDays(){
     if(!el) return;
     var timerEl = $('together-timer');
     var editRow = document.querySelector('#together-card-3d .together-date-row');
-    // 未锟斤拷裕锟秸嘉伙拷锟绞?
+    // 未锟斤拷裕锟秸嘉伙拷锟斤拷?
     if(!isPaired()){
         if(timerEl) timerEl.textContent = '??';
         el.textContent = '锟斤拷院锟斤拷锟?;
@@ -4297,7 +4328,7 @@ window.updateStartDate = function(source){
     updateTogetherDays();
 };
 
-/* ===== 锟斤拷锟斤拷锟教?===== */
+/* ===== 锟斤拷锟斤拷锟斤拷?===== */
 function renderRecentActivity(){
     var el = $('recent-activity');
     if(!el) return;
@@ -5421,7 +5452,7 @@ function computeChatUnread(){
     return n;
 }
 
-// 刷锟斤拷锟斤拷锟斤拷未锟斤拷锟角标（锟阶诧拷 tab + 锟结话锟叫憋拷锟斤拷慕潜辏?
+// 刷锟斤拷锟斤拷锟斤拷未锟斤拷锟角标（锟阶诧拷 tab + 锟结话锟叫憋拷锟斤拷慕潜锟?
 function updateChatUnreadBadges(){
     var chatView = $('msg-chat-view');
     var inChat = chatView && chatView.classList.contains('active');
@@ -6292,7 +6323,7 @@ window.sendAiMessage = function(){
     })
     .then(function(data){
         if(loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
-        var reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '锟斤拷歉锟斤拷锟斤拷没锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟剿???';
+        var reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '锟斤拷歉锟斤拷锟斤拷没锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷???';
         history.push({ role: 'assistant', content: reply });
         if(history.length > 200){ history = history.slice(-200); }
         DATA.aiChatHistory = history;
@@ -6404,7 +6435,7 @@ function aiScrollToBottom(){
         <p class="confirm-text">
             锟较匡拷锟斤拷锟斤拷锟斤拷锟狡讹拷同锟斤拷锟斤拷锟斤拷锟捷伙拷<b>锟斤拷锟斤拷 7 锟斤拷</b>锟斤拷7 锟斤拷锟斤拷锟斤拷原锟斤拷锟?ID 锟斤拷锟铰癸拷锟斤拷锟斤拷锟缴恢革拷锟斤拷<br>
             <b>7 锟斤拷锟斤拷锟斤拷萁锟斤拷锟斤拷锟缴撅拷锟斤拷锟斤拷薹锟斤拷一亍锟?/b><br><br>
-            锟较匡拷锟襟本伙拷锟斤拷锟斤拷锟斤拷锟斤拷斯锟斤拷锟斤拷锟斤拷荩锟斤拷锟绞硷拷锟斤拷锟?/ 锟斤拷锟斤拷锟斤拷 / 锟斤拷锟斤拷 / 锟斤拷锟节硷拷录锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟饺拷碌目瞻卓占洹?
+            锟较匡拷锟襟本伙拷锟斤拷锟斤拷锟斤拷锟斤拷斯锟斤拷锟斤拷锟斤拷荩锟斤拷锟绞硷拷锟斤拷锟?/ 锟斤拷锟斤拷锟斤拷 / 锟斤拷锟斤拷 / 锟斤拷锟节硷拷录锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟饺拷碌目瞻卓占锟?
         </p>
         <button class="confirm-btn confirm-cancel" onclick="closeUnpairConfirm()">锟斤拷锟斤拷锟斤拷</button>
         <button class="confirm-btn confirm-danger" onclick="confirmUnpair()">确锟斤拷锟较匡拷</button>
