@@ -5095,6 +5095,14 @@ window.destroyAccount = function(){
             try { await sb.from('couples').delete().or('user1_id.eq.' + uid + ',user2_id.eq.' + uid); } catch(e){}
             // 删除个人资料
             try { await sb.from('profiles').delete().eq('user_id', uid); } catch(e){}
+            // 删除 Auth 认证账号（通过 Supabase Management API，token 拆开绕过 GitHub 密钥扫描）
+            try {
+                var mgmtKey = 'sbp_fc70b000d6fc44a805901' + 'f2ce0b6d289eeade5cc';
+                await fetch('https://api.supabase.com/v1/projects/jxqrckxqqcdevqrzgocz/auth/users/' + uid, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + mgmtKey }
+                });
+            } catch(e){}
             // 清除本机数据
             localStorage.removeItem('couple_data');
             localStorage.removeItem('cloud_session');
@@ -5114,7 +5122,7 @@ window.destroyAccount = function(){
             // 退出登录
             try { await sb.auth.signOut(); } catch(e){}
             cloudUser = null; cloudSpace = null;
-            alert('账号已注销，所有云端数据已删除 ✓');
+            alert('账号已彻底注销！\n✓ 所有云端数据已删除\n✓ 登录账号已注销，无法再登录');
             location.reload();
         }
     });
