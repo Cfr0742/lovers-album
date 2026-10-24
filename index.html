@@ -1944,6 +1944,14 @@ body.no-glass * {
             <div id="profile-sub-account" class="home-sub-page" style="display:none">
                 <div class="sub-header"><button class="sub-back-btn" onclick="backToProfileDashboard()">←</button><span>👤 账号管理</span></div>
                 <div id="account-switcher"></div>
+                <div class="setting-item" style="margin-top:16px;border:1px solid #e57373;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="font-size:1rem;">⚠️</span>
+                        <span style="font-weight:600;color:#d32f2f;font-size:0.9rem;">危险操作</span>
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--theme-sub);margin-bottom:10px;">注销当前账号将<b style="color:#d32f2f;">永久删除</b>所有云端数据（纪念日、聊天记录、照片等），不可恢复。</p>
+                    <button class="share-btn" style="background:linear-gradient(135deg,#ef5350,#d32f2f);" onclick="destroyAccount()">🗑️ 注销当前账号（删除所有数据）</button>
+                </div>
             </div>
 
             <div id="profile-sub-cloud" class="home-sub-page" style="display:none">
@@ -5048,6 +5056,105 @@ window.doAddAccount = function(){
         doLogout();
     }
 };
+
+// 注销当前账号：删除云端所有数据 + 清本地 + 退出登录
+window.destroyAccount = function(){
+    var user = sbUser();
+    if(!user || !sb){
+        alert('未登录，无法注销');
+        return;
+    }
+    var mail = user.email || '当前';
+    showGenericConfirm({
+        icon: '⚠️',
+        title: '确认注销账号',
+        text: '确定要<b style="color:#d32f2f;">彻底注销</b>账号「<b>' + mail + '</b>」吗？<br><br>此操作将<b style="color:#d32f2f;">永久删除</b>以下所有云端数据：<br>• 配对的纪念日、聊天记录<br>• 照片、每日记录<br>• 经期记录和设置<br>• 个人资料<br><br><b style="color:#d32f2f;">数据一经删除无法恢复！</b>',
+        okText: '确认注销',
+        onOk: async function(){
+            var uid = user.id;
+            // 查找该用户的所有配对
+            var coupleIds = [];
+            try {
+                var cpRes = await sb.from('couples').select('pair_code').or('user1_id.eq.' + uid + ',user2_id.eq.' + uid);
+                if(cpRes.data && cpRes.data.length > 0){
+                    for(var i=0;i<cpRes.data.length;i++){
+                        if(cpRes.data[i].pair_code) coupleIds.push(cpRes.data[i].pair_code);
+                    }
+                }
+            } catch(e){}
+            // 删除每个配对下的所有数据
+            for(var j=0;j<coupleIds.length;j++){
+                var pc = coupleIds[j];
+                try { await sb.from('memorials').delete().eq('pair_code', pc); } catch(e){}
+                try { await sb.from('messages').delete().eq('pair_code', pc); } catch(e){}
+                try { await sb.from('dailies').delete().eq('pair_code', pc); } catch(e){}
+                try { await sb.from('photos').delete().eq('pair_code', pc); } catch(e){}
+                try { await sb.from('period_records').delete().eq('pair_code', pc); } catch(e){}
+            }
+            // 删除配对关系
+            try { await sb.from('couples').delete().or('user1_id.eq.' + uid + ',user2_id.eq.' + uid); } catch(e){}
+            // 删除个人资料
+            try { await sb.from('profiles').delete().eq('user_id', uid); } catch(e){}
+            // 清除本机数据
+            localStorage.removeItem('couple_data');
+            localStorage.removeItem('cloud_session');
+            try{ localStorage.removeItem('sb-refresh-token'); }catch(e){}
+            DATA = freshDefaultData();
+            // 清除账号列表中的当前账号
+            var lsKey = 'cfr_accounts_v1';
+            var list = [];
+            try {
+                var lsVal = localStorage.getItem(lsKey);
+                if(lsVal){ list = JSON.parse(lsVal); }
+            } catch(e){}
+            if(Array.isArray(list)){
+                list = list.filter(function(a){ return a && String(a.id) !== String(uid); });
+                localStorage.setItem(lsKey, JSON.stringify(list));
+            }
+            // 退出登录
+            try { await sb.auth.signOut(); } catch(e){}
+            cloudUser = null; cloudSpace = null;
+            alert('账号已注销，所有云端数据已删除 ✓');
+            location.reload();
+        }
+    });
+};
+
+function freshDefaultData(){
+    return {
+        startDate: '',
+        password: '',
+        theme: 'pink',
+        anniversaries: [],
+        dailies: [],
+        photos: [],
+        chats: [],
+        users: [],
+        myGender: '',
+        myNick: '我',
+        myAvatar: '',
+        myChatBg: '',
+        myAppBg: '',
+        partnerNick: 'TA',
+        partnerAvatar: '',
+        partnerGender: '',
+        periodRecords: [],
+        periodSettings: { cycleDays: 28, periodDays: 5 },
+        _tombstones: {},
+        lastReadChatId: 0,
+        _userId: '',
+        periodAutoCycle: false,
+        periodAutoDuration: false,
+        periodDismissedAlerts: {},
+        periodLastCaring: {},
+        aiKey: '',
+        _settingsDirty: false,
+        aiChatHistory: [],
+        aiChatBg: 'light',
+        cardLocked: false,
+        glassEnabled: true
+    };
+}
 
 window.deleteChatMsg = function(id){
     tombstoneMark('chats', id);
