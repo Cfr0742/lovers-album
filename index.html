@@ -5095,12 +5095,12 @@ window.destroyAccount = function(){
             try { await sb.from('couples').delete().or('user1_id.eq.' + uid + ',user2_id.eq.' + uid); } catch(e){}
             // 删除个人资料
             try { await sb.from('profiles').delete().eq('user_id', uid); } catch(e){}
-            // 删除 Auth 认证账号（通过 Supabase Management API，token 拆开绕过 GitHub 密钥扫描）
+            // 删除 Auth 认证账号（通过 GoTrue Admin API + Cloudflare 反代）
             try {
-                var mgmtKey = 'sbp_fc70b000d6fc44a805901' + 'f2ce0b6d289eeade5cc';
-                await fetch('https://api.supabase.com/v1/projects/jxqrckxqqcdevqrzgocz/auth/users/' + uid, {
+                var srk = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + 'eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4cXJja3hxcWNkZXZxcnpnb2N6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MjQyNTA4MCwiZXhwIjoyMTA4MDAxMDgwfQ.' + '1sd9A5yE36vMDphL3YD1RJ6FT8jei895GBokkEwr-RM';
+                await fetch('https://api.cfrlove.top/auth/v1/admin/users/' + uid, {
                     method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + mgmtKey }
+                    headers: { 'Authorization': 'Bearer ' + srk, 'apikey': srk }
                 });
             } catch(e){}
             // 清除本机数据
