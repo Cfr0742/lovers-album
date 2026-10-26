@@ -4011,7 +4011,22 @@ window.dismissPeriodAlert = function(alertId){
     DATA.periodDismissedAlerts = DATA.periodDismissedAlerts || {};
     DATA.periodDismissedAlerts[alertId] = true;
     saveData();
-    renderPeriodTracker();
+    var lastPeriod = getLastPeriod();
+    var settings = getEffectiveSettings();
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    var isRecordedToday = false;
+    var nextPeriod = null;
+    if(lastPeriod){
+        var ls = lastPeriod.start;
+        var actualDur = lastPeriod.duration || settings.periodDays;
+        var le = new Date(new Date(ls+'T00:00:00').getTime() + (actualDur - 1) * 86400000);
+        var leStr = le.getFullYear() + '-' + pad(le.getMonth()+1) + '-' + pad(le.getDate());
+        if(todayStr >= ls && todayStr <= leStr) isRecordedToday = true;
+        nextPeriod = getNextPeriod(lastPeriod, settings);
+    }
+    renderPeriodAlerts(lastPeriod, settings, nextPeriod, isRecordedToday);
+    updatePeriodBadge(lastPeriod, settings, nextPeriod, isRecordedToday, DATA.myGender === 'female');
 };
 
 window.updatePeriodBadge = function(lastPeriod, settings, nextPeriod, isRecordedToday, isGirl){
