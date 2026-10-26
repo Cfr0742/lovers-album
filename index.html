@@ -2820,10 +2820,14 @@ function cloudSyncNow(){
         DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
 
         // = 合并经期记录：云端优先，本地只保留刚创建尚未同步的新记录(_new标记)
+        // 用户重新记录已墓碑日期时，清除墓碑让记录可正常同步
         var periodMap = {};
         cloudPeriods.forEach(function(p){ if(p && p.start && !tombPeriods[p.start]){ periodMap[p.start] = p; } });
         (DATA.periodRecords || []).forEach(function(p){
-            if(p && p.start && !tombPeriods[p.start] && !periodMap[p.start] && p._new){ periodMap[p.start] = p; }
+            if(p && p.start && p._new && !periodMap[p.start]){
+                if(tombPeriods[p.start]){ delete tombPeriods[p.start]; delete tomb.periodRecords[p.start]; }
+                periodMap[p.start] = p;
+            }
         });
         DATA.periodRecords = Object.keys(periodMap).map(function(k){ return periodMap[k]; });
 
@@ -4079,6 +4083,9 @@ window.recordPeriodStart = function(dateStr){
             alert('该日期已经记录过了~');
             return false;
         }
+    }
+    if(DATA._tombstones && DATA._tombstones.periodRecords && DATA._tombstones.periodRecords[startStr]){
+        delete DATA._tombstones.periodRecords[startStr];
     }
     recs.push({ start: startStr, duration: periodDays, _new: true });
     if(recs.length > 50) recs.shift();
