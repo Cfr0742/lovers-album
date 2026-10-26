@@ -2945,6 +2945,7 @@ function cloudSyncNow(){
             // 两者都有但不同：以本地为准并回写（本地是最近操作）
             chatBgChanged = true;
         }
+        if(DATA._chatBgCleared) DATA._chatBgCleared = false;
 
         // 写回本地
         DATA.anniversaries.forEach(function(a){ delete a._cloud; });
