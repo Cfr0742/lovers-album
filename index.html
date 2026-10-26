@@ -3789,7 +3789,7 @@ window.renderPeriodCalendar = function(lastPeriod, settings){
     if(lastPeriod && lastPeriod.duration == null){
         var setDur = settings.periodDays;
         if(lastPeriod.start <= todayKey){
-            var currentDay = Math.round((today - new Date(lastPeriod.start + 'T00:00:00')) / 86400000) + 1;
+            var currentDay = Math.floor((today - new Date(lastPeriod.start + 'T00:00:00')) / 86400000) + 1;
             if(currentDay > setDur){
                 overtimeEndKey = todayKey;
             }
@@ -3974,7 +3974,7 @@ window.generatePeriodAlerts = function(lastPeriod, settings, nextPeriod, isRecor
         var ls = lastPeriod.start;
         var setDur = settings.periodDays;
         var actualDur = lastPeriod.duration || setDur;
-        var currentDay = Math.round((today - new Date(ls + 'T00:00:00')) / 86400000) + 1;
+        var currentDay = Math.floor((today - new Date(ls + 'T00:00:00')) / 86400000) + 1;
         if(currentDay > setDur && lastPeriod.duration == null){
             alerts.push({ id: 'overtime_' + ls, icon: '🔴', text: '经期已持续 ' + currentDay + ' 天（设置 ' + setDur + ' 天），记得去记录结束哦 🔔', level: 'alert-danger' });
         } else if(actualDur !== setDur && lastPeriod.duration != null){
@@ -6173,7 +6173,7 @@ window.renderDashboard = function(lastPeriod, settings, nextPeriod, phaseData){
     var predictNum = '—';
     if(lastPeriod){
         var ls = new Date(lastPeriod.start + 'T00:00:00');
-        var diffDays = Math.round((today - ls) / 86400000);
+        var diffDays = Math.floor((today - ls) / 86400000);
         var cycleDay = diffDays + 1;
         if(cycleDay <= cycleDays) cycleNum = cycleDay + '/' + cycleDays;
         var actualDur = lastPeriod.duration || periodDaysVal;
@@ -6226,7 +6226,7 @@ window.openSubPanel = function(id){
         title = '🔄 周期';
         if(lastPeriod){
             var ls = new Date(lastPeriod.start + 'T00:00:00');
-            var diffDays = Math.round((today - ls) / 86400000);
+            var diffDays = Math.floor((today - ls) / 86400000);
             var cycleDay = diffDays + 1;
             var cycleDaysVal = settings.cycleDays || 28;
             body = '<div class="sub-info-card"><div class="sub-info-row"><span>周期天数</span><span class="val">' + cycleDaysVal + ' 天</span></div><div class="sub-info-row"><span>当前第</span><span class="val">' + cycleDay + ' 天</span></div><div class="sub-info-row"><span>下次经期预计</span><span class="val">' + (nextPeriod ? nextPeriod.nextStart : '暂无') + '</span></div><button class="sub-goto-btn" onclick="openPeriodSettings()">⚙️ 调整周期设置</button></div>';
@@ -6237,7 +6237,7 @@ window.openSubPanel = function(id){
         title = '🩸 经期';
         if(lastPeriod){
             var ls2 = new Date(lastPeriod.start + 'T00:00:00');
-            var diffDays2 = Math.round((today - ls2) / 86400000);
+            var diffDays2 = Math.floor((today - ls2) / 86400000);
             var actualDur = lastPeriod.duration || settings.periodDays;
             var periodDaysVal2 = settings.periodDays || 5;
             body = '<div class="sub-info-card"><div class="sub-info-row"><span>经期持续</span><span class="val">' + periodDaysVal2 + ' 天</span></div><div class="sub-info-row"><span>上次经期</span><span class="val">' + lastPeriod.start + ' ~ ' + fmtDate(new Date(ls2.getTime() + (actualDur - 1) * 86400000)) + '</span></div>';
