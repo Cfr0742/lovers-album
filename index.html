@@ -2733,9 +2733,14 @@ function fixPhotoUrl(url){
     if(!url) return url;
     return url.replace('jxqrckxqqcdevqrzgocz.supabase.co', 'api.cfrlove.top');
 }
-// 经期记录指纹（按 start 排序）
+// 经期记录指纹（按 start 排序，忽略同步临时标记，避免误判为有变化）
 function cloudFingerprintPeriods(periodMap){
-    var list = Object.keys(periodMap || {}).map(function(k){ return periodMap[k]; }).sort(function(a, b){
+    var list = Object.keys(periodMap || {}).map(function(k){
+        var p = periodMap[k] || {};
+        var o = {};
+        for(var key in p){ if(key !== '_new' && key !== '_cloud'){ o[key] = p[key]; } }
+        return o;
+    }).sort(function(a, b){
         return String(a.start).localeCompare(String(b.start));
     });
     return JSON.stringify(list);
@@ -2819,15 +2824,20 @@ function cloudSyncNow(){
         });
         DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
 
-        // = 合并经期记录：云端优先，本地只保留刚创建尚未同步的新记录(_new标记)
-        // 用户重新记录已墓碑日期时，清除墓碑让记录可正常同步
+        // = 合并经期记录：云端 ∪ 本地（按 start 去重，墓碑过滤）
+        // 与纪念日/留言一致用并集：本地记录不会因为云端暂时为空而丢失，回写失败也能下次重试
         var periodMap = {};
-        cloudPeriods.forEach(function(p){ if(p && p.start && !tombPeriods[p.start]){ periodMap[p.start] = p; } });
+        cloudPeriods.forEach(function(p){
+            if(p && p.start && !tombPeriods[p.start]){ delete p._new; periodMap[p.start] = p; }
+        });
         (DATA.periodRecords || []).forEach(function(p){
-            if(p && p.start && p._new && !periodMap[p.start]){
-                if(tombPeriods[p.start]){ delete tombPeriods[p.start]; delete tomb.periodRecords[p.start]; }
-                periodMap[p.start] = p;
+            if(!p || !p.start) return;
+            // 本地刚记录(_new)但日期被旧墓碑挡住 → 清除该墓碑，让新记录生效
+            if(p._new && tombPeriods[p.start]){
+                delete tombPeriods[p.start];
+                if(tomb.periodRecords) delete tomb.periodRecords[p.start];
             }
+            if(!tombPeriods[p.start] && !periodMap[p.start]){ periodMap[p.start] = p; }
         });
         DATA.periodRecords = Object.keys(periodMap).map(function(k){ return periodMap[k]; });
 
@@ -2998,15 +3008,22 @@ function cloudSyncNow(){
             }
             if(!periodSame){
                 var delP = sb.from('period_records').delete().eq('couple_id', coupleId);
-                tasks.push(delP.then(function(){
+                tasks.push(delP.then(function(delRes){
+                    if(delRes && delRes.error){ console.warn('经期记录清理失败', delRes.error); return delRes; }
                     var tombPeriods = tomb.periodRecords || {};
                     var filtered = (DATA.periodRecords||[]).filter(function(p){ return !tombPeriods[p.start]; });
-                    if(filtered.length){
-                        filtered.forEach(function(p){ delete p._new; });
-                        var insP = filtered.map(function(p){ return periodToRow(p, coupleId); });
-                        return sb.from('period_records').insert(insP);
-                    }
-                    return null;
+                    if(!filtered.length) return null;
+                    var insP = filtered.map(function(p){ return periodToRow(p, coupleId); });
+                    return sb.from('period_records').insert(insP).then(function(insRes){
+                        // 写入成功才清除 _new 标记并落盘；失败则保留标记，下次同步自动重试
+                        if(insRes && !insRes.error){
+                            filtered.forEach(function(p){ delete p._new; });
+                            LSS('couple_data', DATA);
+                        } else {
+                            console.warn('经期记录写入失败，下次同步重试', insRes && insRes.error);
+                        }
+                        return insRes;
+                    });
                 }));
             }
             if(!dailySame){
