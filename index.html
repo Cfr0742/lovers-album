@@ -2318,6 +2318,16 @@ if(DATA.aiChatHistory == null){ DATA.aiChatHistory = []; }
 if(DATA.aiChatBg == null){ DATA.aiChatBg = 'light'; }
 if(DATA._userId == null){ DATA._userId = ''; }
 
+// 经期墓碑自愈：经期用「日期」作键，同一天很可能被重新记录（删了再记、补录历史等）。
+// 墓碑一旦残留会永久挡住该日期的记录，导致「记录后刷新就没了」。
+// 因此每次启动清空经期墓碑：删除操作仍会实时写墓碑并上云（防当前会话复活），
+// 但不跨会话保留，避免旧墓碑永久污染。
+(function(){
+    if(DATA._tombstones && DATA._tombstones.periodRecords){
+        DATA._tombstones.periodRecords = {};
+    }
+})();
+
 function saveData(){ LSS('couple_data', DATA); cloudPush(); }
 
 function pad(n){ return n < 10 ? '0' + n : '' + n; }
@@ -2709,7 +2719,9 @@ function fingerprintList(list){
 
 // 经期记录 序列化 <-> Supabase 行
 function periodToRow(p, coupleId){
-    return { couple_id: coupleId, start: p.start, remark: JSON.stringify(p) };
+    var o = {};
+    for(var k in p){ if(k !== '_new' && k !== '_cloud'){ o[k] = p[k]; } }
+    return { couple_id: coupleId, start: p.start, remark: JSON.stringify(o) };
 }
 function rowToPeriod(row){
     try { return JSON.parse(row.remark); } catch(e){ return null; }
@@ -2824,15 +2836,23 @@ function cloudSyncNow(){
         });
         DATA.chats = Object.keys(msgMap).map(function(k){ return msgMap[k]; }).sort(function(a,b){ return (a.id||0)-(b.id||0); }).filter(function(c){ return c; });
 
-        // = 合并经期记录：云端 ∪ 本地（按 start 去重，墓碑过滤）
-        // 与纪念日/留言一致用并集：本地记录不会因为云端暂时为空而丢失，回写失败也能下次重试
+        // = 合并经期记录：云端 ∪ 本地（按 start 去重）
+        // 墓碑规则（关键）：经期用「日期」作唯一键，同一天可能被重新记录。
+        //  - 云端存在该日期的记录行 → 说明是「重新记录」，墓碑作废（记录比墓碑新）
+        //  - 本地记录带 _new（刚记录还没上传）→ 墓碑作废
+        //  - 只有「云端无行且本地无新记录」时，墓碑才生效（真正删除的项）
         var periodMap = {};
         cloudPeriods.forEach(function(p){
-            if(p && p.start && !tombPeriods[p.start]){ delete p._new; periodMap[p.start] = p; }
+            if(!p || !p.start) return;
+            delete p._new;
+            if(tombPeriods[p.start]){
+                delete tombPeriods[p.start];
+                if(tomb.periodRecords) delete tomb.periodRecords[p.start];
+            }
+            periodMap[p.start] = p;
         });
         (DATA.periodRecords || []).forEach(function(p){
             if(!p || !p.start) return;
-            // 本地刚记录(_new)但日期被旧墓碑挡住 → 清除该墓碑，让新记录生效
             if(p._new && tombPeriods[p.start]){
                 delete tombPeriods[p.start];
                 if(tomb.periodRecords) delete tomb.periodRecords[p.start];
@@ -3122,6 +3142,27 @@ function cloudPushTombstone(){
             try { if(res.data && res.data.tombstones){ cloudTomb = JSON.parse(res.data.tombstones) || {}; } } catch(e){}
             var merged = mergeTombstones(cloudTomb, DATA._tombstones);
             return sb.from('couples').update({ tombstones: JSON.stringify(merged) }).eq('id', cloudSpace.couple_id)
+                .then(function(){ return true; });
+        })
+        .catch(function(){ return false; });
+}
+
+// 清除「某个经期日期」的墓碑（本地 + 云端）：重新记录该日期时调用，确保记录不被旧墓碑挡住。
+// 不能复用 cloudPushTombstone：它是并集，云端旧墓碑会被合并回来。
+function cloudRemovePeriodTombstone(startStr){
+    if(DATA._tombstones && DATA._tombstones.periodRecords){
+        delete DATA._tombstones.periodRecords[startStr];
+    }
+    if(!sb || !cloudSpace) return Promise.resolve(false);
+    return sb.from('couples').select('tombstones').eq('id', cloudSpace.couple_id).maybeSingle()
+        .then(function(res){
+            if(res && res.error) return false;
+            var t = {};
+            try { if(res.data && res.data.tombstones){ t = JSON.parse(res.data.tombstones) || {}; } } catch(e){}
+            t.periodRecords = t.periodRecords || {};
+            if(!t.periodRecords[startStr]) return false;
+            delete t.periodRecords[startStr];
+            return sb.from('couples').update({ tombstones: JSON.stringify(t) }).eq('id', cloudSpace.couple_id)
                 .then(function(){ return true; });
         })
         .catch(function(){ return false; });
@@ -4122,6 +4163,8 @@ window.recordPeriodStart = function(dateStr){
     }
     recs.push({ start: startStr, duration: periodDays, _new: true });
     if(recs.length > 50) recs.shift();
+    // 关键：清掉云端的同日期墓碑，否则下次同步会被墓碑过滤导致记录"刷新后就没了"
+    cloudRemovePeriodTombstone(startStr);
     try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
     var verified = false;
     try {
