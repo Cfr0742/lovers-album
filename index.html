@@ -2314,6 +2314,8 @@ if(DATA.periodDismissedAlerts == null){ DATA.periodDismissedAlerts = {}; }
 if(DATA.periodLastCaring == null){ DATA.periodLastCaring = {}; }
 if(DATA.aiKey == null){ DATA.aiKey = ''; }
 if(DATA._settingsDirty == null){ DATA._settingsDirty = false; }
+if(DATA._startDateDirty == null){ DATA._startDateDirty = false; }
+if(DATA._chatBgDirty == null){ DATA._chatBgDirty = false; }
 if(DATA.aiChatHistory == null){ DATA.aiChatHistory = []; }
 if(DATA.aiChatBg == null){ DATA.aiChatBg = 'light'; }
 if(DATA._userId == null){ DATA._userId = ''; }
@@ -2574,18 +2576,51 @@ function pullPartnerProfile(){
             if(!c) return null;
             var partnerId = (c.user1_id === me) ? c.user2_id : c.user1_id;
             if(!partnerId) return null;
+            startProfileRealtime(partnerId);
             return sb.from('profiles').select('*').eq('user_id', partnerId).maybeSingle();
         })
         .then(function(res){
             if(!res || !res.data) return;
             var p = res.data;
-            DATA.partnerNick = p.nick || 'TA';
-            DATA.partnerGender = p.gender || '';
-            DATA.partnerAvatar = p.avatar || '';
+            var nick = p.nick || 'TA';
+            var gender = p.gender || '';
+            var avatar = p.avatar || '';
+            // 内容没变化则不重渲染，避免轮询导致的界面闪烁
+            if(nick === DATA.partnerNick && gender === DATA.partnerGender && avatar === DATA.partnerAvatar) return;
+            DATA.partnerNick = nick;
+            DATA.partnerGender = gender;
+            DATA.partnerAvatar = avatar;
             LSS('couple_data', DATA);
             renderConversationList();
             renderChats();
         }).catch(function(){});
+}
+
+// 对方资料实时订阅：profiles 表按 user_id 过滤（配对双方各自一行）
+var profileRealtime = null;
+var profileRealtimeUserId = null;
+function startProfileRealtime(partnerId){
+    if(!sb || !partnerId) return;
+    if(profileRealtime && profileRealtimeUserId === partnerId) return;
+    if(profileRealtime){
+        try { sb.removeChannel(profileRealtime); } catch(e){}
+        profileRealtime = null;
+    }
+    profileRealtimeUserId = partnerId;
+    try {
+        var ch = sb.channel('profile-sync-' + partnerId);
+        ch.on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: 'user_id=eq.' + partnerId }, function(){
+            pullPartnerProfile();
+        });
+        ch.subscribe(function(status){
+            if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+                if(profileRealtime === ch){ profileRealtime = null; profileRealtimeUserId = null; }
+            }
+        });
+        profileRealtime = ch;
+    } catch(e){
+        profileRealtime = null;
+    }
 }
 
 /* ---------- 右上角 + 菜单 ---------- */
@@ -2888,6 +2923,7 @@ function cloudSyncNow(){
             DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
             DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
             DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+            DATA.periodSettings.aiChatBg = DATA.aiChatBg || 'light';
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
             });
@@ -2908,6 +2944,7 @@ function cloudSyncNow(){
                 DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
                 DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
                 DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+                DATA.periodSettings.aiChatBg = DATA.aiChatBg || 'light';
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
                 });
@@ -2920,6 +2957,8 @@ function cloudSyncNow(){
                 if(cloudSettings.cardLocked != null){ DATA.cardLocked = cloudSettings.cardLocked; }
                 if(cloudSettings.glassEnabled != null){ DATA.glassEnabled = cloudSettings.glassEnabled; }
                 if(cloudSettings.appBg){ DATA.myAppBg = cloudSettings.appBg; }
+                // AI 聊天背景
+                if(cloudSettings.aiChatBg){ DATA.aiChatBg = cloudSettings.aiChatBg; }
                 // 贴心智能开关
                 if(cloudSettings.periodAutoCycle != null){ DATA.periodAutoCycle = cloudSettings.periodAutoCycle; }
                 if(cloudSettings.periodAutoDuration != null){ DATA.periodAutoDuration = cloudSettings.periodAutoDuration; }
@@ -2932,6 +2971,7 @@ function cloudSyncNow(){
                 if((DATA.cardLocked||false) !== (cloudSettings.cardLocked||false)) settingsChanged = true;
                 if((DATA.glassEnabled===undefined?true:DATA.glassEnabled) !== (cloudSettings.glassEnabled===undefined?true:cloudSettings.glassEnabled)) settingsChanged = true;
                 if((DATA.myAppBg||'') !== (cloudSettings.appBg||'')) settingsChanged = true;
+                if((DATA.aiChatBg||'light') !== (cloudSettings.aiChatBg||'light')) settingsChanged = true;
                 if((DATA.periodAutoCycle||false) !== (cloudSettings.periodAutoCycle||false)) settingsChanged = true;
                 if((DATA.periodAutoDuration||false) !== (cloudSettings.periodAutoDuration||false)) settingsChanged = true;
                 if(JSON.stringify(DATA.dashboardItems||[]) !== JSON.stringify(cloudSettings.dashboardItems||[])) settingsChanged = true;
@@ -2943,6 +2983,7 @@ function cloudSyncNow(){
                 DATA.periodSettings.cardLocked = DATA.cardLocked || false;
                 DATA.periodSettings.glassEnabled = DATA.glassEnabled === undefined ? true : DATA.glassEnabled;
                 DATA.periodSettings.appBg = DATA.myAppBg || '';
+                DATA.periodSettings.aiChatBg = DATA.aiChatBg || 'light';
                 DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
                 DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
                 DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
@@ -2952,19 +2993,31 @@ function cloudSyncNow(){
             }
         }
 
-        // = 恋爱起始日期：本地有则回写云端，云端有而本地无则取云端 =
-        var startChanged = !!(DATA.startDate && (!coupleRow || !coupleRow.start_date));
-        if(!DATA.startDate && coupleRow && coupleRow.start_date){
+        // = 恋爱起始日期：本机主动修改(_startDateDirty)时以本地为准回写，否则云端优先 =
+        var startChanged = false;
+        if(DATA._startDateDirty){
+            if(DATA.startDate && (!coupleRow || coupleRow.start_date !== DATA.startDate)){ startChanged = true; }
+            else { DATA._startDateDirty = false; }
+        } else if(DATA.startDate && (!coupleRow || !coupleRow.start_date)){
+            startChanged = true;
+        } else if(!DATA.startDate && coupleRow && coupleRow.start_date){
+            DATA.startDate = coupleRow.start_date;
+        } else if(DATA.startDate && coupleRow && coupleRow.start_date && coupleRow.start_date !== DATA.startDate){
+            // 本机未主动修改 → 云端为准（对方改的日期才能生效）
             DATA.startDate = coupleRow.start_date;
         }
 
-        // = 留言背景：本地有则回写云端（云端若旧则用本地），云端有而本地无则取云端 =
-        // 首次上传背景控件在本地但云端空 → 回写；仅云端有 → 取云端；两者都有且不同 → 以最近修改为准
+        // = 留言背景：本机主动设置(_chatBgDirty)或主动清空(_chatBgCleared)才回写，否则云端优先 =
+        // 避免双方各设一次背景后"永远以本地为准"造成的无限互相覆盖
         var chatBgChanged = false;
         if(DATA._chatBgCleared){
             // 用户主动清空过背景 → 云端同步清空（本地与云端都为空）
             if(coupleRow && coupleRow.chat_bg){ chatBgChanged = true; }
             DATA.myChatBg = '';
+        } else if(DATA._chatBgDirty){
+            // 用户刚在本机设置背景 → 本地为准回写
+            if(DATA.myChatBg && (!coupleRow || coupleRow.chat_bg !== DATA.myChatBg)){ chatBgChanged = true; }
+            else { DATA._chatBgDirty = false; }
         } else if(DATA.myChatBg && (!coupleRow || !coupleRow.chat_bg)){
             // 本地有、云端空：本地推上云
             chatBgChanged = true;
@@ -2972,8 +3025,9 @@ function cloudSyncNow(){
             // 云端有、本地空（本地从未设置过）：取云端
             DATA.myChatBg = coupleRow.chat_bg;
         } else if(coupleRow && coupleRow.chat_bg && DATA.myChatBg && coupleRow.chat_bg !== DATA.myChatBg){
-            // 两者都有但不同：以本地为准并回写（本地是最近操作）
-            chatBgChanged = true;
+            // 两边都有但不同且本机未主动修改 → 云端为准（对方新设置的背景才能生效）
+            DATA.myChatBg = coupleRow.chat_bg;
+            applyChatBg(DATA.myChatBg);
         }
         if(DATA._chatBgCleared) DATA._chatBgCleared = false;
 
@@ -2987,6 +3041,7 @@ function cloudSyncNow(){
         if(DATA.theme) switchTheme(DATA.theme, true);
         if(DATA.glassEnabled === false){ document.body.classList.add('no-glass'); } else { document.body.classList.remove('no-glass'); }
         if(DATA.myAppBg){ applyAppBg(DATA.myAppBg); }
+        if(typeof applyAiBg === 'function'){ applyAiBg(DATA.aiChatBg || 'light', true); }
         refreshAll();
 
         // 合并后与云端一致且起始日期/经期/墓碑均无变化 → 无需回写
@@ -3009,7 +3064,14 @@ function cloudSyncNow(){
         if(tombChanged){ coupleUpdate.tombstones = JSON.stringify(tomb); }
         var startTask = Promise.resolve();
         if(Object.keys(coupleUpdate).length){
-            startTask = sb.from('couples').update(coupleUpdate).eq('id', coupleId);
+            startTask = sb.from('couples').update(coupleUpdate).eq('id', coupleId).then(function(uRes){
+                // 写入成功才清除脏标记；失败则保留，下次同步自动重试
+                if(uRes && !uRes.error){
+                    if(startChanged){ DATA._startDateDirty = false; }
+                    if(chatBgChanged){ DATA._chatBgDirty = false; }
+                }
+                return uRes;
+            });
         }
 
         return startTask.then(function(){
@@ -3262,12 +3324,22 @@ function startCloudPoll(){
     startRealtime();
     cloudSyncNow();   // 进入空间立即拉取一次
     if(!cloudPollTimer){
-        cloudPollTimer = setInterval(function(){ startRealtime(); cloudSyncNow(); }, 60000);
+        cloudPollTimer = setInterval(function(){
+            startRealtime();
+            cloudSyncNow();
+            pullPartnerProfile();   // 对方昵称/头像兜底拉取
+        }, 60000);
     }
 }
 function stopCloudPoll(){
     if(cloudPollTimer){ clearInterval(cloudPollTimer); cloudPollTimer = null; }
     stopRealtime();
+    if(profileRealtime){
+        var pch = profileRealtime;
+        profileRealtime = null;
+        profileRealtimeUserId = null;
+        try { if(sb) sb.removeChannel(pch); } catch(e){}
+    }
 }
 
 window.cloudLogout = async function(){
@@ -4448,6 +4520,7 @@ window.updateStartDate = function(source){
         $('home-start-date').value = v;
     }
     DATA.startDate = v;
+    DATA._startDateDirty = true;   // 标记"本机主动修改"，同步时强制回写云端
     saveData();
     updateTogetherDays();
 };
@@ -5334,6 +5407,7 @@ window.setChatBg = function(e){
             var base64 = canvas.toDataURL('image/jpeg', 0.85);
             DATA.myChatBg = base64;
             DATA._chatBgCleared = false;   // 已重新设置背景，取消“清空”标记
+            DATA._chatBgDirty = true;      // 标记"本机主动设置"，同步时回写云端
             saveData();
             applyChatBg(base64);
         };
@@ -6491,7 +6565,7 @@ window.deleteDashboardItem = function(idx){
 /* ===== AI 聊天 ===== */
 window.openAiChat = function(){
     $('ai-chat-view').classList.add('active');
-    applyAiBg(DATA.aiChatBg);
+    applyAiBg(DATA.aiChatBg, true);
     renderAiChat();
     setTimeout(function(){ $('ai-chat-input').focus(); }, 200);
 };
@@ -6587,7 +6661,7 @@ window.openAiThemePicker = function(){
     $('ai-color-row').style.display = 'none';
 };
 
-window.applyAiBg = function(mode){
+window.applyAiBg = function(mode, silent){
     var v = $('ai-chat-view');
     v.classList.remove('bg-dark','bg-light','bg-custom');
     if(mode.indexOf('custom-') === 0){
@@ -6598,6 +6672,11 @@ window.applyAiBg = function(mode){
         v.classList.add('bg-'+mode);
     }
     DATA.aiChatBg = mode;
+    if(!silent){
+        // 用户主动选择配色 → 标记设置变更并立即同步到对方
+        DATA._settingsDirty = true;
+        if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
+    }
     saveData();
     $('ai-theme-mask').style.display = 'none';
 };
