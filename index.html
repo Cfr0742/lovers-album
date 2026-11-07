@@ -2976,6 +2976,7 @@ function cloudSyncNow(){
             DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
             DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
             DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+            DATA.periodSettings.dashboardLogs = DATA.dashboardLogs || {};
                 DATA.periodSettings.users = DATA.users || [];
             DATA.periodSettings.aiChatBg = DATA.aiChatBg || 'light';
             DATA.periodSettings.users = DATA.users || [];
@@ -2998,6 +2999,7 @@ function cloudSyncNow(){
                 DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
                 DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
                 DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+                DATA.periodSettings.dashboardLogs = DATA.dashboardLogs || {};
                 DATA.periodSettings.aiChatBg = DATA.aiChatBg || 'light';
                 DATA.periodSettings.users = DATA.users || [];
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
@@ -3019,6 +3021,7 @@ function cloudSyncNow(){
                 if(cloudSettings.periodAutoDuration != null){ DATA.periodAutoDuration = cloudSettings.periodAutoDuration; }
                 // 仪表盘自定义项
                 try { if(cloudSettings.dashboardItems){ DATA.dashboardItems = cloudSettings.dashboardItems; } } catch(e){}
+                try { if(cloudSettings.dashboardLogs){ DATA.dashboardLogs = cloudSettings.dashboardLogs; } } catch(e){}
                 try { if(cloudSettings.users){ DATA.users = cloudSettings.users; } } catch(e){}
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
@@ -3031,6 +3034,7 @@ function cloudSyncNow(){
                 if((DATA.periodAutoCycle||false) !== (cloudSettings.periodAutoCycle||false)) settingsChanged = true;
                 if((DATA.periodAutoDuration||false) !== (cloudSettings.periodAutoDuration||false)) settingsChanged = true;
                 if(JSON.stringify(DATA.dashboardItems||[]) !== JSON.stringify(cloudSettings.dashboardItems||[])) settingsChanged = true;
+                if(JSON.stringify(DATA.dashboardLogs||{}) !== JSON.stringify(cloudSettings.dashboardLogs||{})) settingsChanged = true;
                 if(JSON.stringify(DATA.users||[]) !== JSON.stringify(cloudSettings.users||[])) settingsChanged = true;
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     if((DATA['locked_'+v]||'') !== (cloudSettings['locked_'+v]||'')) settingsChanged = true;
@@ -3044,6 +3048,7 @@ function cloudSyncNow(){
                 DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
                 DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
                 DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+                DATA.periodSettings.dashboardLogs = DATA.dashboardLogs || {};
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
                 });
@@ -6487,7 +6492,28 @@ window.openSubPanel = function(id){
         if(customItems[idx]){
             var item = customItems[idx];
             title = item.emoji + ' ' + item.label;
-            body = '<div class="sub-info-card"><div style="text-align:center;padding:16px;color:#999;">记录追踪功能开发中...</div></div>';
+            var today = new Date();
+            var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+            var logs = DATA.dashboardLogs || {};
+            var todayVal = (logs[todayStr] && logs[todayStr][item.label]) ? logs[todayStr][item.label] : (item.val || '');
+            body = '<div class="sub-info-card">';
+            body += '<div class="sub-info-row"><span>今天 ' + todayStr + '</span></div>';
+            body += '<div style="display:flex;gap:8px;margin-top:6px;"><input id="dash-track-input" value="' + escapeHtml(todayVal) + '" placeholder="输入今天的' + item.label + '" style="flex:1;padding:8px 12px;border:1px solid var(--theme-tint-m);border-radius:10px;font-size:0.9rem;background:rgba(255,255,255,0.6);outline:none;" onkeydown="if(event.key===\'Enter\'){saveDashTrackLog(' + idx + ');}"><button onclick="saveDashTrackLog(' + idx + ')" class="sub-goto-btn" style="padding:8px 14px;">保存</button></div>';
+            body += '</div>';
+            var dates = Object.keys(logs).filter(function(d){ return logs[d] && logs[d][item.label]; }).sort().reverse();
+            if(dates.length){
+                body += '<div class="sub-info-card" style="margin-top:10px;"><div style="font-size:0.8rem;color:var(--theme-sub);margin-bottom:6px;">📊 历史记录</div>';
+                var showN = Math.min(14, dates.length);
+                for(var di = 0; di < showN; di++){
+                    var d = dates[di];
+                    var v = logs[d][item.label];
+                    body += '<div class="sub-info-row"><span>' + d + '</span><span class="val">' + escapeHtml(String(v)) + '</span><span class="history-del" onclick="event.stopPropagation();deleteDashTrackLog(' + idx + ',\'' + d + '\')">✕</span></div>';
+                }
+                if(dates.length > showN) body += '<div style="text-align:center;color:#999;font-size:0.75rem;padding-top:4px;">仅显示最近 ' + showN + ' 条</div>';
+                body += '</div>';
+            } else {
+                body += '<div style="text-align:center;color:#bbb;font-size:0.8rem;padding:12px;">还没有历史记录</div>';
+            }
         } else {
             title = '未知';
             body = '<div style="text-align:center;color:#bbb;padding:20px;">数据不存在</div>';
@@ -6602,6 +6628,55 @@ window.deleteDashboardItem = function(idx){
     var settings = getEffectiveSettings();
     var nextPeriod = lastPeriod ? getNextPeriod(lastPeriod, settings) : null;
     renderDashboard(lastPeriod, settings, nextPeriod, {day:0,phase:'none'});
+};
+
+window.saveDashTrackLog = function(idx){
+    var input = $('dash-track-input');
+    if(!input) return;
+    var val = input.value.trim();
+    var items = DATA.dashboardItems || [];
+    if(!items[idx]) return;
+    var item = items[idx];
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    if(!DATA.dashboardLogs) DATA.dashboardLogs = {};
+    if(!DATA.dashboardLogs[todayStr]) DATA.dashboardLogs[todayStr] = {};
+    if(val){
+        DATA.dashboardLogs[todayStr][item.label] = val;
+        item.val = val;
+    } else {
+        delete DATA.dashboardLogs[todayStr][item.label];
+        if(Object.keys(DATA.dashboardLogs[todayStr]).length === 0) delete DATA.dashboardLogs[todayStr];
+        item.val = '';
+    }
+    saveData();
+    DATA._settingsDirty = true;
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
+    var lastPeriod = getLastPeriod();
+    var settings = getEffectiveSettings();
+    var nextPeriod = lastPeriod ? getNextPeriod(lastPeriod, settings) : null;
+    renderDashboard(lastPeriod, settings, nextPeriod, {day:0,phase:'none'});
+    openSubPanel('custom_' + idx);
+};
+
+window.deleteDashTrackLog = function(idx, date){
+    var items = DATA.dashboardItems || [];
+    if(!items[idx]) return;
+    var item = items[idx];
+    if(!DATA.dashboardLogs || !DATA.dashboardLogs[date] || !DATA.dashboardLogs[date][item.label]) return;
+    delete DATA.dashboardLogs[date][item.label];
+    if(Object.keys(DATA.dashboardLogs[date]).length === 0) delete DATA.dashboardLogs[date];
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+    if(date === todayStr){ item.val = ''; }
+    saveData();
+    DATA._settingsDirty = true;
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
+    var lastPeriod = getLastPeriod();
+    var settings = getEffectiveSettings();
+    var nextPeriod = lastPeriod ? getNextPeriod(lastPeriod, settings) : null;
+    renderDashboard(lastPeriod, settings, nextPeriod, {day:0,phase:'none'});
+    openSubPanel('custom_' + idx);
 };
 
 /* ===== AI 聊天 ===== */
