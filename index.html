@@ -3022,6 +3022,7 @@ function cloudSyncNow(){
                 // 仪表盘自定义项
                 try { if(cloudSettings.dashboardItems){ DATA.dashboardItems = cloudSettings.dashboardItems; } } catch(e){}
                 try { if(cloudSettings.dashboardLogs){ DATA.dashboardLogs = cloudSettings.dashboardLogs; } } catch(e){}
+                (DATA.dashboardItems||[]).forEach(function(it){ var _t=new Date(); var _ts=_t.getFullYear()+'-'+pad(_t.getMonth()+1)+'-'+pad(_t.getDate()); try{ it.val = (DATA.dashboardLogs&&DATA.dashboardLogs[_ts]&&DATA.dashboardLogs[_ts][it.label])||it.val||''; }catch(e2){} });
                 try { if(cloudSettings.users){ DATA.users = cloudSettings.users; } } catch(e){}
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
@@ -6394,7 +6395,8 @@ window.renderDashboard = function(lastPeriod, settings, nextPeriod, phaseData){
     var customItems = DATA.dashboardItems || [];
     for(var i = 0; i < customItems.length; i++){
         var item = customItems[i];
-        html += '<div class="dash-circle dash-custom" data-custom-idx="' + i + '" onclick="openSubPanel(\'custom_' + i + '\')" ontouchstart="dashTouchStart(event,' + i + ')" ontouchend="dashTouchEnd(event)" oncontextmenu="event.preventDefault();deleteDashboardItem(' + i + ');return false;"><span class="emoji">' + item.emoji + '</span><span class="num">' + (item.val || '') + '</span><span class="lbl">' + item.label + '</span></div>';
+        var _t = new Date(); var _ts = _t.getFullYear()+'-'+pad(_t.getMonth()+1)+'-'+pad(_t.getDate()); var _todayVal = (DATA.dashboardLogs && DATA.dashboardLogs[_ts] && DATA.dashboardLogs[_ts][item.label]) || item.val || '';
+        html += '<div class="dash-circle dash-custom" data-custom-idx="' + i + '" onclick="openSubPanel(\'custom_' + i + '\')" ontouchstart="dashTouchStart(event,' + i + ')" ontouchend="dashTouchEnd(event)" oncontextmenu="event.preventDefault();deleteDashboardItem(' + i + ');return false;"><span class="emoji">' + item.emoji + '</span><span class="num">' + (_todayVal || '') + '</span><span class="lbl">' + item.label + '</span></div>';
     }
     container.innerHTML = html;
 };
