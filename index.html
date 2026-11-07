@@ -2976,7 +2976,9 @@ function cloudSyncNow(){
             DATA.periodSettings.periodAutoCycle = DATA.periodAutoCycle || false;
             DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
             DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
+                DATA.periodSettings.users = DATA.users || [];
             DATA.periodSettings.aiChatBg = DATA.aiChatBg || 'light';
+            DATA.periodSettings.users = DATA.users || [];
             ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                 DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
             });
@@ -2987,7 +2989,6 @@ function cloudSyncNow(){
             }
             // = 外观/智能/仪表盘同步：脏标记=推本地，否则拉云端 =
             if(DATA._settingsDirty){
-                DATA._settingsDirty = false;
                 settingsChanged = true;
                 DATA.periodSettings.aiKey = DATA.aiKey || '';
                 DATA.periodSettings.theme = DATA.theme || '';
@@ -2998,6 +2999,7 @@ function cloudSyncNow(){
                 DATA.periodSettings.periodAutoDuration = DATA.periodAutoDuration || false;
                 DATA.periodSettings.dashboardItems = DATA.dashboardItems || [];
                 DATA.periodSettings.aiChatBg = DATA.aiChatBg || 'light';
+                DATA.periodSettings.users = DATA.users || [];
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     DATA.periodSettings['locked_'+v] = DATA['locked_'+v] || '';
                 });
@@ -3017,6 +3019,7 @@ function cloudSyncNow(){
                 if(cloudSettings.periodAutoDuration != null){ DATA.periodAutoDuration = cloudSettings.periodAutoDuration; }
                 // 仪表盘自定义项
                 try { if(cloudSettings.dashboardItems){ DATA.dashboardItems = cloudSettings.dashboardItems; } } catch(e){}
+                try { if(cloudSettings.users){ DATA.users = cloudSettings.users; } } catch(e){}
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     if(cloudSettings['locked_'+v]){ DATA['locked_'+v] = cloudSettings['locked_'+v]; }
                 });
@@ -3028,6 +3031,7 @@ function cloudSyncNow(){
                 if((DATA.periodAutoCycle||false) !== (cloudSettings.periodAutoCycle||false)) settingsChanged = true;
                 if((DATA.periodAutoDuration||false) !== (cloudSettings.periodAutoDuration||false)) settingsChanged = true;
                 if(JSON.stringify(DATA.dashboardItems||[]) !== JSON.stringify(cloudSettings.dashboardItems||[])) settingsChanged = true;
+                if(JSON.stringify(DATA.users||[]) !== JSON.stringify(cloudSettings.users||[])) settingsChanged = true;
                 ['--theme-card','--theme-tint-l','--theme-tint-m','--theme-tint-d'].forEach(function(v){
                     if((DATA['locked_'+v]||'') !== (cloudSettings['locked_'+v]||'')) settingsChanged = true;
                 });
@@ -3093,6 +3097,10 @@ function cloudSyncNow(){
         // 应用云端同步的外观设置（主题/卡片锁色/毛玻璃/背景）
         if(DATA.theme) switchTheme(DATA.theme, true);
         if(DATA.glassEnabled === false){ document.body.classList.add('no-glass'); } else { document.body.classList.remove('no-glass'); }
+        var lockTog = document.getElementById('card-lock-toggle');
+        if(lockTog) lockTog.checked = !!DATA.cardLocked;
+        var glassTog = document.getElementById('glass-toggle');
+        if(glassTog) glassTog.checked = DATA.glassEnabled !== false;
         if(DATA.myAppBg){ applyAppBg(DATA.myAppBg); }
         if(typeof applyAiBg === 'function'){ applyAiBg(DATA.aiChatBg || 'light', true); }
         refreshAll();
@@ -3122,6 +3130,7 @@ function cloudSyncNow(){
                 if(uRes && !uRes.error){
                     if(startChanged){ DATA._startDateDirty = false; }
                     if(chatBgChanged){ DATA._chatBgDirty = false; }
+                    if(settingsChanged){ DATA._settingsDirty = false; }
                 }
                 return uRes;
             });
@@ -4041,10 +4050,12 @@ window.endPeriodFromSelected = function(){
     var pSettings = DATA.periodSettings || { periodDays: 5 };
     DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
     DATA.periodSettings.periodDays = dur;
+    DATA._settingsDirty = true;
     if(dur < pSettings.periodDays){ showCaringMsg('early'); }
     else if(dur > pSettings.periodDays){ showCaringMsg('late'); }
     try { localStorage.setItem(curDataKey(), JSON.stringify(DATA)); } catch(e){}
     saveData();
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     periodSelectedDate = null;
     renderPeriodTracker();
 };
@@ -5943,9 +5954,11 @@ window.switchTheme = function(name, init){
             document.body.style.removeProperty(v);
         });
     }
-    saveData();
-    DATA._settingsDirty = true;
-    if(!init && cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
+    if(!init){
+        saveData();
+        DATA._settingsDirty = true;
+        if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
+    }
     updateThemeBtns();
 };
 
@@ -6020,12 +6033,16 @@ window.addUser = function(){
     if(!DATA.users) DATA.users = [];
     DATA.users.push({name:name, role:role, emoji:role});
     saveData();
+    DATA._settingsDirty = true;
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     renderUserManager();
 };
 
 window.delUser = function(index){
     DATA.users.splice(index, 1);
     saveData();
+    DATA._settingsDirty = true;
+    if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     renderUserManager();
 };
 
