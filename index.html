@@ -1,4 +1,4 @@
-﻿﻿﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -2279,46 +2279,99 @@ function LSS(key, val){
     try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
 }
 
-/* 核心数据 */
-var DATA = LS('couple_data', {
-    startDate: '',
-    password: '',
-    theme: 'pink',
-    anniversaries: [],
-    dailies: [],
-    photos: [],
-    chats: [],
-    users: [],
-    myGender: '',        // 我的性别：'male' | 'female' | ''（未设置，在个人信息里选）
-    myNick: '我',
-    myAvatar: '',
-    myChatBg: '',
-    myAppBg: '',
-    partnerNick: 'TA',   // 对方资料（配对后从云端同步）
-    partnerAvatar: '',
-    partnerGender: '',
-    periodRecords: [],
-    periodSettings: { cycleDays: 28, periodDays: 5 },
-    _tombstones: {},     // 本机"已删除"墓碑：{anniversaries:{id:1},chats:{},dailies:{},photos:{},periodRecords:{start:1}}
-    lastReadChatId: 0    // 本机"最后已读"的留言 id（未读数 = 对方发的且 id 更大的条数）
-});
+/* ===== 本地缓存按账号隔离 =====
+   同一浏览器切换账号时，若共用同一个 key，A 账号的数据会残留在 B 账号的缓存里，
+   再被"云端 ∪ 本地"并集推上云端 → 造成换浏览器登录后内容不一致（串号）。
+   因此每个账号使用独立 key：couple_data_<userId>；未登录时用 couple_data。 */
+var DATA_KEY_BASE = 'couple_data';
+var curUid = (function(){
+    try { return localStorage.getItem('couple_last_uid') || ''; } catch(e){ return ''; }
+})();
+function dataKeyFor(uid){ return uid ? (DATA_KEY_BASE + '_' + uid) : DATA_KEY_BASE; }
+function curDataKey(){ return dataKeyFor(curUid); }
 
-// 兼容旧数据：确保墓碑对象 / 已读标记 / 背景字段存在
-DATA._tombstones = DATA._tombstones || {};
-if(DATA.lastReadChatId == null){ DATA.lastReadChatId = 0; }
-if(DATA.myChatBg == null){ DATA.myChatBg = ''; }
-if(DATA.myAppBg == null){ DATA.myAppBg = ''; }
-if(DATA.periodAutoCycle == null){ DATA.periodAutoCycle = false; }
-if(DATA.periodAutoDuration == null){ DATA.periodAutoDuration = false; }
-if(DATA.periodDismissedAlerts == null){ DATA.periodDismissedAlerts = {}; }
-if(DATA.periodLastCaring == null){ DATA.periodLastCaring = {}; }
-if(DATA.aiKey == null){ DATA.aiKey = ''; }
-if(DATA._settingsDirty == null){ DATA._settingsDirty = false; }
-if(DATA._startDateDirty == null){ DATA._startDateDirty = false; }
-if(DATA._chatBgDirty == null){ DATA._chatBgDirty = false; }
-if(DATA.aiChatHistory == null){ DATA.aiChatHistory = []; }
-if(DATA.aiChatBg == null){ DATA.aiChatBg = 'light'; }
-if(DATA._userId == null){ DATA._userId = ''; }
+/* 默认数据结构（每次调用返回全新对象，避免共享引用） */
+function DEFAULT_DATA(){
+    return {
+        startDate: '',
+        password: '',
+        theme: 'pink',
+        anniversaries: [],
+        dailies: [],
+        photos: [],
+        chats: [],
+        users: [],
+        myGender: '',        // 我的性别：'male' | 'female' | ''（未设置，在个人信息里选）
+        myNick: '我',
+        myAvatar: '',
+        myChatBg: '',
+        myAppBg: '',
+        partnerNick: 'TA',   // 对方资料（配对后从云端同步）
+        partnerAvatar: '',
+        partnerGender: '',
+        periodRecords: [],
+        periodSettings: { cycleDays: 28, periodDays: 5 },
+        _tombstones: {},     // 本机"已删除"墓碑：{anniversaries:{id:1},chats:{},dailies:{},photos:{},periodRecords:{start:1}}
+        lastReadChatId: 0    // 本机"最后已读"的留言 id（未读数 = 对方发的且 id 更大的条数）
+    };
+}
+
+/* 兼容旧数据：补齐缺失字段 */
+function applyDataCompat(d){
+    if(!d) d = DEFAULT_DATA();
+    d._tombstones = d._tombstones || {};
+    if(d.lastReadChatId == null){ d.lastReadChatId = 0; }
+    if(d.myChatBg == null){ d.myChatBg = ''; }
+    if(d.myAppBg == null){ d.myAppBg = ''; }
+    if(d.periodAutoCycle == null){ d.periodAutoCycle = false; }
+    if(d.periodAutoDuration == null){ d.periodAutoDuration = false; }
+    if(d.periodDismissedAlerts == null){ d.periodDismissedAlerts = {}; }
+    if(d.periodLastCaring == null){ d.periodLastCaring = {}; }
+    if(d.aiKey == null){ d.aiKey = ''; }
+    if(d._settingsDirty == null){ d._settingsDirty = false; }
+    if(d._startDateDirty == null){ d._startDateDirty = false; }
+    if(d._chatBgDirty == null){ d._chatBgDirty = false; }
+    if(d.aiChatHistory == null){ d.aiChatHistory = []; }
+    if(d.aiChatBg == null){ d.aiChatBg = 'light'; }
+    if(d._userId == null){ d._userId = ''; }
+    return d;
+}
+
+/* 核心数据 */
+var DATA = applyDataCompat(LS(curDataKey(), DEFAULT_DATA()));
+
+/* 为指定账号装载本地缓存；返回 true 表示数据发生了切换（调用方需重渲染） */
+function loadDataForUser(uid){
+    if(!uid) return false;
+    if(curUid === uid){
+        DATA._userId = uid;
+        return false;
+    }
+    // 先落盘当前账号的缓存，避免切换时丢改动
+    if(curUid){ LSS(dataKeyFor(curUid), DATA); }
+    curUid = uid;
+    try { localStorage.setItem('couple_last_uid', uid); } catch(e){}
+
+    var target = dataKeyFor(uid);
+    var saved = LS(target, null);
+    if(saved && saved._userId === uid){
+        DATA = applyDataCompat(saved);
+        return true;
+    }
+    // 首次为该账号建立缓存：尝试迁移旧版"无账号隔离"的缓存
+    var legacy = null;
+    try { legacy = JSON.parse(localStorage.getItem(DATA_KEY_BASE)); } catch(e){}
+    if(legacy && (!legacy._userId || legacy._userId === uid) && !legacy._migrated){
+        DATA = applyDataCompat(legacy);
+        // 旧缓存已被认领，写一个占位标记，防止后续换账号时被重复迁移（串号）
+        try { localStorage.setItem(DATA_KEY_BASE, JSON.stringify({ _userId: uid, _migrated: true })); } catch(e){}
+    } else {
+        DATA = applyDataCompat(DEFAULT_DATA());
+    }
+    DATA._userId = uid;
+    LSS(target, DATA);
+    return true;
+}
 
 // 经期墓碑自愈：经期用「日期」作键，同一天很可能被重新记录（删了再记、补录历史等）。
 // 墓碑一旦残留会永久挡住该日期的记录，导致「记录后刷新就没了」。
@@ -2330,7 +2383,7 @@ if(DATA._userId == null){ DATA._userId = ''; }
     }
 })();
 
-function saveData(){ LSS('couple_data', DATA); cloudPush(); }
+function saveData(){ LSS(curDataKey(), DATA); cloudPush(); }
 
 function pad(n){ return n < 10 ? '0' + n : '' + n; }
 
@@ -2559,7 +2612,7 @@ function pullMyProfile(){
                 if(p.nick) DATA.myNick = p.nick;
                 if(p.gender) DATA.myGender = p.gender;
                 if(p.avatar) DATA.myAvatar = p.avatar;
-                LSS('couple_data', DATA);
+                LSS(curDataKey(), DATA);
                 renderAccountSwitcher();
                 updateProfileHeader();
             }
@@ -2590,7 +2643,7 @@ function pullPartnerProfile(){
             DATA.partnerNick = nick;
             DATA.partnerGender = gender;
             DATA.partnerAvatar = avatar;
-            LSS('couple_data', DATA);
+            LSS(curDataKey(), DATA);
             renderConversationList();
             renderChats();
         }).catch(function(){});
@@ -2666,7 +2719,7 @@ function resetCoupleData(){
     DATA.partnerGender = '';
     DATA._tombstones = {};
     DATA.lastReadChatId = 0;
-    LSS('couple_data', DATA);
+    LSS(curDataKey(), DATA);
 }
 
 window.doUnpair = function(){
@@ -3036,7 +3089,7 @@ function cloudSyncNow(){
         DATA.chats.forEach(function(c){ delete c._cloud; });
         DATA.dailies.forEach(function(d){ delete d._cloud; });
         DATA.photos.forEach(function(p){ delete p._cloud; });
-        LSS('couple_data', DATA);
+        LSS(curDataKey(), DATA);
         // 应用云端同步的外观设置（主题/卡片锁色/毛玻璃/背景）
         if(DATA.theme) switchTheme(DATA.theme, true);
         if(DATA.glassEnabled === false){ document.body.classList.add('no-glass'); } else { document.body.classList.remove('no-glass'); }
@@ -3100,7 +3153,7 @@ function cloudSyncNow(){
                         // 写入成功才清除 _new 标记并落盘；失败则保留标记，下次同步自动重试
                         if(insRes && !insRes.error){
                             filtered.forEach(function(p){ delete p._new; });
-                            LSS('couple_data', DATA);
+                            LSS(curDataKey(), DATA);
                         } else {
                             console.warn('经期记录写入失败，下次同步重试', insRes && insRes.error);
                         }
@@ -3409,54 +3462,26 @@ window.doPairSubmit = function(){
 };
 
 // 登录/注册成功后的统一入口：直接进主页（微信式），再拉资料、启同步
+// 登录/注册成功后的统一入口：直接进主页（微信式），再拉资料、启同步
 function enterMainAfterAuth(){
     var user = sbUser();
-    
-    // 🔑 数据隔离：检测是否换了不同的用户账号
-    if(user && DATA._userId && DATA._userId !== user.id){
-        // 换号了！重置所有本地数据为全新空白
-        DATA.startDate = '';
-        DATA.password = '';
-        DATA.anniversaries = [];
-        DATA.dailies = [];
-        DATA.photos = [];
-        DATA.chats = [];
-        DATA.users = [];
-        DATA.myGender = '';
-        DATA.myNick = '我';
-        DATA.myAvatar = '';
-        DATA.myChatBg = '';
-        DATA.myAppBg = '';
-        DATA.partnerNick = 'TA';
-        DATA.partnerAvatar = '';
-        DATA.partnerGender = '';
-        DATA.periodRecords = [];
-        DATA.periodSettings = { cycleDays: 28, periodDays: 5 };
-        DATA._tombstones = {};
-        DATA.lastReadChatId = 0;
-        DATA._settingsDirty = false;
-        DATA.aiChatHistory = [];
-        DATA.aiChatBg = 'light';
-        // 保留账号无关的偏好设置
-        // theme, cardLocked, glassEnabled 保留
-        LSS('couple_data', DATA);
-        // 刷新头像/昵称显示
-        updateProfileHeader();
-        renderAccountSwitcher();
-    }
     if(user){
-        DATA._userId = user.id;
+        // 🔑 数据隔离：按 userId 装载专属本地缓存，彻底杜绝串号
+        var switched = loadDataForUser(user.id);
+        if(switched){
+            updateProfileHeader();
+            renderAccountSwitcher();
+            refreshAll();
+        }
         saveData();
     }
-    
     showScreen('main-screen');
     pullMyProfile();
     if(cloudSpace){
-        startCloudPoll();      // 立即同步 + 实时订阅
+        startCloudPoll();
         pullPartnerProfile();
         renderProfilePairStatus();
     } else {
-        // 本机没有配对信息：尝试从云端自动找回（退出当前仅清会话不解除绑定，重登自动恢复）
         autoRestoreSpace();
     }
 }
@@ -4018,7 +4043,7 @@ window.endPeriodFromSelected = function(){
     DATA.periodSettings.periodDays = dur;
     if(dur < pSettings.periodDays){ showCaringMsg('early'); }
     else if(dur > pSettings.periodDays){ showCaringMsg('late'); }
-    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
+    try { localStorage.setItem(curDataKey(), JSON.stringify(DATA)); } catch(e){}
     saveData();
     periodSelectedDate = null;
     renderPeriodTracker();
@@ -4033,7 +4058,7 @@ window.delayPeriodFromSelected = function(){
     var target = new Date(dateStr + 'T00:00:00');
     last.delayDays = Math.max(0, Math.round((target - start) / 86400000) - ((DATA.periodSettings && DATA.periodSettings.cycleDays) || 28));
     showCaringMsg('delayed');
-    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
+    try { localStorage.setItem(curDataKey(), JSON.stringify(DATA)); } catch(e){}
     saveData();
     periodSelectedDate = null;
     renderPeriodTracker();
@@ -4237,10 +4262,10 @@ window.recordPeriodStart = function(dateStr){
     if(recs.length > 50) recs.shift();
     // 关键：清掉云端的同日期墓碑，否则下次同步会被墓碑过滤导致记录"刷新后就没了"
     cloudRemovePeriodTombstone(startStr);
-    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
+    try { localStorage.setItem(curDataKey(), JSON.stringify(DATA)); } catch(e){}
     var verified = false;
     try {
-        var back = JSON.parse(localStorage.getItem('couple_data'));
+        var back = JSON.parse(localStorage.getItem(curDataKey()));
         if(back && back.periodRecords){
             for(var vi = 0; vi < back.periodRecords.length; vi++){
                 if(back.periodRecords[vi].start === startStr){ verified = true; break; }
@@ -4248,7 +4273,7 @@ window.recordPeriodStart = function(dateStr){
         }
     } catch(e){}
     if(!verified){
-        try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
+        try { localStorage.setItem(curDataKey(), JSON.stringify(DATA)); } catch(e){}
     }
     saveData();
     renderPeriodTracker();
@@ -5260,10 +5285,10 @@ window.destroyAccount = function(){
                 });
             } catch(e){}
             // 清除本机数据
-            localStorage.removeItem('couple_data');
+            localStorage.removeItem(curDataKey());
             localStorage.removeItem('cloud_session');
             try{ localStorage.removeItem('sb-refresh-token'); }catch(e){}
-            DATA = freshDefaultData();
+            DATA = DEFAULT_DATA();
             // 清除账号列表中的当前账号
             var lsKey = 'cfr_accounts_v1';
             var list = [];
@@ -5284,7 +5309,7 @@ window.destroyAccount = function(){
     });
 };
 
-function freshDefaultData(){
+function DEFAULT_DATA(){
     return {
         startDate: '',
         password: '',
@@ -5767,7 +5792,7 @@ function updateChatUnreadBadges(){
         (DATA.chats||[]).forEach(function(c){ if((c.id||0) > lastId) lastId = c.id; });
         if(lastId > (DATA.lastReadChatId || 0)){
             DATA.lastReadChatId = lastId;
-            LSS('couple_data', DATA);
+            LSS(curDataKey(), DATA);
         }
     }
     var n = inChat ? 0 : computeChatUnread();
@@ -5825,7 +5850,7 @@ window.enterChat = function(){
     var lastId = 0;
     (DATA.chats||[]).forEach(function(c){ if((c.id||0) > lastId) lastId = c.id; });
     DATA.lastReadChatId = lastId;
-    LSS('couple_data', DATA);
+    LSS(curDataKey(), DATA);
     updateChatUnreadBadges();
     $('chat-partner-name').textContent = partnerNick;
     $('msg-chat-view').style.display = '';
@@ -6417,7 +6442,7 @@ window.openSubPanel = function(id){
         var recs = DATA.periodRecords || [];
         if(!recs.length){
             try {
-                var cached = JSON.parse(localStorage.getItem('couple_data'));
+                var cached = JSON.parse(localStorage.getItem(curDataKey()));
                 if(cached && cached.periodRecords && cached.periodRecords.length){
                     DATA.periodRecords = cached.periodRecords;
                     recs = cached.periodRecords;
@@ -6482,7 +6507,7 @@ window.deletePeriodRecord = function(startDate){
     DATA._tombstones.periodRecords = DATA._tombstones.periodRecords || {};
     DATA._tombstones.periodRecords[startDate] = true;
     saveData();
-    try { localStorage.setItem('couple_data', JSON.stringify(DATA)); } catch(e){}
+    try { localStorage.setItem(curDataKey(), JSON.stringify(DATA)); } catch(e){}
     if(sb && cloudSpace){
         cloudPushTombstone().then(function(){
             return trackCloudDelete(sb.from('period_records').delete().eq('start', startDate).eq('couple_id', cloudSpace.couple_id));
@@ -6697,7 +6722,7 @@ window.saveAiKey = function(){
     DATA._settingsDirty = true;
     DATA.periodSettings = DATA.periodSettings || { cycleDays: 28, periodDays: 5 };
     DATA.periodSettings.aiKey = key;
-    LSS('couple_data', DATA);
+    LSS(curDataKey(), DATA);
     if(cloudSpace && !cloudSyncLock){ cloudSyncNow(); }
     $('ai-key-mask').style.display = 'none';
     $('ai-key-input').value = '';
